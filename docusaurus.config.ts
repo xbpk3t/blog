@@ -60,6 +60,7 @@ const config: Config = {
           routeBasePath: '/',
           onUntruncatedBlogPosts: 'ignore',
           blogSidebarCount: "ALL",
+          postsPerPage: 3,
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
