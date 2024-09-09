@@ -1,0 +1,25 @@
+name: Release
+on:
+  push:
+    tags:
+      - 'v*'
+permissions:
+  contents: write
+jobs:
+  release:
+    name: release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@main
+        with:
+          fetch-depth: 0 # note the fetch-depth: 0 input in Checkout step. It is required for the changelog to work correctly.
+      - uses: actions/setup-go@main
+      - uses: goreleaser/goreleaser-action@v5
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          version: '~> v1'
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Your GoReleaser Pro key, if you are using the 'goreleaser-pro' distribution
+          # GORELEASER_KEY: ${{ secrets.GORELEASER_KEY }}

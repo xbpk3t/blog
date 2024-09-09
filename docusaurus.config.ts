@@ -8,8 +8,8 @@ import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 
 const config: Config = {
-  title: 'Hacking',
-  tagline: '博观而约取，厚积而薄发',
+  title: 'Lucas Blog',
+  tagline: 'just for the record',
   favicon: 'img/favicon.ico',
   staticDirectories: ['static'],
 
