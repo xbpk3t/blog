@@ -50,11 +50,14 @@ date: 2024-08-17
 ```
 
 
-> [!TIP]
-> 关于golang的错误处理，归根到底是三点：
-> - 分清楚什么情况下应该使用 Error, Exception, Panic
-> - golang 中怎么使用 Error?
-> - golang项目分层（比如经典的CLD三层）中怎么使用 Error?
+:::tip
+关于golang的错误处理，归根到底是三点：
+
+- 分清楚什么情况下应该使用 Error, Exception, Panic
+- golang 中怎么使用 Error?
+- golang项目分层（比如经典的CLD三层）中怎么使用 Error?
+
+:::
 
 
 这两个问题在 ***[3种方式！Go Error处理最佳实践](https://mp.weixin.qq.com/s?__biz=MzAxMTA4Njc0OQ==&mid=2651453360&idx=1&sn=ec479badda69e92d0f1f52e4bc00358b)*** 中都有解答，以下内容也是对这篇文章的总结

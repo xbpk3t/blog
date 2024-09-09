@@ -4,9 +4,13 @@ date: 2024-08-17
 ---
 
 
-> [!TIP]
-> 本文可以看作是对 [hashmap | Go 程序员面试笔试宝典](https://golang.design/go-questions/map/) 的整理和总结
 
+
+:::tip
+
+本文可以看作是对 [hashmap | Go 程序员面试笔试宝典](https://golang.design/go-questions/map/) 的整理和总结
+
+:::
 
 
 
@@ -18,7 +22,7 @@ date: 2024-08-17
   url:
   qs:
     - q: 用hashtable实现hashmap，和用search-tree实现hashmap，有啥区别？为啥golang, java, redis使用hashtable实现map，而cpp使用RBT实现map？
-    x: 这类问题的本质实际上还是比较hashtable, RBT和trie-tree
+      x: 这类问题的本质实际上还是比较hashtable, RBT和trie-tree
 
 
     - q: map 在遍历时，并不是从 0 号 bucket 开始遍历，而是从一个随机 bucket 的随机 cell 开始遍历
