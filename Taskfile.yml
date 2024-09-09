@@ -1,0 +1,54 @@
+version: '3'
+
+tasks:
+  install:
+    desc: 安装项目依赖
+    cmds:
+      - yarn install
+
+  start:
+    desc: 启动开发服务器
+    cmds:
+      - yarn start
+
+  build:
+    desc: 构建生产版本
+    cmds:
+      - yarn build
+    sources:
+      - src/**
+    generates:
+      - build/
+
+  serve:
+    desc: 服务构建后的静态文件
+    cmds:
+      - yarn serve
+
+  clean:
+    desc: 清理构建文件
+    cmds:
+      - rm -rf build/
+
+  deploy:
+    desc: Deploy To Cloudflare
+    cmds:
+      - yarn build
+      - npx wrangler pages deploy "build" --project-name="docs" --branch="gh-pages"
+      - rm -rf build/ .docusaurus
+    depends:
+      - build
+
+  lint:
+    desc: 代码质量检查
+    cmds:
+      - yarn lint
+
+  test:
+    desc: 运行测试
+    cmds:
+      - yarn test
+
+  bundle:
+    cmds:
+      - docusaurus build --bundle-analyzer

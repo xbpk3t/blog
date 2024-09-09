@@ -1,0 +1,731 @@
+
+
+
+```yaml
+- year: 2023
+  mvs:
+    - name: 《年会不能停》
+      dict: 董润年
+      score: 8
+      tag: [讽刺喜剧]
+    - name: 《孤注一掷》
+      dict: 申奥
+      score: 7
+      tag: [犯罪片, 反诈宣传片]
+      des: 讨论电诈主题，还不错
+
+
+- year: 2021
+  mvs:
+    - name: 《扬名立万》
+      dict: 刘循子墨
+      score: 7
+      tag: [悬疑喜剧]
+      des: 很成熟的剧本杀电影，结尾也留了个扣子。优点是剧本和制作都很成熟。
+
+
+- year: 2019
+  mvs:
+    - name: 《哪吒之魔童降世》
+      dict: 饺子
+      score: 7
+      des: 哪吒和太乙真人在画卷里斗法那段的3D效果太好了，让人印象深刻
+
+    - name: 《南方车站的聚会》
+      dict: 刁亦男
+      score: 7
+      url: https://movie.douban.com/subject/27668250/
+      tag: [犯罪片]
+
+    - name: 《我和我的祖国》
+      tag: [主旋律拼盘电影, 并列分段式叙事]
+      score: 8
+      des: 拼盘电影，除了陈凯歌的《白昼流星》，质量都挺高的。这部比后面的《我和我的家乡》、《我和我的父辈》都更好。
+
+    - name: 《寄生虫》
+      dict: 奉俊昊
+      score: 9
+      url: https://movie.douban.com/subject/27010768/
+      tag: [黑色幽默惊悚剧情片]
+      des: 类似主题的电影，好于《燃烧》
+
+    - name: 《误杀》
+      url: https://m.douban.com/movie/subject/30176393/
+      dict: 柯汶利
+      score: 7
+      tag: [悬疑犯罪, 翻拍片]
+      des: 肖央主演，翻拍自印度电影《误杀瞒天记》，在保留其优点的情况下，做了不少原创性的改编。个人认为比原作更好。
+
+    #- name: 《地久天长》
+    #  dict: 王小帅
+    #  des: 其实很一般
+
+    #- name: 《风雨云》
+    #  dict: 娄烨
+
+
+
+- year: 2018
+  mvs:
+    - name: 《燃烧》
+      dict: 李沧东
+      score: 8
+      url: https://m.douban.com/movie/subject/26842702/
+      tag: [悬疑犯罪]
+
+    - name: 《暴裂无声》
+      dict: 忻钰坤
+      score: 8
+      url: https://movie.douban.com/subject/26647117/
+      tag: [悬疑犯罪, 追凶]
+
+
+    - name: 《我不是药神》
+      dict: 文牧野
+      score: 8
+      url: https://m.douban.com/movie/subject/26752088/
+      tag: [现实主义题材剧情片]
+      des: 现实题材+中等体量+小队电影
+
+    - name: 《无双》
+      dict: 庄文强
+      score: 7
+      tag: [犯罪悬疑]
+
+
+    - name: 《红海行动》
+      dict: 林超贤
+      score: 7
+      tag: [军事动作片]
+      des: 也门撤侨嘛
+    - name: 《邪不压正》
+      dict: 姜文
+      score: 7
+      tag: [武侠动作喜剧]
+    - name: 《调音师》
+      tag: [悬疑+喜剧]
+      score: 7
+      des: 印度片，确实不错
+
+    - name: 《西红市首富》
+      tag: [荒诞喜剧]
+      score: 7
+      dict: 闫非、彭大魔
+
+
+    - name: 《海市蜃楼》
+      dict: 奥里奥尔·保罗
+      score: 8
+      tag: [悬疑, 平行时空]
+
+
+
+
+- year: 2017
+  mvs:
+    - name: 《战狼2》
+      dict: 吴京
+      score: 7
+      tag: [军事动作片, 主旋律]
+    - name: 《不成问题的问题》
+      dict: 梅峰
+      score: 8
+      tag: [现实主义题材剧情片]
+      des: 这个导演之前一直是娄烨几部电影的编剧，所以腔调也类似。
+
+    - name: 《看不见的客人》
+      dict: 奥里奥尔·保罗
+      score: 8
+      tag: [悬疑犯罪片, 罗生门式叙事]
+      des: 《瞒天过海》
+
+    - name: 《心理游戏》
+      dict: 大卫芬奇
+      score: 7
+      des: 《游戏之夜》
+
+    - name: 《王者》
+      dict: 韩在林
+      score: 7
+      des: 实话说真挺好看
+
+
+- year: 2016
+  mvs:
+    - name: 《八恶人》
+      dict: 昆汀
+      score: 8
+
+    - name: 《追凶者也》
+      dict: 曹保平
+      score: 8
+      tag: [悬疑, 犯罪, 多线叙事]
+      des: “五星杀手”
+
+
+    - name: 《罗曼蒂克消亡史》
+      dict: 程耳
+      score: 7
+
+- year: 2015
+  mvs:
+    - name: 《无人生还》
+      des: 阿加莎克里斯蒂
+      score: 8
+    - name: 《烈日灼心》
+      dict: 曹保平
+      score: 8
+    - name: 《心迷宫》
+      dict: 忻钰坤
+      score: 8
+      tag: [多视角叙事]
+
+- year: 2014
+  mvs:
+    - name: 《白日焰火》
+      dict: 刁亦男
+      score: 8
+      tag: [现实主义题材+悬疑犯罪]
+    - name: 《走到尽头》
+      dict: 金成勋
+      tag: [喜剧+悬疑]
+      score: 6
+      des: 特意加了一些恐怖片拍法，让人印象深刻。
+
+
+    - name: 《一步之遥》
+      dict: 姜文
+      score: 7
+      url: https://www.chinawriter.com.cn/news/2014/2014-12-26/229210.html
+      des: 真就是我很喜欢的一个片
+
+
+    - name: 《消失的爱人》
+      dict: 大卫芬奇
+      score: 7
+
+
+- year: 2013
+  mvs:
+    - name: 《彗星来的那一夜》
+      dict: 布柯特
+      score: 9
+      tag: [平行时空]
+    - name: 《恐怖直播》
+      dict: 金秉祐
+      score: 7
+      des:
+    - name: 《新世界》
+      dict: 朴勋正
+      tag: [警匪犯罪片, “无间道”类型]
+      score: 8
+      des: 崔岷植、李政宰、黄政民主演，也算是经典了
+    - name: 《中国合伙人》
+      dict: 陈可辛
+      score: 8
+      des: 新东方
+
+
+
+- year: 2012
+  mvs:
+    - name: 《与犯罪的战争：坏家伙的全盛时代》
+      dict: 尹钟彬
+      score: 8
+      tag: [犯罪剧情片]
+
+
+- year: 2011
+  mvs:
+    - name: 《钢的琴》
+      dict: 张猛
+      score: 8
+      tag: [现实主义黑色喜剧, 东北题材]
+      des: 王千源主演。张猛最熟悉和擅长的“东北题材”。
+
+
+
+- year: 2010
+  mvs:
+    - name: 《让子弹飞》
+      dict: 姜文
+      score: 9
+      tag: []
+
+    - name: 《盗梦空间》
+      dict: 诺兰
+      score: 9
+      tag: []
+
+    - name: 《夺命金》
+      dict: 杜琪峰
+      score: 9
+      tag: []
+      des: 个人比较喜欢的一部
+
+    - name: 《黄海》
+      dict: 罗泓轸
+      score: 7
+      tag: []
+      des: 河正宇主演的那个，实话说剧情有点猎奇了，但是演员演技什么的没话说
+
+
+- year: 2009
+  mvs:
+    - name: 《疯狂的赛车》
+      dict: 宁浩
+      score: 9
+      tag: [黑色喜剧, 多线叙事]
+      des: 5条故事线，耿浩、考研二人组、李法拉、东哥、警察，互相交叉。非线性叙事玩的比《疯狂的石头》更精熟了。
+    - name: 《窃听风云》
+      dict: 麦兆辉、庄文强
+      score: 8
+      tag: []
+      des: 还是第一部比较经典，刘青云、古天乐和吴彦祖主演
+    - name: 《李献计历险记》
+      dict: 李阳
+      score: 7
+      tag: []
+      des: 2011年由郭帆和李阳根据这部动画改编了同名电影
+
+
+
+- year: 2008
+  mvs:
+    - name: 《无人区》
+      dict: 宁浩
+      score: 8
+      tag: []
+      des: 徐峥主演。也算是公路片。
+    - name: 《耳朵大有福》
+      dict: 张猛
+      score: 9
+      tag: []
+      des: 范伟主演
+
+
+- year: 2007
+  mvs:
+    - name: 《太阳照常升起》
+      dict: 姜文
+      score: 9
+      tag: [闭合型环形叙事]
+    - name: 《投名状》
+      dict: 陈可辛
+      score: 8
+      tag: []
+    - name: 《老无所依》
+      dict: 科恩兄弟
+      score: 8
+      tag: []
+    - name: 《落叶归根》
+      dict: 张杨
+      score: 8
+      tag: [公路片]
+      des: 赵本山主演，讲述了民工老赵为使好友老刘死后“落叶归根”，一路上历尽艰难将老刘尸体运回老家的故事。最好的公路片。
+
+    - name: 《导火线》
+      dict: 叶伟信
+      score: 7
+      tag: [打戏巅峰]
+      des: 邹兆龙和甄子丹的打戏很经典
+    - name: 《别拿自己不当干部》
+      dict: 冯巩
+      tag: [喜剧片]
+
+    - name: 《门徒》
+      dict: 尔冬升
+      des: 就是刘德华和吴彦祖主演的那个
+
+
+- year: 2006
+  mvs:
+    - name: 《疯狂的石头》
+      dict: 宁浩
+      score: 8
+      tag: [黑色幽默, 多线叙事]
+
+    - name: 《致命魔术》
+      dict: 诺兰
+      score: 8
+      tag: [悬疑]
+
+    - name: 《光荣的愤怒》
+      dict: 曹保平
+      score: 8
+      tag: []
+      url: https://www.bilibili.com/video/BV1oL4y1w7Ah
+      des: 乡村版《让子弹飞》
+
+    - name: 《黑社会2 以和为贵》
+      dict: 杜琪峰
+      score: 8
+      tag: []
+      des: 已经是经典了，时代切片
+
+    - name: 《红辣椒》
+      dict: 今敏
+      score: 8
+      des: 梦境、梦的解析、诡异、欲望
+
+
+
+- year: 2005
+  mvs:
+    - name: 《求求你，表扬我》
+      dict: 黄建新
+      score: 9
+      tag: [现实主义题材]
+      url: https://www.bilibili.com/video/BV1ma411j7Pj/
+      des: 范伟主演，
+
+    - name: 《黑社会》
+      dict: 杜琪峰
+      score: 8
+      tag: []
+      des:
+
+    - name: 《杀破狼》
+      dict: 叶伟信
+      tag: [动作片]
+      score: 7
+      des: 第一部里吴京和甄子丹的打戏太经典了
+
+
+- year: 2003
+  mvs:
+    - name: 《致命ID》
+      dict: 詹姆斯·曼高德
+      score: 8
+      tag: []
+
+    - name: 《PTU》
+      dict: 杜琪峰
+      score: 8
+      tag: []
+      des: 杜琪峰的第二个高峰期作品，以其独特的叙事和风格成为银河映像的代表作之一
+
+- year: 2002
+  mvs:
+    - name: 《寻枪》
+      dict: 姜文
+      score: 8
+      tag: [犯罪悬疑]
+
+    - name: 《猫鼠游戏》
+      dict: 斯皮尔伯格
+      score: 8
+      des: 小李子和汤姆汉克斯主演
+
+- year: 2000
+  mvs:
+    - name: 《江湖告急》
+      dict: 林超贤
+      score: 8
+      tag: ["黑社会喜剧?"]
+      des: 解构黑社会道义
+
+
+- year: 1999
+  mvs:
+    - name: 《枪火》
+      dict: 杜琪峰
+      score: 8
+      tag: [犯罪]
+      des: 以其独特的枪战美学风格而著称，银河映像的经典作品
+
+- year: 1998
+  mvs:
+    - name: 《楚门的世界》
+      score: 8
+
+    - name: 《没事偷着乐》
+      dict: 杨亚洲
+      score: 8
+      des: 改编自刘恒的小说《贫嘴张大民的幸福生活》，冯巩和丁嘉丽主演，还有个梁冠华主演的同名电视剧。某种城市土著小市民的喜剧版《活着》。我个人很喜欢。
+
+    - name: 《非常突然》
+      dict: 游达志
+      score: 8
+      des: 结尾牛逼
+
+
+
+- year: 1997
+  mvs:
+    - name: 《爱情麻辣烫》
+      dict: 张扬指导，刁亦男编剧
+      score: 8
+      tag: [爱情片, 并列分段式叙事]
+
+    - name: 《心慌方》
+      score: 8
+      des: 也就是《异次元杀阵》
+
+    - name: 《有话好好说》
+      dict: 张艺谋
+      score: 8
+      des: 姜文主演
+
+    - name: 《大转折》
+      dict: 韦廉
+      score: 10
+      des: 分为上集《鏖战鲁西南》和下集《挺进大别山》两集
+
+
+    - name: 《一个字头的诞生》
+      dict: x
+      score: 8
+      des: 银河映像的开山之作，具有标志性的黑色幽默和荒诞风格
+
+    - name: 《未麻的部屋》
+      score: 8
+
+- year: 1996
+  mvs:
+    - name: 《大进军》
+      dict: 八一厂（韦林玉、赵继烈、杨光远、韦廉）
+      tag: [战争史诗/纪录片]
+      score: 10
+      des: 继《大决战》，《大转折》之后出品的解放战争系列电影，包括《大进军：解放大西北》、《大进军：南线大追歼》、《大进军：席卷大西南》、《大进军：大战宁沪杭》四部
+
+- year: 1995
+  mvs:
+    - name: 《十二猴子》
+      dict: 特里·吉列姆
+      score: 8
+    - name: 《七宗罪》
+      dict: 大卫芬奇
+      score: 8
+    - name: 《红灯停，绿灯行》
+      dict: 黄建新
+      score: 8
+
+- year: 1994
+  mvs:
+    - name: 《阳光灿烂的日子》
+      dict: 姜文
+      score: 9
+
+    - name: 《活着》
+      dict: 张艺谋
+      score: 9
+      des: 某种反向的《阿甘正传》
+    - name: 《阿甘正传》
+      score: 8
+      des: 共和党宣传片，经典的“”套路
+    - name: 《低俗小说》
+      dict: 昆汀
+      score: 9
+      tag: [环形叙事]
+
+    - name: 《肖申克的救赎》
+      score: 9
+
+    - name: 《背靠背，脸对脸》
+      dict: 黄建新
+      score: 9
+
+    - name: 《股疯》
+      dict: 李国立
+      score: 8
+
+
+
+- year: 1993
+  mvs:
+    - name: 《土拨鼠之日》
+      tag: [时间循环设定]
+      score: 9
+      des: 时间循环设定电影的先行者，之后还有《明日边缘》、《蝴蝶效应》、《忌日快乐》、《恐怖游轮》、《源代码》
+
+    - name: 《站直啰！别趴下》
+      dict: 黄建新
+      score: 9
+      des: 改开初期的时代切片，
+
+- year: 1992
+  mvs:
+    - name: 《落水狗》
+      dict: 昆汀
+      score: 9
+      tag: [黑色幽默犯罪片, 非线性叙事]
+
+
+
+- year: 1991
+  mvs:
+    - name: 《过年》
+      dict: 黄健中
+      score: 9
+      des: 全明星阵容，赵丽蓉饰演妈妈，李保田饰演爸爸，六小龄童饰演大儿子，丁嘉丽饰演大儿媳，葛优饰演二姐夫，梁天饰演三儿子。
+    - name: 《大决战》
+      dict: 八一厂（韦廉、）
+      score: 10
+      des: 三部六集，分别为 《大决战之辽沈战役》《大决战之淮海战役》《大决战之平津战役》
+
+
+- year: 1990
+  mvs:
+    - name: 《本命年》
+      dict: 谢飞
+      score: 7
+      des: 姜文主演，改编自刘恒小说《黑的雪》。从计划经济到市场经济的时代交错中的时代切片。
+
+    - name: 《双旗镇刀客》
+      dict: 何平
+      score: 7
+      des: 借鉴了美国西部片和日本剑侠片，将故事置于双重封闭的空间。
+
+    - name: 《好家伙》
+      dict: 老马丁
+      score: 9
+
+
+- year: 1989
+  mvs:
+    - name: 《赌神》
+      dict: 王晶
+      score: 8
+
+
+
+- year: 1988
+  mvs:
+    - name: 《阿基拉》
+      dict: 大友克洋
+      des: 日本动画的里程碑式作品，被广泛认为是反乌托邦科幻片的代表作，“赛博朋克”概念的发轫之作。
+
+
+
+- year: 1986
+  mvs:
+    - name: 《芙蓉镇》
+      dict: 谢晋
+      score: 9
+      des:
+
+    - name: 《黑炮事件》
+      dict: 黄建新
+      score: 9
+      des: 带点“殇味”，但是确实挺好看的，也值得警醒。
+
+- year: 1984
+  mvs:
+    - name: 《高山下的花环》
+      dict: 谢晋
+      tag: [战争片]
+      score: 10
+      des: 最好的战争片
+
+
+- year: 1983
+  mvs:
+    - name: 《包氏父子》
+      dict: 谢铁骊
+      score: 8
+      des: 关于人性的寓言，永不过时的话题
+
+
+- year: 1982
+  mvs:
+    - name: 《骆驼祥子》
+      author: 凌子风
+      des: 改编自老舍的同名作品，演员选角太好了。张丰毅的祥子、斯琴高娃的虎妞、殷新的小福子、颜彼得的刘四爷
+
+
+
+- year: 1981
+  mvs:
+    - name: 《天云山传奇》
+      dict: 谢晋
+      score: 8
+
+- year: 1980
+  mvs:
+    - name: 《愤怒的公牛》
+      dict: 老马丁
+      score: 9
+
+    - name: 《405谋杀案》
+      dict: 沈耀庭
+      score: 9
+      tag: [政治惊悚片, 悬疑]
+      des: 国内整个70年代初到80年代末众多敌特片、警匪片中的佼佼者。
+
+
+    - name: 《戴手铐的旅客》
+      dict: 于洋
+      tag: [反特片]
+      des: 主题曲《驼铃》太经典了，
+
+    - name: 《蓝调兄弟 (The Blues Brothers)》
+      score: 7
+      des: 剧情很一般，可以理解为公路片形式的喜剧音乐片，其特点在于剧情用。比如James Brown演牧师，Matt Guitar和Aretha Franklin演夫妻，甚至连Cab Calloway都有献唱，还有Ray Charles和John Lee Hooker的表演
+
+
+- year: 1979
+  mvs:
+    - name: 《保密局的枪声》
+      dict: 常彦
+      score: 8
+
+
+- year: 1976
+  mvs:
+    - name: 《出租车司机》
+      dict: 老马丁
+      score: 9
+
+- year: 1963
+  mvs:
+    - name: 《野火春风斗古城》
+      dict: 八一电影制片厂（严寄洲）
+      des: 改编自李英儒的同名长篇小说，
+
+
+
+
+- year: 1961
+  mvs:
+    - name: 《暴风骤雨》
+      dict: 谢铁骊
+      score: 9
+      des: 改编自周立波于1948年创作的同名小说，
+
+
+- year: 1958
+  mvs:
+    - name: 《永不消逝的电波》
+      dict: 八一厂（王苹）
+      score: 9
+      des: 根据真实历史故事原型改编
+
+    - name: 《英雄虎胆》
+      dict: 八一厂（严寄洲）
+      score: 8
+      des: 基于广西剿匪的历史原型真实事件改编，于洋主演。
+
+
+- year: 1957
+  mvs:
+    - name: 《控方证人》
+      dict: 比利·怀尔德
+      score: 9
+
+- year: 1954
+  mvs:
+    - name: 《渡江侦察记》
+      dict: 上影厂（汤晓丹）
+      des: 改编自“先遣渡江英雄连”的真实事迹，
+
+
+- year: 1950
+  mvs:
+    - name: 《日落大道》
+      dict: 比利·怀尔德
+      score: 9
+
+
+
+```

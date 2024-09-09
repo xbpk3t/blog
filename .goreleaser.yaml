@@ -1,0 +1,47 @@
+project_name: docs
+#builds:
+#  - main:
+#      goos:
+#        - darwin
+#        - linux
+#      goarch:
+#        - amd64
+#  - main:
+#      goos:
+#        - windows
+#      goarch:
+#        - amd64
+
+#release:
+#  github:
+#    owner: your-github-username
+#    name: your-github-repo
+#    release_name_template: "{{ .Tag }}"
+#    draft: false
+#    prerelease: false
+#  changelog:
+#    sort: desc
+#    filters:
+#      exclude:
+#        - '^docs:'
+#        - '^test:'
+builds:
+  - skip: true
+changelog:
+  use: github
+  sort: asc
+  groups:
+    - title: Features
+      regexp: "^.*feat[(\\w)]*:+.*$"
+      order: 0
+    - title: Bug fixes
+      regexp: "^.*fix[(\\w)]*:+.*$"
+      order: 1
+    - title: Documentation updates
+      regexp: "^.*docs[(\\w)]*:+.*$"
+      order: 2
+    - title: Refactoring
+      regexp: "^.*refactor[(\\w)]*:+.*$"
+      order: 3
+    - title: Others
+      order: 4

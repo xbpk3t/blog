@@ -1,0 +1,156 @@
+/**
+ * Any CSS included here will be global. The classic template
+ * bundles Infima by default. Infima is a CSS framework designed to
+ * work well for content-centric websites.
+ */
+
+/* You can override the default Infima variables here. */
+:root {
+  --ifm-color-primary: #2e8555;
+  --ifm-color-primary-dark: #29784c;
+  --ifm-color-primary-darker: #277148;
+  --ifm-color-primary-darkest: #205d3b;
+  --ifm-color-primary-light: #33925d;
+  --ifm-color-primary-lighter: #359962;
+  --ifm-color-primary-lightest: #3cad6e;
+  --ifm-code-font-size: 95%;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+}
+
+/* For readability concerns, you should choose a lighter palette in dark mode. */
+[data-theme='dark'] {
+  --ifm-color-primary: #25c2a0;
+  --ifm-color-primary-dark: #21af90;
+  --ifm-color-primary-darker: #1fa588;
+  --ifm-color-primary-darkest: #1a8870;
+  --ifm-color-primary-light: #29d5b0;
+  --ifm-color-primary-lighter: #32d8b4;
+  --ifm-color-primary-lightest: #4fddbf;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+  --color-neutral-muted: rgba(175,184,193,0.2);
+  --borderColor-neutral-muted: rgba(175,184,193,0.2);
+}
+
+img:not(.avatar__photo) {
+  /* 图片等比例缩小 */
+  max-width: 70%;
+  /* 居中展示 */
+  /*padding-left: 20%;*/
+}
+
+
+img[src*="#w60"] {
+  width: 60%;
+}
+
+img[src*="#w50"] {
+  width: 50%;
+}
+
+img[src*="#w40"] {
+  width: 40%;
+}
+
+img[src*="#w30"] {
+  width: 30%;
+}
+
+img[src*="#w20"] {
+  width: 20%;
+}
+
+code {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  padding: 0.2em 0.4em;
+  margin: 0;
+  font-size: 85%;
+  white-space: break-spaces;
+  border-radius: 6px;
+  border: 1px solid var(--borderColor-neutral-muted, var(--color-neutral-muted));
+}
+
+/*.alert--security {*/
+/*  --ifm-alert-background-color: rgba(212, 53, 28, 0.5);*/
+/*  --ifm-alert-background-color-highlight: rgba(212, 53, 28, 0.15);*/
+/*  --ifm-alert-foreground-color: rgb(66,69,73);*/
+/*  --ifm-alert-border-color: #d4351c;*/
+/*}*/
+
+/*html[data-theme='dark'] .alert--security {*/
+/*  --ifm-alert-background-color: rgba(212, 53, 28, 0.5);*/
+/*  --ifm-alert-background-color-highlight: rgba(212, 53, 28, 0.15);*/
+/*  --ifm-alert-foreground-color: rgb(255,255,255);*/
+/*  --ifm-alert-border-color: #d4351c;*/
+/*}*/
+
+/* 移除默认样式 */
+/*input[type="checkbox"] {*/
+/*  -webkit-appearance: none;*/
+/*  -moz-appearance: none;*/
+/*  appearance: none;*/
+/*  outline: none;*/
+/*  border: none;*/
+/*  background-color: transparent;*/
+/*  width: 16px;*/
+/*  height: 16px;*/
+/*  border-radius: 3px;*/
+/*  cursor: pointer;*/
+/*  vertical-align: middle;*/
+/*}*/
+
+/* 添加自定义的勾选样式 */
+/*input[type="checkbox"]:checked::before {*/
+/*  content: '\2705';*/
+/*  display: inline-block;*/
+/*  width: 16px;*/
+/*  height: 16px;*/
+/*  text-align: center;*/
+/*  color: #fff;*/
+/*  background-color: #4CAF50;*/
+/*  border-radius: 3px;*/
+/*  vertical-align: middle;*/
+/*}*/
+
+/* 为未选中的复选框添加样式 */
+/*input[type="checkbox"]:not(:checked)::before {*/
+/*  content: '\2B55';*/
+/*  display: inline-block;*/
+/*  width: 16px;*/
+/*  height: 16px;*/
+/*  text-align: center;*/
+/*  color: #999;*/
+/*  font-weight: bold;*/
+/*  vertical-align: middle;*/
+/*}*/
+
+/* 右侧 TOC 的 hover 背景色 */
+.table-of-contents__link:hover, .table-of-contents__link:hover code, .table-of-contents__link--active, .table-of-contents__link--active code {
+  background-color: #efefef;
+  --pad-inline: .5rem;
+  border-radius: .25rem;
+}
+
+/* 暂停更新文档 */
+/*a.menu__link[href*="diary"],*/
+/*a.menu__link[href*="fc2"] {*/
+/*  text-decoration: line-through;*/
+/*}*/
+
+/* 重要文档 */
+/*a.menu__link[href="/docs/"],*/
+/*a.menu__link[href="/life/"] {*/
+/*  font-weight: bold;*/
+/*  font-style: italic;*/
+/*}*/
+
+/*used to hide specific md files*/
+/*.hidden {*/
+/*  display: none !important;*/
+/*}*/
+
+
+/* 如果*/
+/*.navbar {*/
+/*  !*background-color: transparent;*!*/
+/*  display: none;*/
+/*}*/
