@@ -89,8 +89,8 @@ Rockabilly是乡村音乐和节奏布鲁斯相结合的产物。
 60年代后期越来越多的Blues Rock乐队走上了实验性的道路，尝试更多音色和技巧上的可能性，不复之前简单而强劲的节奏。听众们亟需一种类似于之前Blues Rock的音乐风格，Boogie Rock因此而生。所以它也可以看做是Blues Rock的一次自我割裂。
 
 再说说这种风格的特点。
-顾名思义，Boogie Rock可以看做是用摇滚乐的电声乐器取代了传统Boogie Woogie中的钢琴的一种音乐风格。 
-继承自Boogie Woogie的4/4拍带来一种从始至终的紧张感，稳定的打击乐后置重音则将这种紧张感稳定下来( Boogie rockers concentrate on the groove, working a steady, chugging back beat, often in shuffle time)。相比于跳跃布鲁斯又或者John Lee Hooker的风格呢，又没有布鲁斯和弦（有的时候会有），没有传统的布鲁斯唱腔。 
+顾名思义，Boogie Rock可以看做是用摇滚乐的电声乐器取代了传统Boogie Woogie中的钢琴的一种音乐风格。
+继承自Boogie Woogie的4/4拍带来一种从始至终的紧张感，稳定的打击乐后置重音则将这种紧张感稳定下来( Boogie rockers concentrate on the groove, working a steady, chugging back beat, often in shuffle time)。相比于跳跃布鲁斯又或者John Lee Hooker的风格呢，又没有布鲁斯和弦（有的时候会有），没有传统的布鲁斯唱腔。
 
 这种风格集中在70年代的一批英国摇滚乐队，可以看做是白人乐手们在借鉴布鲁斯的同时，又想要摆脱布鲁斯的一次尝试，所以单单只拿了boogie这种元素。比较有名的乐队有 Canned Heat, Vardis, Molly Hatchet, Status Quo, Savoy Brown, Foghat，包括ZZ Top, AC/DC都有类似的尝试。
 ```

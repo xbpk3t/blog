@@ -19,5 +19,5 @@ title: ssh协议
     # ssh-keygen -t ed25519 -f my_company_ed25519 -C "email@example.com" # 我在企业
     - ["ssh-copy-id -i <~/.ssh/id_rsa.pub> <user>@<ip>", "上传公钥到目标服务器（将本机的公钥复制到远程机器的authorized_keys文件中），相当于 pbcopy命令。⚠️ 复制之后最好在服务端验证一下。"]
     - ["chmod 755 ~/.ssh && chmod 644 ~/.ssh/known_hosts && chmod 600 ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa.pub", "⚠️ 在 客户端 设置权限。修改 known_hosts文件 的权限。修改 私钥和公钥 的权限。"]
-  
+
 ```

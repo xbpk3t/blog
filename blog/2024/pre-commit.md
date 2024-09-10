@@ -1,5 +1,5 @@
 ---
-title: 为什么在CI中用pre-commit代替linters是更好的选择?
+title: 为什么在CI中应该用pre-commit代替linters?
 date: 2024-07-31
 ---
 
@@ -148,9 +148,9 @@ date: 2024-07-31
 - url: https://github.com/jorisroovers/gitlint
   des: git commit msg linter.
   cmd:
-#	- c: gitlint install-hook
-#	  x: 使用gitlint时，必须先用这个命令生成.git/hooks/commit-msg，才能正常使用
-#	- c: gitlint uninstall-hook
+# - c: gitlint install-hook
+#   x: 使用gitlint时，必须先用这个命令生成.git/hooks/commit-msg，才能正常使用
+# - c: gitlint uninstall-hook
 
 - url: https://github.com/pre-commit-ci/pre-commit-ci-config
 - url: https://github.com/igorshubovych/markdownlint-cli

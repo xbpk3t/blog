@@ -18,7 +18,7 @@ date: 2024-08-17
     - q: panic
       u: https://www.hitzhangjie.pro/blog/2021-04-16-%E5%A6%82%E4%BD%95%E7%9C%8B%E5%BE%85gopanic%E5%8F%8A%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86/
       x: “异常+try-catch，本质上将当前操作的错误处理逻辑转换为了caller要解决的问题，并没有少写多少错误处理代码，反而，同一异常处理代码在多个try-catch中被拷贝，而且可读性更差了。错误发生地、错误处理地分散在不同地方，能说是可读性好吗？我不这么认为。”
-      
+
     - q: 操作数据库时，比如 dao 层中遇到一个 sql.ErrNoRows 时，是否应该 wrap 这个 error，抛给上层；为什么？应该怎么做？请写出代码
       u: https://github.com/kevinyan815/gocookbook/issues/66
       x: 总结一下，错误处理的原则就是：错误只在逻辑的最外层处理一次，底层只返回错误。底层除了返回错误外，要对原始错误进行包装，增加错误信息、调用栈等这些有利于排查的上下文信息。
@@ -41,12 +41,12 @@ date: 2024-08-17
 
     - q: errors.Join()使用场景
       x: 比如说对并发task的error的统一收集，类似ErrorGroup
-      
+
     - q: 如果需要格式化错误，*应该用`fmt.Errorf(...)`代替`errors.New(fmt.Sprintf(...))`*；如果不需要格式化错误，直接`errors.New()`即可.
 
     - q: golang中用errors.New(), errors.Is() 怎么判断err是否相同？
       x: 需要注意errors.Is()判断err是否相同时，需要两个参数都是直接引用var声明的err，如果只是err的text相同，会返回false。这个应该是基本常识了。
-              
+
 ```
 
 
@@ -101,10 +101,10 @@ golang 处理 error 则直接参考 [crunchy/errors.go at master · muesli/crunc
 ```yaml
 - type: Golang-Error-Handle
   repo:
-	- url: https://github.com/hashicorp/go-multierror
-	  des: 用来将多个error添加到MultiError中，并在需要时一起处理。可以避免传统handle error时的繁琐代码。
-	- url: https://github.com/samber/oops
-	  des: Error handling library with context, assertion, stack trace and source fragments
+ - url: https://github.com/hashicorp/go-multierror
+   des: 用来将多个error添加到MultiError中，并在需要时一起处理。可以避免传统handle error时的繁琐代码。
+ - url: https://github.com/samber/oops
+   des: Error handling library with context, assertion, stack trace and source fragments
 
 ```
 

@@ -37,7 +37,7 @@ date: 2024-08-17
     - q: hmap struct 中有哪些是主要字段？hmap 的 extra 有啥用？
     - q: hmap 中的负载因子 B 是什么？为什么是 6.5？负载因子如何影响map的性能？溢出率
       x: LB是最大可容纳元素数，用来衡量当前哈希表中空间利用率的核心指标。是因为负载因子太大了，会有很多溢出的桶；太小了，就会浪费很多空间。
-      
+
 #    - q: bmap 是什么？为什么golang的map还需要bmap？ bucket
 
     - q: map扩容机制
@@ -46,9 +46,9 @@ date: 2024-08-17
 
     - q: golang中map进行 读操作 的具体过程(查找数据的具体流程)?
       x: key 经过 hash 后共 64 位，根据 hmap 中 B 的值，计算它到底要落在哪个桶时，桶的数量为 2^B，如 B=5，那么用 64 位最后 5 位表示第几号桶，在用 hash 值的高 8 位确定在 bucket 中的存储位置，当前 bmap 中的 bucket 未找到，则查询对应的 overflowbucket，对应位置有数据则对比完整的哈希值，确定是否是要查找的数据。如果当前 map 处于数据搬移状态，则优先人 oldbuck-ets 查找。
-      
+
     - q: golang中map进行 写操作 的具体过程?
-      
+
     - q: golang map是怎么解决hash collision的? Why?
       x: CA
 
@@ -61,19 +61,19 @@ date: 2024-08-17
     # map常用操作
     - q: "***golang 修改map中的元素? 怎么修改map of struct中的的值 (原地修改map)?***"
       u: https://blog.csdn.net/W25679/article/details/124604637
-      
+
     - q: How to convert []map to []struct?
 
     - q: map[string]interface{} to struct
-      
+
     - q: 怎么用map实现并发读写?
       x: 比较 "mutex+map" 和 sync.Map
-      
+
     - q: How to check efficiently if a map contains a key in Go?
       x: comma ok idiom (whether err/kv/chan exist, datatype detect)
 
     - q: How to check whether the key of map exists?
-      
+
     - q: "***手写实现 golang 中 map 的有序查找，且支持 add、支持 delete、支持迭代？构造一个辅助 slice***"
       u: https://gist.github.com/hxhac/ddab2b9d20186ff27ec0e159e835e779
       x: How does map read data? And the specific process for finding key, assigning key, deleting key and traversing key?
@@ -102,15 +102,15 @@ date: 2024-08-17
 
 ```go
 type hmap struct {
-	count     int
-	flags     uint8
-	B         uint8
-	noverflow uint16
-	hash0     uint32
-	buckets    unsafe.Pointer
-	oldbuckets unsafe.Pointer
-	nevacuate  uintptr
-	extra *mapextra // optional fields
+ count     int
+ flags     uint8
+ B         uint8
+ noverflow uint16
+ hash0     uint32
+ buckets    unsafe.Pointer
+ oldbuckets unsafe.Pointer
+ nevacuate  uintptr
+ extra *mapextra // optional fields
 }
 ```
 
