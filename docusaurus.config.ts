@@ -125,6 +125,12 @@ const config: Config = {
         minHeadingLevel: 2,
         maxHeadingLevel: 5,
       },
+      giscus: {
+        repo: 'hxhac/blog',
+        repoId: 'R_kgDOMu21Og',
+        category: 'General',
+        categoryId: 'DIC_kwDOMu21Os4CiXzW',
+      },
       zoom: {
         selector: '.markdown :not(em) > img',
         background: {
