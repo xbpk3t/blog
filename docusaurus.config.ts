@@ -91,10 +91,6 @@ const config: Config = {
     //     highlightSearchTermsOnTargetPage: true,
     //   }
     // ]
-    [
-      require("./src/plugins/plugin-baidu-analytics"),
-      {trackingID: "codeva-k52LGhLalP"}, //  传入trackingID参数
-    ],
   ],
   themeConfig:
     ({
