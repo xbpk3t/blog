@@ -385,7 +385,7 @@ title: movies.yml
       dict: 杜琪峰
       score: 8
       tag: []
-      des:
+      des: 
 
     - name: 《杀破狼》
       dict: 叶伟信
@@ -418,6 +418,10 @@ title: movies.yml
       dict: 斯皮尔伯格
       score: 8
       des: 小李子和汤姆汉克斯主演
+    - name: 《无间道》
+      dict: 刘伟强 / 麦兆辉
+
+
 
 - year: 2000
   mvs:
@@ -476,9 +480,10 @@ title: movies.yml
 
 
     - name: 《一个字头的诞生》
-      dict: x
+      dict: 韦家辉
       score: 8
       des: 银河映像的开山之作，具有标志性的黑色幽默和荒诞风格
+
 
     - name: 《未麻的部屋》
       score: 8
@@ -552,6 +557,9 @@ title: movies.yml
       dict: 昆汀
       score: 9
       tag: [黑色幽默犯罪片, 非线性叙事]
+    - name: 《新龙门客栈》
+      dict: 李惠民
+
 
 
 
@@ -565,6 +573,13 @@ title: movies.yml
       dict: 八一厂（韦廉、）
       score: 10
       des: 三部六集，分别为 《大决战之辽沈战役》《大决战之淮海战役》《大决战之平津战役》
+    - name: 《跛豪》
+      dict: 麦当雄、潘文杰
+      des: 对 德帕尔马《疤面煞星》的致敬之作，情节上有诸多相似之处，这点不必讳言。但是仍然是香港黑道传记类电影的开山之作，之后的《O记三合会档案》洪门三合会、《惊天大贼王》张子强、《濠江风云》尹国驹、《一代枭雄之三支旗》陈志超和李洛夫、《五亿探长雷洛传》。
+    - name: 《黄飞鸿》
+      dict: 徐克
+
+
 
 
 - year: 1990
@@ -619,6 +634,9 @@ title: movies.yml
       tag: [战争片]
       score: 10
       des: 最好的战争片
+    - name: 《省港旗兵》
+      dict: 麦当雄
+      des: 整个系列都还不错
 
 
 - year: 1983
@@ -627,6 +645,11 @@ title: movies.yml
       dict: 谢铁骊
       score: 8
       des: 关于人性的寓言，永不过时的话题
+    
+    - name: 《疤面煞星》
+      dict: 德帕尔马
+      score: 8
+
 
 
 - year: 1982
@@ -634,6 +657,9 @@ title: movies.yml
     - name: 《骆驼祥子》
       author: 凌子风
       des: 改编自老舍的同名作品，演员选角太好了。张丰毅的祥子、斯琴高娃的虎妞、殷新的小福子、颜彼得的刘四爷
+    - name: 《牧马人》
+      author: 谢晋
+      des: 不变的是生活的勇气、对祖国的热爱
 
 
 
@@ -672,12 +698,19 @@ title: movies.yml
       dict: 常彦
       score: 8
 
-
 - year: 1976
   mvs:
     - name: 《出租车司机》
       dict: 老马丁
       score: 9
+
+- year: 1975
+  mvs:
+    - name: 《热天午后》
+      dict: 希德尼·鲁迈特
+      score: 7
+      des: 艾尔·帕西诺太帅了
+
 
 - year: 1963
   mvs:

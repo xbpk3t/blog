@@ -1,0 +1,43 @@
+name: Linters
+on:
+  push:
+    branches: [main]
+#  pull_request:
+
+
+jobs:
+
+  #  lint:
+  #    name: Linters
+  #    runs-on: ubuntu-latest
+  ##    runs:
+  ##      using: 'node20'
+  #    steps:
+  #      - uses: actions/checkout@main
+  #        with:
+  #          fetch-depth: 0
+  #      - uses: github/super-linter@v4
+  #        env:
+  #          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #          DEFAULT_BRANCH: main
+  #          LINTER_RULES_PATH: .github/linters # 设置markdownlint.yml的路径，默认在.github/linters下
+  #          VALIDATE_MARKDOWN: true # 开启md检测
+  #          MARKDOWN_CONFIG_FILE: markdownlint.yml
+  ##          FILTER_REGEX_EXCLUDE: (docs/.*|blog/.*|.github/.*|.*chglog/.*|.*[.]puml$| *img/.*)
+  #          IGNORE_GITIGNORED_FILES: true # 忽略gitignore中的文件
+  #          VALIDATE_YAML: true # 开启yaml检测
+  #          YAML_CONFIG_FILE: yamllint.yml
+  #          YAML_ERROR_ON_WARNING: true
+  #          VALIDATE_GITHUB_ACTIONS: true # 开启github actions检测
+
+
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@main
+      - uses: actions/setup-python@main
+        with:
+          python-version: 3.x
+      - uses: pre-commit/action@main # 相当于 pre-commit run --all-files
+#      - uses: pre-commit-ci/lite-action@v1.0.2
+#        if: always()
