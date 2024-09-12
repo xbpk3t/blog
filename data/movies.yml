@@ -1,9 +1,3 @@
----
-title: movies.yml
----
-
-
-```yaml
 - year: 2023
   mvs:
     - name: 《年会不能停》
@@ -385,7 +379,7 @@ title: movies.yml
       dict: 杜琪峰
       score: 8
       tag: []
-      des: 
+      des:
 
     - name: 《杀破狼》
       dict: 叶伟信
@@ -645,7 +639,7 @@ title: movies.yml
       dict: 谢铁骊
       score: 8
       des: 关于人性的寓言，永不过时的话题
-    
+
     - name: 《疤面煞星》
       dict: 德帕尔马
       score: 8
@@ -763,4 +757,3 @@ title: movies.yml
 
 
 
-```
