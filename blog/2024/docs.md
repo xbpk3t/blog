@@ -1845,4 +1845,19 @@ type - repo - qs
 
 
 
+---
+
+:::tip
+
+weekly schedule
+
+我打算每周把scratch同步到docs之后，都release docs
+
+---
+
+其实现在docs的这套workflow，相较于之前“无限堆积”到
+
+
+:::
+
 

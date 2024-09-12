@@ -147,15 +147,15 @@
     - url: https://github.com/laravel/valet
       des: |
         大概是最好用的laravel开发环境部署工具，比 Vagrant 和 Homestead 之类的都更易用。实话说PHP开发环境确实挺难搞的，要弄一堆东西，如果用valet的话，就舒服很多。另外，valet除了原生支持laravel以外，还支持slim, symfony, wordpress以及Drupal, CakePHP之类很多国外比较常用的PHP框架，如果官方不支持也可以从gh搜到类似 ThinkPHP5ValetDriver 这样的driver，非常实用，可以免受各种安装PHP环境之苦。
-        
+
         吐槽一下valet，不得不说虽然已经，但是使用流程仍然很别扭，最核心的问题就是，不应该用composer来安装valet（而是应该用）。可以理解为层级问题，依赖关系为php -> composer -> valet，然后需要用valet再
-        
+
         需要先park再link，park本身就可以给该dir下的所有
-        
+
         pecl install igbinary
-        
+
         pecl install redis
-        
+
         我不理解，为啥用valet提供的虚拟域名，就会报“不支持: redis”的bug，用 run启动built-in的server，就没有这个问题。有点离谱，就这个问题至少搞了1h。
       cmd:
         - c: valet park

@@ -34,7 +34,7 @@ tasks:
     desc: Deploy To Cloudflare
     cmds:
       - yarn build
-      - npx wrangler pages deploy "build" --project-name="docs" --branch="gh-pages"
+      - npx wrangler pages deploy "build" --project-name="blog" --branch="gh-pages"
       - rm -rf build/ .docusaurus
     depends:
       - build

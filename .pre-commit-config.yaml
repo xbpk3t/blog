@@ -64,7 +64,8 @@ repos:
     hooks:
       - id: gitleaks
         name: Scan Secrets
-        entry: gitleaks detect --source . -v
+        entry: gitleaks detect --source . -v -c .github/linters/.gitleaks.toml
+
 
   - repo: https://github.com/antonbabenko/pre-commit-terraform
     rev: v1.90.0
