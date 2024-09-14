@@ -71,12 +71,12 @@ const config: Config = {
 
   plugins: [
     require.resolve('docusaurus-plugin-image-zoom'),
-    // [
-    //   '@docusaurus/plugin-ideal-image',
-    //   {
-    //     disableInDev: false,
-    //   },
-    // ],
+    [
+      '@docusaurus/plugin-ideal-image',
+      {
+        disableInDev: false,
+      },
+    ],
     // 'docusaurus-plugin-sass',
     // [
     //   require.resolve('@easyops-cn/docusaurus-search-local'),
