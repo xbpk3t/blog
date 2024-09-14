@@ -1,6 +1,6 @@
 ---
 title: docs
-date: 2024-05-22
+date: 2000-01-01
 ---
 
 ## How-To-Manage-Docs
@@ -645,7 +645,7 @@ Used to stash task
 - 默认不写到 docs 文件，需要在，否则 log 就又变成 docs 的前置，就很蠢。log 天然是分散的，最好还是能在 log 内解决，厚积而薄发，可以针对某些问题，写 blog 或者 docs，但是只是其中的极少数。
 
 
-![docs-log-process.svg](./img/docs/docs-log-process.svg)
+![docs-log-process.svg](../2024/img/docs/docs-log-process.svg)
 
 
 ---
@@ -1214,7 +1214,7 @@ blog要是抽象的，足以不断写下去，可以不断更新的。比如说�
 
 
 
-![docs.svg](./img/docs/docs.svg)
+![docs.svg](../2024/img/docs/docs.svg)
 
 
 ---
@@ -1839,7 +1839,7 @@ type - repo - qs
 ### [2024/9/10]
 
 
-![docsV1](./img/docs/docsV1.svg)
+![docsV1](../2024/img/docs/docsV1.svg)
 
 
 

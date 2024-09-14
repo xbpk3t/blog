@@ -1,6 +1,6 @@
 ---
 title: 设计模式
-date: 1994-08-14
+date: 2024-09-14
 ---
 
 ## Design Pattern
