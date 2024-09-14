@@ -1861,3 +1861,26 @@ weekly schedule
 :::
 
 
+
+- gh.yml 的问题嵌套
+- 把 gh.yml 中 cmd的渲染做成table
+
+
+---
+
+曾经有该需求，现在没这个需求了，怎么办 比如mac gif recorder
+
+这是建立在 scratch支持sync，以及周末一定能xxx的基础上
+
+并且这套workflow对工作习惯有一定的要求
+
+能优化自己的工作习惯
+
+
+
+某种艾宾浩斯
+
+不用担心（），其实就是伸缩性更好、更灵活而已
+
+
+
