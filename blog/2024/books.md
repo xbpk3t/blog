@@ -1,5 +1,6 @@
 ---
 title: books.yml
+date: 1994-08-14
 ---
 import CodeBlock from '@theme/CodeBlock';
 import books from '!!raw-loader!../../data/books.yml';

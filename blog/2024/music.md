@@ -1,4 +1,8 @@
-
+---
+title: music常识
+slug: music
+date: 2024-09-14
+---
 
 
 ## blues

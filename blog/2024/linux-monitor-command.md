@@ -1,5 +1,6 @@
 ---
 title: linux性能监控命令
+date: 2024-09-14
 ---
 
 ## monitor 操作
