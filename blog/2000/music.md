@@ -1,6 +1,6 @@
 ---
 title: music常识
-slug: music
+slug: /music
 date: 2000-01-01
 ---
 

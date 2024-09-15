@@ -1,6 +1,7 @@
 ---
 title: docs
 date: 2000-01-01
+slug: /docs
 ---
 
 ## How-To-Manage-Docs
@@ -86,7 +87,7 @@ md 是最自由的，相比于 text 也有基本的样式支持。
 
 [notable/notable: The Markdown-based note-taking app that doesn't suck.](https://github.com/notable/notable) 提供的各种笔记软件的comparison可以看看
 
-![comparison](img/docs/comparison.png "dd")
+![comparison](img/docs/comparison.webp "dd")
 <center>*仅供参考，可以把这些对比项，作为核心需求的补充*</center>
 
 

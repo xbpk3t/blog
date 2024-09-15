@@ -10,7 +10,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 const config: Config = {
   title: 'Lucas Blog',
   tagline: 'just for the record',
-  favicon: 'img/favicon.ico',
+  favicon: 'img/favicon.svg',
   staticDirectories: ['static'],
 
   // Set the production url of your site here

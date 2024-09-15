@@ -257,3 +257,27 @@ date: 2024-09-07
 - [你如何筛选和过滤个人信息源，以确保获取到最有价值的信息？ - MBA智库问答](https://www.mbalib.com/ask/question-c2f24bb641873c7eba93fc18d84e5e5e.html)
 
 
+
+
+## [2024-09-15] x
+
+
+
+Bili2text
+
+
+[我用 5 分钟，读完了 80 分钟的视频 - 少数派](https://sspai.com/post/82478)
+
+
+
+[更好的播客搜索与分享？](https://blog.kylehe.me/2021/12/27/better-podcast-search-and-share)
+
+
+[播客批量转文字可行方法的实战总结 - 少数派](https://sspai.com/post/88790)
+
+
+transkriptor
+
+
+
+

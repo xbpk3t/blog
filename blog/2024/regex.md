@@ -1,5 +1,7 @@
 ---
 date: 2024-09-14
+title: regex
+slug: /2024/regex
 ---
 
 
