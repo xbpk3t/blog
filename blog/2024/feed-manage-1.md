@@ -1,7 +1,7 @@
 ---
 title: 信息源管理1（rss）
 date: 2024-05-22
-slug: feed-manage-1
+slug: /2024/feed-manage-1
 ---
 
 
