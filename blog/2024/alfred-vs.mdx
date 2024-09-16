@@ -1,0 +1,32 @@
+---
+title: alfred-vs
+slug: /2024/alfred-vs
+date: 2024-09-16
+---
+
+
+
+```yaml
+- url: https://github.com/matryer/xbar
+  des: Menubar Management, similar tools like BitBar, hiddenbar, Billboard, SketchyBar
+- url: https://github.com/copiousfreetime/launchy
+- name: Maestro
+  des: alfred 目前提供的模板还是不够灵活，不如Maestro的Prompt For Snippet。
+- name: Raycast
+  des: Raycast Store(raycast官方wf), 内置支持查询 chrome 书签, 窗口调节。raycast 相当于和 alfred 打了个错位。alfred 是核心的 workflow 功能收费，raycast 对应的插件功能免费，但是其他一些功能收费，并且还不便宜，让人感觉不太值。raycast 的窗口更类似一个 APP，支持后退、下拉选择等功能，alfred 则完全是一个简单而强大的启动器，更 geek 一些。
+- name: Wox
+  url: https://github.com/Wox-launcher/Wox
+  des: 胜在开源，v1是C#实现的，只支持windows系统，v2是golang实现的（GUI基于Tauri + React），支持cross-platform，试用了一下，体验挺差的，不仅UI很丑，响应等各方面也不如alfred。plugins生态也很差，官网plugins列表上看到，v1的生态还行，但是plugins普遍都是10年前更新的了，v2又没生态，很尴尬。
+- name: Sol
+  url: https://github.com/ospfranco/sol
+  des: 基于ts实现，gh上只有不到2k的star
+- name: Hammerspoon
+  url: https://github.com/Hammerspoon/hammerspoon
+  des: 相比于alfred，其最大的feat是事件触发器，比如手动触发、事件触发（比如“连上公司 wifi 后自动静音”这样的自动化操作确实省心）、定时触发、条件触发。如果 mac 的 shortcut 支持自动化的话，也可以实现类似功能。另外需要注意hs只能用lua写plugin。可以参考 https://github.com/xiaojundebug/hammerspoon-config
+- name: AutoHotkey
+  url: https://github.com/AutoHotkey/AutoHotkey
+  des: ahk嘛，支持cross-platform，以其强大的热键功能、热字符串、宏录制和 GUI 控件创建而闻名，但是需要写ahk script来实现自定义脚本。
+- name: Flow.Launcher
+  url: https://github.com/Flow-Launcher/Flow.Launcher
+  des: fl只支持Windows，写plugin只支持C#, F#, Python, js和ts
+```
