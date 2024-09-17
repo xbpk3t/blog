@@ -55,3 +55,9 @@ tasks:
   bundle:
     cmds:
       - docusaurus build --bundle-analyzer
+
+
+  pre-commit:
+    cmds:
+      - pre-commit run --all-files
+
