@@ -10,11 +10,14 @@ tasks:
     desc: 启动开发服务器
     cmds:
       - yarn start
+      - defer: rm -rf .docusaurus
+
 
   build:
     desc: 构建生产版本
     cmds:
       - yarn build
+      - defer: rm -rf .docusaurus build
     sources:
       - src/**
     generates:
