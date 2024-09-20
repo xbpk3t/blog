@@ -1,0 +1,1262 @@
+---
+title: 备份gh.yml中废弃的repo命令
+date: 2024-09-19
+slug: /2024/deprecated-commands
+description: 从 gh.yml 废弃掉的一些命令
+---
+
+
+
+:::danger
+
+tldr
+
+
+
+:::
+
+
+
+
+
+
+## linux常用命令
+
+```yaml
+
+- name: du
+  commands:
+    - ["du -sh * | sort -h", "disk usage, 查看文件夹下各文件大小，并排序"]
+- name: df
+  commands:
+    - ["df -lh", "disk free"]
+- name: cat
+  commands:
+    - ["cat <string> > <filename>", "cover file"] # write file
+    - ["cat <string> >> <filename>", "append file"]
+    - ["cat /dev/null > {cursor}", "用cat命令清空文件"]
+    - ["cat <filename> | sort | uniq -c | sort -k1,1nr | head -10", "统计文件中出现次数最多的前10个单词"]
+- name: type
+  commands:
+    - ["type <command>", "用来查看某个命令是否是系统自带命令"]
+
+
+- name: systemctl
+  commands:
+    - ["systemctl start|stop|restart|status <service>", "比如 systemctl status crond 检查crond是否启动"]
+    - ["systemctl restart <service>"]
+    - ["systemctl enable <service>", "设置开机自启，比如systemctl enable docker"]
+    - ["systemctl disable <service>"]
+    - ["systemctl list-unit-files | grep enable", "查看所有的开机自启项，也可以 systemctl list-unit-files | grep <service> 来查看某个service是否开机自启"]
+- name: open
+  commands:
+    - ["open -t <filename>", "使用默认编辑器打开文件"]
+    - ["open -e <filename>", "使用“文本编辑器”打开文件"]
+    - ["open -a <editor> <filename>", "使用“指定应用程序”打开文件，比如 open -a goland，使用goland打开文件"]
+
+
+- name: vim
+  commands:
+    - ["vim --version", "查看 vim 版本"]
+
+
+
+- name: history
+  commands:
+    - ["history -20 -1", "display the last 20 commands"]
+    - ["history 1 20", "display the first 20 commands"]
+    - ["history 1", "display all commands(from first to last)"]
+    - ["history 10600", "display from n to last"]
+    - ["history -E", "with timestamp format"]
+    - ["history -i", "with timestamp format"]
+
+```
+
+
+```yaml
+#- name: linux
+#  commands:
+#    - ["print -P %F{<color> '<text>'", "用来在console打印彩色输出 ZSH understands the colors black, red, green, yellow, blue, magenta, cyan and white by default! The -P option of the print command allows you to let zsh do prompt expansion and with this insert colour changing codes into the output."]
+#    - ["ip=$(ifconfig en0 | grep 'inet .*'  | sed 's/^.*inet//g' | sed 's/ netmask.*//g') && echo $ip"]
+#    - ["trzsz --dragfile ssh <root@ip>", "trzsz"]
+#    - ['echo -e "$(cmd)"', "使用 `echo -e`+双引号，避免（换行符等）特殊字符问题（保证特殊字符不会丢失）"]
+# echo -n, echo默认换行，使用echo -n 可以解决字符串被换行的问题
+
+#    - ["sed -n '1w <output-file>' <input-file>", "把input-file的第一行写入output-file"]
+
+# vmrss
+# vmmap -summary <pid | process name>
+
+
+#  xxx:
+#    - ps
+#    - dig
+#    - kill
+#    - alias
+#    - unalias
+#    - setenv
+#    - groups
+#    - whoami
+#    - tar
+#    - gzip
+#    - zip
+#    - ln
+#    - curl
+#    - transfer files (ffff, xxx, zzz)
+#    - wget
+#    - rsync
+#    - scp
+#    - sort (sort -t ':' -k 3, 以第三栏进行排序)
+#    - uniq (cat+sort+uniq很常用，把文件排序之后，再去重)
+#    - awk
+#    - nmap(用来扫描局域网下的IP地址)
+#    - read file (cat/head/tail/more/less)
+```
+
+
+
+
+
+## network 操作
+
+
+```yaml
+- name: iproute2
+  commands:
+    - ["ip link show", "显示出所有可用网络接口的列表"]
+    - ["ip neigh", "查看内核的ARP表"]
+    - ["ip addr show", "相当于net-tools中的ifconfig"]
+
+```
+
+
+
+
+
+
+
+## linux性能监控命令
+
+```yaml
+
+- name: sar
+  commands:
+    - ["sar <type> <type-param> <interval> <count>", "只有type参数必填，其他可选. 类型: 比如CPU、内存、网络. 类型参数: 有的类型带有参数，有的没有。这里的DEV，代表的是监控网卡信息. 时间间隔，表示多少秒采样一次数据，这里的1就是1秒. 次数，表示采样的次数。比如时间间隔是3，采样次数是4，那么sar命令将会阻塞12秒钟"]
+    - ["sar -u", "CPU利用率"]
+    - ["sar -q", "CPU负载"]
+    - ["sar -I", "CPU中断"]
+    - ["sar -w", "CPU上下文切换"]
+    - ["sar -r", "内存利用率"]
+    - ["sar -S", "swap交换分区"]
+    - ["sar -v", "内核使用情况"]
+    - ["sar -B", "内存分页"]
+    - ["sar -d", "相当于iostat"]
+
+
+- name: iperf3
+  commands:
+    - ["iperf3 -c 192.168.30.2", "测试 TCP 吞吐量"]
+    - ["", "测试 UDP 吞吐量"]
+    - ["iperf3 -c 192.168.0.120 -P 30 -t 60", "测试多线程 TCP 吞吐量"]
+    - ["iperf3 -u -c 192.168.1.1 -b 5M -P 30 -t 60", "测试多线程 UDP 吞吐量"]
+    - ["iperf3 -c 192.168.0.120 -d -t 60", "进行上下行带宽（TCP双向传输）"]
+    - ["iperf3 -u -c 192.168.1.1 -b 100M -d -t 60", "测试上下行带宽（UDP双向传输）"]
+
+- name: netstat
+  des: 显示网络连接，路由表和网络接口信息
+- name: iostat
+  des: 用来查看 Linux 的 IO 负载情况
+- name: vmstat
+  des: 实时显示网络流量和包数
+- name: numastat
+```
+
+
+
+
+
+
+## git
+
+
+```yaml
+  cmd:
+    - c: git config --list
+      k: true
+    - c: 'git commit -m "<type>(<scope>): <subject> <footer>" -m "Description <body>"'
+      x: 'git commit -m "fix(sms): 修复短信到达率问题 fix #12, fix #13, fix #14" -m "通过xxx修复该bug"'
+    - c: git log --graph --date=short
+      x: 查看提交记录，相当于glods
+    - c: glods --grep <keywords>
+      x: 搜索提交记录，非常好用
+    - c: git reflog
+      x: reflog 是一个本地结构，它记录了 HEAD 和分支引用在过去指向的位置。reflog 信息没法与其他任何人共享，每个人都是自己特有的 reflog。重要的一点是，它不是永久保存的，有一个可配置的过期时间，reflog 中过期的信息会被自动删除。我们在使用reset后，部分代码会丢失，如果这时想找回这些代码，就可以使用reflog
+    - c: git remote rm origin && git remote add origin <url>
+      x: git 怎么修改远程仓库地址
+    - c: git rm -r --cached .
+      x: 忽略规则不生效，清空git缓存，撤销已经写到缓存区文件的修改
+    - c: git push -f
+      x: 强制推送
+    - c: git checkout .
+      x: 放弃本地所有修改
+    - c: git remote -v
+      x: 查看git的远程仓库地址
+    - c: git diff <filename>
+    - c: git diff .
+    - c: git diff --cached .
+      x: 展示和暂存区的差异，而git diff .展示和工作区的差异
+    - c: git reset [--mixed | --soft | --hard] <起始点的父提交>
+      x: 三种reset type，默认mixed 回退到某个版本，本地会保留源码，回退 commit 和 index 信息，若要提交重新 commit。soft 回退到某个版本，只回退了 commit 的信息，不会恢复到 index file 一级，若要提交重新 commit。Hard 彻底回退到某个版本，本地的源码也会变为上一个版本的内容。
+    - c: git reset HEAD~3
+    - c: git reset --merge
+      x: 用来撤销合并，也可以与mixed/soft/hard搭配使用
+    - c: git rebase -i HEAD~n
+      x: 合并前n个commit。需要注意的是，编辑时把pick改为s即可，记得第一个不要修改（需要父commit）
+    - c: git stash
+    - c: git filter-branch
+    - c: git cherry-pick
+    - c: git work-together
+    - c: git config -f .gitmodules submodule.xxx.ignore dirty
+      x: 忽略子模块的脏commit
+    - c: git clone url path --recursive
+      x: clone包含submodule的repo
+    - c: git blame <filename> -L 10,20
+      x: 查看10到20行，blame命令 我们往往通过blame查到具体是哪个人修改了某文件到某块代码，找到这个背锅侠。也可以使用 'git blame <filename> -L:<func_name>'
+    - c: git grep -n -p <str>
+      x: 从当前branch中查找指定字符串，相比于 'git grep -n <str>' 会显示匹配行以及上下几行的内容
+    - c: git grep -n -p <str> <commit号/tag号>
+      x: 从指定commit中查找指定字符串
+    - c: git rev-list --all | xargs git grep <str>
+      x: 从所有历史commit中查找指定字符串
+    - c: git count-objects -v
+      x: 查看git仓库大小
+    - c: git filter-branch --force --index-filter 'git rm -rf --cached --ignore-unmatch <filename>' --prune-empty --tag-name-filter cat -- --all
+      x: 怎么从所有git记录中查找指定字符串？？？ 需要按照上面输出的大文件，指定文件或者文件夹
+    - c: git push origin --force --all && rm -rf .git/refs/original/ && git reflog expire --expire=now --all && git gc --prune=now
+      x: 怎么压缩 git 项目？push后，并清除本地缓存。删除之后会有大量输出，显示已经从各自历史log中剔除掉关于这个大文件的信息，之后可以使用gc命令再次压缩。一定要执行“清除缓存”。另外，之后最好从远程重新拉取。
+      u: https://juejin.cn/post/6844904046797520909
+    - c: git maintenance run --task=gc --task=loose-objects --task=pack-refs && git prune
+      x: used to reduce git repo size, equal to 'git gc'
+    - c: git push --force --all --tags
+      x: gp默认只有main分支，如果使用git push --all就可以推送所有branch，使用git push --all --tags可以顺便推送所有tag
+    - c: git log -S <str>
+      x: 从所有commit的内容中查找str
+```
+
+## bfg
+
+
+```yaml
+- url: https://github.com/rtyley/bfg-repo-cleaner
+  des: bfg, 经过测试，发现 bfg 只能修改 commit 历史，但是无法直接修改当前文件
+  cmd:
+    - c: bfg --delete-files id_{dsa,rsa}
+      x: 删除所有含有 'id_rsa' or 'id_dsa' 的文件
+    - c: bfg --strip-blobs-bigger-than 50M
+      x: 删除所有超过50MB的blobs文件
+    - c: bfg --replace-text <filepath> --no-blob-protection
+      x: 替换文件中的敏感信息（不删除文件）
+```
+
+
+## k8s
+
+
+```yaml
+- url: https://github.com/kubernetes/kubernetes
+  doc: https://gist.github.com/naviat/446d1be0a5a03bad1d7113d1abf082c7
+  cmd:
+    - c: kubectl get <pods|ingress>
+      x: 显示一个或者多个资源, [查看 default 命名空间的数据]
+    - c: kubectl get no -o wide
+    - c: kubectl describe no
+    - c: kubectl get no -o yaml
+    - c: kubectl get node -selector=[label]
+    - c: kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=='ExternalIP')].adress}'
+    - c: kubectl get po --shaw-labels
+    - c: kubectl get po -l app=nginx
+    - c: kubectl get pod [pod_name] -o yaml --export
+    - c: kubectl get pod [pod_name] -o yaml --export > nameoffline.yaml
+    - c: kubectl get pods --filed-selector status.phase=Running
+    - c: kubectl get pods --all-namespaces
+      x: 查看所有 namespace 的数据
+    - c: kubectl get pods --field-selector=status.phase=Running
+      x: 查询命名空间下所有在运行的 pod
+    - c: kubectl get pod pod-name -o=yaml
+      x: 查询资源当下在集群中的属性
+    - c: kubectl api-resources --namespaced --verbs=list -o name
+    - c: kubectl apply -f <resources.yaml>
+      x: 提交资源给集群应用
+    - c: kubectl apply -f <resources.yaml> --record
+      x: 并记录版本，想用 K8s 中--Deployment 资源的回滚能力的话，还得让 K8s 记住每个版本都提交了什么，这个功能可以通过--record 选项开启
+    - c: kubectl describe pod <pod-name>
+      x: 查看资源对象的事件信息，比如退出码
+    - c: kubectl logs <podname> -n <namespace>
+      x: 查看容器日志
+    - c: kubectl logs <podname> --previous
+      x: 如果恰巧这个Pod 被重启了，查不出来任何东西，可以通过增加 —previous 参数选项，查看之前容器的日志
+    - c: kubectl describe
+    - c: kubectl create
+      x: 从文件或者标准输入创建资源
+    - c: kubectl update
+      x: 从文件或者标准输入更新资源
+    - c: kubectl delete
+      x: 通过文件名、标准输入、资源名或者 label selector 删除资源
+    - c: kubectl log
+      x: 输出 pod 中一个容器的日志
+    - c: kubectl rolling-update
+    - c: kubectl exec
+      x: 在容器内部执行命令
+    - c: kubectl port-forward
+      x: 将本地端口转发到 pod
+    - c: kubectl proxy
+      x: 为 k8s API server 启动代理服务器
+    - c: kubectl run
+      x: 在集群中使用指定镜像启动容器
+    - c: kubectl expose
+      x: 将 replication controller service 或者 pod 暴露为新的 k8s service
+    - c: kubectl label
+      x: 更新资源的 label
+    - c: kubectl config
+      x: 修改 k8s 配置文件
+    - c: kubectl config get-contexts
+      x: 获取k8s的所有context
+    - c: kubectl config use-context <rancher-desktop>
+      x: 设置k8s的context
+    - c: kubectl cluster-info
+      x: 显示集群信息
+    - c: kubectl api-versions
+      x: 以 '组/版本' 的格式输出服务端支持的 API 版本
+    - c: kubectl drain
+      x: 用于将节点标记为不可调度并驱逐上面运行的所有 Pod。这在需要维护节点或将其从集群中移除时很有用。当你想要停止一个节点上的所有工作负载，并将其迁移到其他节点时，可以使用 kubectl drain。
+    - c: kubectl delete pod <pod-name>
+    - c: kubectl get ns
+    - c: kubectl get ns -o yaml
+    - c: kubectl get <xxx> -o wide
+      x: find resources in default namespace
+    - c: kubectl get <xxx> -o yaml
+    - c: kubectl get <deploy|svc|ds|events|sa|rs|secrets|cm|ing|pv|pvc|sc>
+      x: kubectl get svc, po
+    - c: kubectl get all
+      x: kubectl get all --all-namespaces
+    - c: kubectl get ds --all-namespaces
+    - c: kubectl describe ds [daemonset_name] -n [namespace_name]
+    - c: kubectl get sa default -o yaml > ./sa.yaml
+    - c: kubectl replace serviceaccount default -f ./sa.yaml
+    - c: kubectl get cm --all-namespaces
+    - c: kubectl get cm --all-namespaces -o yaml
+    - c: kubectl get ing --all-namespaces
+    - c: kubectl taint <node_name> <taint_name>
+    - c: kubectl <cordon|uncordon> <node_name>
+    - c: kubectl port-forward <image> <port:port>
+      x: 用来在apply服务之前验证是否可用，kubectl port-forward svc/http-echo 8080:5678
+```
+
+
+
+## ansible
+
+```yaml
+- url: https://github.com/ansible/ansible
+  cmd:
+    - c: ansible all -m ping -u bruce
+      x: 检查所有的远程主机，是否以 bruce 用户创建了 ansible 主机可以访问的环境
+    - c: ansible all -a "/bin/echo hello"
+      x: 在所有的远程主机上，以当前 bash 的同名用户，在远程主机执行“echo bash”
+    - c: ansible all -m user -a "name=foo password=<crypted password here>"
+      x: 添加用户
+    - c: ansible web -m service -a "name=httpd state=started"
+      x: 启动服务
+    - c: ansible web -m git -a "repo=git://..."
+      x: 下载 git 包
+    - c: ansible lb -a "/sbin/reboot" -f 10
+      x: 并行执行：启动 10 个并行进行执行重启
+    - c: ansible all -m setup
+      x: 查看远程主机的全部系统信息
+    - c: ansible <xxx> --list-host
+      x: 查看组中的 host 清单
+    - c: ansible-playbook -v playbook/centos.yml --list-hosts
+      x: 查看脚本影响到的 hosts
+    - c: ansible-playbook --check playbook/centos.yml -i hosts
+      x: 预执行，查看 playbook 语法是否正确，以及在目标服务器上是否能够执行成功 (但是并不保证一定能够执行成功)
+    - c: ansible-playbook -v playbook/centos.yml -i hosts
+      x: 执行并查看输出细节
+    - c: ansible-playbook --check playbook/helloworld.yml -i hosts
+      x: 执行基础 playbook，确定 playbook 是否 work
+    - c: ansible all -m command -a 'echo Hello World on Docker.'
+      x: 确保 ssh 能够连接所有目标服务器 (请一定确认 ssh 连接已建立，因为未建立 ssh 连接也会成功)
+```
+
+
+
+## tofu
+
+
+```yaml
+tofu apply -auto-approve
+```
+
+
+## goreleaser
+
+```yaml
+- url: https://github.com/goreleaser/goreleaser
+  cmd:
+    - c: goreleaser check
+    - c: goreleaser build
+```
+
+
+## colima
+
+```yaml
+- url: https://github.com/abiosoft/colima
+  des: colima的proxy太折磨了，现在会自动detect proxy，所以就不需要手动配置proxy了，但是能够detect到，不意味着能成功使用，所以启动之后最好再docker pull alpine看看docker能否成功fetch image
+  cmd:
+    - c: colima restart
+    - c: colima start && colima start --kubernetes
+    - c: colima status
+    - c: colima start --runtime containerd
+    - c: colima template
+      x: Setting the default config
+    - c: colima list
+    - c: colima start --edit
+    - c: colima stop
+    - c: colima start --cpu 4 --memory 6 --disk 100 --vm-type=qemu --mount-type=sshfs --dns=1.1.1.1
+    - c: colima start --mount $HOME/project:/project:w
+      x: Mounting Volumes
+    - c: colima delete
+      x: delete colima and all settings
+```
+
+
+
+## minikube
+
+
+```yaml
+- url: https://github.com/kubernetes/minikube
+  des: 内置了k8s dashboard，非常棒，可以完美替换掉colima+k8s dashboard，并且解决了很多colima的小毛病。
+  cmd:
+    - c: minikube dashboard
+      x: 启动 Minikube 的 Kubernetes dashboard
+    - c: minikube start --driver=docker --container-runtime=docker
+      x: 使用 Docker 作为虚拟化程序和容器运行时启动 Minikube
+    - c: eval $(minikube docker-env)
+      x: 设置环境变量，使得 Docker 能够构建和运行 Minikube 中的镜像
+    - c: minikube addons list
+      x: 列出所有可用的 Minikube 插件（addons）
+```
+
+
+## fish-shell
+
+
+```yaml
+- url: https://github.com/fish-shell/fish-shell
+  cmd:
+    - c: fish_config
+```
+
+
+## k9s
+
+```yaml
+- url: https://github.com/derailed/k9s
+  cmd:
+    - c: k9s version
+    - c: k9s info
+      x: To get info about K9s runtime (logs, configs, etc..)
+    - c: k9s help
+      x: List all available CLI options
+    - c: k9s -n mycoolns
+      x: To run K9s in a given namespace
+    - c: k9s --context coolCtx
+      x: Start K9s in an existing KubeConfig context
+    - c: k9s --readonly
+      x: Start K9s in readonly mode - with all cluster modification commands disabled
+```
+
+
+## helm
+
+```yaml
+- url: https://github.com/helm/helm
+  doc: https://helm.sh/docs/
+  cmd:
+    - c: helm completion
+    - c: helm create
+    - c: helm dependency
+    - c: helm env
+    - c: helm install <bitnami/mysql>
+      x: 安装指定服务
+    - c: helm uninstall
+    - c: helm lint
+    - c: helm ls
+      x: helm list 的 alias
+    - c: helm package
+      x: 把Chart目录打包为Chart归档文件
+    - c: helm pull
+    - c: helm push
+    - c: helm registry
+    - c: helm show [chart|crds|readme|values|all] <bitnami/mysql>
+      x: 获取Chart相关信息
+    - c: helm get [hooks|manifest|notes|values|all]
+      x: 获取Release相关信息
+    - c: helm status
+      x: 用来追踪release状态 helm status happy-panda
+    - c: helm template
+    - c: helm upgrade
+    - c: helm verify
+    - c: helm search
+      x: helm search repo bitnami
+    - c: helm repo list
+    - c: helm repo add <name> <url>
+      x: 添加chart仓库
+    - c: helm repo update
+      x: 确保我们拿到最新的charts列表
+    - c: helm history
+      x: 查看某个Release的版本记录
+    - c: helm rollback
+      x: 把某个Release回滚到某个版本
+    - c: helm plugin [install|uninstall|update] <pkg>
+      x: helm plugin update dashboard
+    - c: helm plugin list
+    - c: helm completion [bash|fish|powershell|zsh]
+      x: 为指定的shell生成自动补全脚本
+    - c: helm registry [login|logout]
+      x: 登录或登出注册表
+    - c: helm diff upgrade my-release stable/postgresql --values values.yaml
+      x: databus23/helm-diff, used to show a diff explaining what a helm upgrade would change
+      qs:
+    - q: Repository, Chart, Release
+      x: 从repo下载chart，然后把chart部署为release（到k8s集群中）
+```
+
+
+## helmfile
+
+```yaml
+- url: https://github.com/helmfile/helmfile
+  cmd:
+    - c: helmfile apply
+    - c: helmfile build
+    - c: helmfile list
+```
+
+
+## pre-commit
+
+
+```yaml
+- url: https://github.com/pre-commit/pre-commit
+  doc: https://pre-commit.com/hooks.html
+  cmd:
+    - c: pre-commit install
+      x: 用来生成pre-commit的git hook
+    - c: pre-commit autoupdate
+      x: 升级配置文件中工具版本（执行之后，会自动修改config.yaml中该repo的version，这个命令仅限于使用remote（而不是local）的情况）
+    - c: pre-commit run --all-files
+      x: pre-commit只能给stage 执行，怎么才能做全部文件的？提交前执行该命令，查看是否可以提交成功
+    - c: pre-commit clean
+    - c: pre-commit gc
+    - c: pre-commit init-templatedir
+    - c: pre-commit uninstall
+    - c: pre-commit install-hooks
+    - c: pre-commit migrate-config
+    - c: pre-commit sample-config
+    - c: pre-commit try-repo
+```
+
+
+
+## brew
+
+```yaml
+- url: https://github.com/Homebrew/brew
+  des: Homebrew/brew用来实现brew命令行，Homebrew/homebrew-core用来管理各种formulae
+  cmd:
+    - c: git -C "$(brew --repo)" remote get-url origin
+      x: 查看homebrew的源
+    - c: brew --prefix
+      x: 用来查看bin path和cask path
+    - c: brew config/cleanup/outdated/doctor/commands
+      x: 一些brew全局命令
+    - c: brew update -vvv
+      x: 更新homebrew
+    - c: brew install/uninstall
+    - c: brew upgrade
+      x: 用来升级brew的formula（不支持cask）
+    - c: brew list --<cask|formula>
+      x: brew remove
+    - c: brew services list/run/start/stop/restart/cleanup
+    - c: brew tap
+      x: 查看所有已经tapped的repo
+    - c: brew tap/untap <user/repo>
+      x: 添加/移除 新tap
+    - c: brew tap --repair
+    - c: brew info <service>
+      x: brew info --github <service>
+    - c: brew pin/unpin <service@version>
+      x: 锁定/解锁 不想更新的包
+    - c: brew link/unlink <service>
+    - c: brew deps/uses <pkg> --tree --installed
+      x: 查看 pkg 的上游包（依赖包）/ 下游包（被依赖包）
+    - c: brew leaves
+      x: 列出不被任何包依赖的包
+    - c: brew update-reset
+      x: To undo all changes you have made to any of Homebrew’s repositories, It will revert to the upstream state on all Homebrew’s repositories.
+    - c: brew autoremove
+      x: Uninstall formulae that were only installed as a dependency of another formula and are now no longer needed
+    - c: brew bundle dump --describe --force --file='./Brewfile'
+      x: backup brew formulae and cask
+    - c: brew bundle
+      x: 根据Brewfile恢复homebrew中的软件
+    - c: brew bundle install --file='./Brewfile'
+    - c: brew cu -facy
+      k: true
+    - c: brew graph --installed | fdp -Tpng -ograph.png
+```
+
+
+
+
+## sqlite
+
+```yaml
+- url: https://github.com/sqlite/sqlite
+  cmd:
+    - c: sqlite3 data.db '.backup backup.db'
+      x: .backup 命令创建一个内容一致的数据库备份副本。如果备份期间有很多写入活动，则副本创建的速度可能会很慢。
+    - c: sqlite3 data.db '.dump' > dump
+      x: .dump 命令创建一个数据库内容的转储。
+```
+
+
+## docker
+
+```yaml
+- url: https://github.com/moby/moby
+  doc: https://docs.docker.com/reference/
+  cmd:
+    - c: docker image run
+    - c: docker stats --no-stream <container>
+      x: 查看 docker 容器的内存占用，只返回当前状态
+    - c: docker stats --format 'table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}' <container>
+      x: 查看 docker 容器的内存占用，格式化输出
+    - c: docker inspect --format='{{.Name}} - {{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(docker ps -aq)
+      x: 查看所有docker容器的ip
+    - c: docker inspect --format='{{.LogPath}}' <container-name>
+      x: 清理某个容器的运行日志
+    - c: docker inspect <container-id> --format='{{.State.ExitCode}}'
+      x: 查看某个容器的退出码。退出码必须在 0-255 之间，0 表示正常退出。外界将程序中断退出，状态码在 129-255。程序自身异常退出，状态码一般在 1-128。
+    - c: docker ps --format 'table {{.Names}}\t{{.Image}}\t{{.Ports}}\t{{.ID}}\t{{.Status}}'
+      x: 格式化查看 docker ps
+    - c: docker network prune
+      x: 清理所有没用的容器网络
+    - c: docker volume ls/inspect/rm/prune
+      x: prune, 删除所有现在没有使用的数据卷(类似image的prune)
+    - c: docker search <formulae>
+      x: 从官方仓库搜索image
+    - c: docker pull
+      x: 拉到本地
+    - c: docker system df
+      x: 查看images, containers, volumes所占用的空间
+    - c: docker commit
+      x: 提交镜像
+    - c: docker history <nginx:latest>
+      x: 查看本地镜像的历史提交记录
+    - c: docker diff <container name/id>
+    - c: docker exec -it <container name/id> /bin/bash
+      x: 进入容器使用exec，而不是attch，因为attch退出后会导致容器停止
+    - c: docker export/import
+      x: 导出/导入 容器
+    - c: docker image rm $(docker image ls -q <image name>)
+      x: 删除镜像名中含有<image name>的镜像
+    - c: docker image prune -a
+      x: 清除所有没有使用的镜像(不仅是dangling images)
+    - c: docker image prune
+      x: 删除所有dangling images(就是没有tag的镜像，比如说二阶段提交后遗弃的一阶段镜像)
+    - c: docker image prune -a -f && docker container prune -f && docker rmi $(docker images | grep "^<none>" | awk "{print $3}")
+      x: 删除悬空镜像、不用的容器、批量删除tag为none的镜像
+    - c: docker inspect --format '{{ .State.Pid }}' <CONTAINER ID or NAME>
+      x: 获取某个容器的PID信息
+    - c: docker inspect --format '{{ .NetworkSettings.IPAddress }}' <CONTAINER ID or NAME>
+      x: 获取某个容器的IP地址
+    - c: docker container prune
+      x: Remove all stopped containers. 清理所有stopped的容器
+    - c: docker system prune
+      x: Remove unused data. 清理所有的stopped的容器、所有dangling状态的image、无用网络
+    - c: docker rm -fv <containerID>
+      x: 停止删除容器，并删除volume
+    - c: docker container stop/rm $(docker ps -aq)
+      x: 停止/清除 所有容器
+    - c: docker manifest inspect --verbose <image>
+      x: 查看manifest (RepoTags, Config, Layers)信息，如果需要更简要的输出，就去掉--verbose
+    - c: docker image inspect <image>
+      x: 比如 docker image inspect <debian>
+    - c: docker exec -it $(docker ps -ql) sh
+      x: 查看docker iptables rules
+    - c: docker info | grep Storage
+```
+
+
+## docker-compose
+
+```yaml
+- url: https://github.com/docker/compose
+  cmd:
+    - c: docker-compose logs -tf --tail 10
+    - c: docker-compose up --detach --build <container-name>
+      x: 在docker-compose中重新启动单个容器
+    - c: docker-compose down && docker-compose up --build -d
+    - c: docker compose up -d --build
+      k: true
+      x: 启动服务，重新编译镜像，最有用的命令
+    - c: docker compose build
+      x: 进行所需的服务镜像构建
+    - c: docker compose config
+      x: 查看docker-compose配置文件
+    - c: docker compose down
+      x: 停掉服务，删除容器，不删除镜像 docker stop container && docker rm container
+    - c: docker compose events
+      x: 接受服务之间的互动事件，如进行健康检查等
+    - c: docker compose exec
+      x: 进入容器，或者对某个容器执行命令
+    - c: docker compose images
+      x: 列出所有镜像
+    - c: docker compose top
+      x: 显示各个容器内运行的进程
+```
+
+## caddy
+
+```yaml
+- url: https://github.com/caddyserver/caddy
+  doc: https://authp.github.io/docs/intro
+  des: Automatic SSL
+  cmd:
+    - c: caddy run --config Caddyfile
+      x: 指定文件 caddy run
+    - c: caddy start
+      x: 把服务进程化
+    - c: caddy stop
+      x: 停止服务
+    - c: caddy reload
+      x: 修改配置之后，不需要重启，重载服务
+    - c: caddy validate
+      x: 测试配置文件是否正确
+    - c: caddy reverse-proxy
+      x: 快速且可适用生产的反向代理
+    - c: caddy adapt
+      x: 将配置文件转换成 json
+    - c: caddy environ
+      x: 打印环境变量
+    - c: caddy file-server
+      x: 启动可付诸生产的文件服务器
+    - c: caddy file-server --root <~/mysite> --domain <localhost>
+      x: 用 caddy 直接部署 web 服务，不需要 Caddyfile 或者 nginx.conf 那样的配置文件
+    - c: caddy hash-password
+      x: 用 base64 加密密码
+    - c: caddy list-modules
+      x: 列出已安装的模块
+```
+
+
+## omf
+
+```yaml
+- url: https://github.com/oh-my-fish/oh-my-fish
+  cmd:
+    - c: omf list
+    - c: omf install
+    - c: omf update
+```
+
+
+## cobra-cli
+
+
+```yaml
+- url: https://github.com/spf13/cobra-cli
+  cmd:
+    - c: cobra-cli init <app>
+    - c: cobra-cli add <command>
+      x: need to notice command-name should be camel case, e.g. 'cobra-cli add addUser' 而不是 'cobra-cli add add-user'
+    - c: cobra-cli add create -p 'configCmd'
+      x: used to assign a parent command to the newly added command
+```
+
+## npm
+
+```yaml
+- url: https://github.com/npm/cli
+  cmd:
+    - c: npm list -g
+      x: 查看所有全局包列表
+    - c: npm root -g
+      x: 查看全局包位置
+    - c: npm config set prefix <目标目录>
+      x: 修改全局包位置
+    - c: npm install -g <pkg>
+      x: 全局安装
+    - c: npm rm -g <pkg>
+      x: 全局卸载，相当于npm uninstall，rm是uninstall的alias，需要注意的是只写pkg名就可以了，不要加version. 比如 npm rm -g create-react-app.
+```
+
+## ffmpeg
+
+```yaml
+#    - url: https://github.com/FFmpeg/FFmpeg
+#      cmd:
+#        - c: ffmpeg -i concat:'<1.wav|...>' -c copy <output.wav>
+#          x: 合并多个音频文件，保持音频格式一致即可。例如 ffmpeg -i concat:"1.wav|2.wav|3.wav|4.wav" -c copy output.wav
+#        - c: ffmpeg -i <input.mp4> -vn -acodec copy <output.aac>
+#          x: 视频转换为音频，-vn 表示不处理视频流，-acodec copy 表示直接拷贝音频流，不做编解码
+```
+
+
+
+## scrapy
+
+```yaml
+#    - url: https://github.com/scrapy/scrapy
+#      qs:
+#        - q: scrapy, config (AUTOTHROTTLE, HTTPCACHE, LOG, FEED)
+#        - q: scrapy arch? (schduler, downloader, spider, pipeline, engine, download middleware, crawler middleware)
+#      cmd:
+#        - c: scrapy fetch
+#          x: 查看爬取过程，生成日志
+#        - c: scrapy run
+#          x: 运行一个单独的爬虫程序
+#        - c: scrapy shell
+#          x: 启动shell交互终端
+#        - c: scrapy startproject
+#          x: 创建项目
+#        - c: scrapy version
+#        - c: scrapy view <url>
+#          x: 非常实用的命令
+#        - c: scrapy settings
+#        - c: scrapy genspider -l
+#          x: 创建爬虫文件，可以选择basic，crawl，csvfeed，xmlfeed
+#        - c: scrapy check
+#          x: 用来测试某个爬虫
+#        - c: scrapy crawl
+#          x: 运行某个爬虫
+#        - c: scrapy list
+#          x: 显示当前可用的所有爬虫
+#        - c: scrapy parse
+#          x: 获取给定的URL并使用处理它的爬虫解析它，使用通过--callback选项传递的方法，或者parse如果没有给出
+#        - c: scrapy bench
+#          x: 测试本地硬件性能
+```
+
+
+
+## conda
+
+
+```yaml
+#            - url: https://github.com/conda/conda
+#              des: 应该说，既不是类似pip那样的python包管理工具，也不是brew之类的os包管理工具。而是主打Data Analysis领域的包管理工具，相关工具适配的相对更好。
+#              cmd:
+#                - c: conda init zsh
+#                - c: conda config --show
+#                - c: conda create -n newenv python=3.9
+#                  x: 创建名为newenv的新环境，并安装Python 3.9
+#                - c: conda env list
+#                - c: conda search <pkg>
+#                - c: conda update <pkg>
+#                - c: conda remove <pkg>
+#                - c: conda list
+```
+
+
+
+## rclone
+
+
+
+```yaml
+    - url: https://github.com/rclone/rclone
+      des: rsync for cloud storage - Google Drive, S3, Dropbox, Backblaze B2, One Drive, Swift, Hubic, Wasabi, Google Cloud Storage, Yandex Files
+      cmd:
+        - c: rclone config file
+        - c: rclone copy <local-path> r2:<bucket>/<r2-path> --progress --dry-run # rclone copy docs r2:hhacking/docs --progress 上传到目标文件夹
+        - c: rclone check <local-path> r2:<bucket>/<r2-path> --dry-run --size-only --one-way # rclone check docs r2:hhacking/docs --size-only --one-way 上传完成后 check 文件是否全部上传
+        - c: rclone sync r2:<bucket> <local-path> # 用来下载远程，需要注意的是因为sync命令的本质是mapping，所以会删掉该文件夹下其他文件，一定要注意。另外，上面的r2指的是rclone.conf中的group key
+        - c: rclone delete --dry-run r2:hhacking/x # 用来删除指定文件夹，cloudflare不支持该操作
+        - c: rclone purge
+        - c: rclone mkdir
+        - c: rclone rmdir
+        - c: rclone rmdirs
+        - c: rclone lsl # 列出指定路径下的所有的文件以及文件大小和路径，并且显示上传时间
+```
+
+
+
+## pip
+
+```yaml
+#            - url: https://github.com/pypa/pip
+#              cmd:
+#                - c: pip list
+#                  x: 查看所有本地的pip包
+#                - c: pip freeze > requirements.txt
+#                  x: 记录依赖
+#                - c: pip install -r requirements.txt
+#                  x: 怎么通过`requirements.txt`安装拓展包？
+#                - c: pip uninstall
+```
+
+
+## gh
+
+
+```yaml
+    - url: https://github.com/cli/cli
+      des: GitHub’s official command line tool
+      cmd:
+        - c: gh cache list
+        - c: gh workflow list
+          x: "Get workflow-id, nor workflow-name. NOTICE: As long as add test branch, you can trigger by workflow_dispatch event"
+        - c: gh workflow run <workflow-id> --ref <branch-name>
+          x: Trigger by test branch. eg. gh workflow run 75843747 --ref test
+```
+
+
+## mongo
+
+```yaml
+    - url: https://github.com/mongodb/mongo
+      doc: https://docs.mongoing.com/
+      cmd:
+        - c: show collections
+          x: 显示当前数据库中的所有集合
+```
+
+
+
+## ak
+
+```yaml
+#        - url: https://github.com/cage1016/ak
+#          des: cli工具，基于awgo+cobra实现，用来初始化workflow，提高开发效率。使用ak开发alfred workflow，开发阶段就不需要手动替换bin了，直接make build即可。发布阶段，不需要在本地打包、导出再上传，直接在cicd打包，非常简单。
+#          cmd:
+#            - c: ak add ga
+#              x: ak add githubAction
+#            - c: ak add ga -s
+#              x: ci中添加 Code Sign 及 Notarization 功能。如果没有苹果开发者账号的话，就不需要加 -s 参数。正常使用，毫无问题。
+#            - c: ak add ga -c
+#              x: ci中添加 Go test Codecov
+```
+
+
+
+
+
+## mac常用命令
+
+
+```yaml
+- name: mac
+  url: https://saurabhs.org/advanced-macos-commands
+  commands:
+    - ["launchctl list", "查看自启的services和process(通常 | grep来搜索 想要查找的计划任务)"]
+    - ["pmset -g", "打印所有可用的电源配置信息"]
+    - ["pmset -g | grep hibernatemode", "hibernate(睡眠)和sleep(休眠)的区别在于内存是否供电，睡眠状态内存不供电不工作，内存数据落盘，休眠则内存继续工作；唤醒方式也不同，睡眠模式需要电源键启动，休眠模式通过“键鼠等输入设备”即可唤醒）。0，掉电非常严重；3，掉电一般严重；25，那掉电就会更少一些。"]
+    - ["pmset repeat wakeorpoweron MTWRFSU 5:00:00 shutdown MTWRFSU 22:00:00", "pmset [repeat, schedule] [sleep, wake, poweron, shutdown, wakeorpoweron] [<MTWRFSU> <date/time>]"]
+    - ["pmset -g sched", "查看crontab的电源计划"]
+    - ["pmset displaysleepnow", "立即使显示器进入睡眠状态，而不使系统的其余部分进入睡眠状态"]
+    - ["pmset sleepnow", "立即使整个系统进入睡眠状态"]
+    - ["pmset -a disablesleep 1", "作用为防止系统休眠；注意，输入这条指令后MacBook不会进入休眠状态"]
+    - ["pmset -a disablesleep 0", "恢复，上面命令的相反"]
+    - ["caffeinate", "Running caffeinate with no flags or arguments prevents your Mac from going to sleep as long as the command continues to run."]
+
+    - ["pbcopy"]
+    - ["pbpaste"]
+    - ["sips"]
+    - ["textutil"]
+    - ["mdfind"]
+    - ["mdls"]
+    - ["screencapture"]
+    - ["taskpolicy"]
+    - ["say", "announces the given message, just for English."]
+    - ["networksetup"]
+
+```
+
+## mac快捷键
+
+
+```yaml
+#cmd:
+#  - [CMD+opt+w, "关闭当前软件所有窗口"]
+#  - [CMD+opt+D, "切换 Dock 的显示隐藏"]
+#  - [CMD+opt+esc, "强制退出程序"]
+#  - [CMD+ 空格键 (我改成了“输入法切换”键，更符合自己的使用习惯), "切换输入法"]
+#  - [CMD+Shift+R, "浏览器强制刷新"]
+#  - [CMD+c, "复制"]
+#  - [CMD+option+v, "剪切"]
+#  - [在 finder 下直接 CMD+Shift+., "查看隐藏文件"]
+#  - [CMD+Shift+G, "根据路径查找文件"]
+#  - [CMD+backspace（退格键）, "删除文件的快捷键"]
+#  - [点击一张图片，按“空格键”打开，然后通过“方向键”来控制上一张图和下一张图, "预览图片"]
+#  - [CMD+z/CMD+Shift+z, "撤销和反撤销"]
+#  - [CMD+option+n, "新建 txt 文件"]
+```
+
+
+
+## chrome
+
+
+```yaml
+#  # [Chrome keyboard shortcuts - Computer - Google Chrome Help](https://support.google.com/chrome/answer/157179)
+#  cmd:
+#    - [CMD+点击url, "在新 tab 打开该 url，不需要再右键操作了，操作效率更高"]
+#    - [CMD+shift+点击url, "在【新tab】打开该 url，并切换到【新tab】"]
+#    - [shift+点击url, "在【新窗口】打开该 url，并切换到【新窗口】"]
+#    - [CMD+enter（而不是直接 enter）, "同样，搜索后不跳转到新标签页。在有大量搜索的场景下，效率很高，少了跳转和重复键入搜索词条的过程。"]
+#    - [CMD+n, "打开新窗口"]
+#    - [CMD+t, "打开新标签页"]
+#    - [CMD+shift+T, "重新打开上次关闭的标签页"]
+#    - [CMD+L, "跳转到地址栏"]
+#    - [CMD+d, "保存到书签"]
+#    - [CMD+r, "深度刷新"]
+#    - [CMD+y, "打开“历史记录”"]
+#    - [CMD+shift+j, "打开“下载内容“"]
+#    - [CMD+option+b, "Open the Bookmark Manager"]
+#
+#    - [空格键, "向下滚动网页"]
+#    - [Shift + 滚轮, "水平滚动网页"]
+#
+#    # 如果没有 Home 键 和 End 键
+#    - [Fn 键 + 方向左键, "Home 键"]
+#    - [Fn 键 + 方向上键, "PgUp 键"]
+#    - [Fn 键 + 方向下键, "PgDn 键"]
+#    - [Fn 键 + 方向右键, "End 键"]
+
+#    - ["", "side panel"]
+#    - ["CMD+shift+]", "跳转到下一个标签页"]
+#    - ["CMD+shift+[", "跳转到上一个标签页"]
+```
+
+
+
+## goland
+
+
+```yaml
+#      cmd:
+#        - c: CMD+E
+#          x: 用来 toggle切换最近编辑文件，体验极佳！！！（把“切换仅更改的文件”快捷键勾掉）
+#        - c: CMD+ctrl+T
+#          x: 给“显示临时文件”添加快捷键
+#        - c: ctrl+option+上下方位键
+#          x: 调整活动工具窗口大小（比如“终端窗口”）
+#
+#        - c: CMD+R
+#          x: 怎么进行整个项目的文本替换？
+#        - c: CMD+shift+n
+#          x: 创建临时文件
+#        - c: CMD+shift+a 之后输入buffer
+#          x: 创建临时 buffer（比之前用 vscode 作为临时编辑器强 1w 倍，支持跨项目使用、调试、语法高亮、文件历史记录等正常项目文件里的所有功能）
+#        - c: 双击shift
+#          x: 查找所有
+#        - c: cmd+option+l
+#          x: 格式化代码
+#        - c: cmd+x
+#          x: 删除当前行
+#        - c: cmd+d
+#          x: 复制当前行
+#        - c: cmd+ -/+
+#          x: 收起/展开代码块
+#        - c: cmd+shift+r
+#          x: 全局替换
+#        - c: cmd+fn+左/右
+#          x: 文件头/文件尾
+#        - c: fn + 上/下
+#          x: 页面顶部/底部
+#        - c: CMD+左/右
+#          x: 行首/行尾
+#        - c: CMD+L
+#          x: 跳转行号
+#        - c: CMD+K
+#          x: git 提交栏
+#        - c: CMD+shift+K
+#          x: git 推送
+#        - c: ctrl+r
+#          x: run
+#        - c: ctrl+d
+#          x: debug
+#        - c: CMD+esc
+#          x: 隐藏当前活动栏（默认是 fn+esc，改键）
+#        - c: CMD+opt+L
+#          x: 当前页面 Reformat Code
+#        - c: CMD+shift+U
+#          x: uppercase
+#        - c: CMD+fn+F12
+#          x: 按文件结构导航 (used to search and track functions directly)
+#
+#        # golang 相关快捷键
+#        - c: opt+enter
+#          x: 选择“生成构造函数"
+#        - c: 选中 struct 中该成员，opt+Enter，选择“生成 getter/setter”
+#          x: 生成 struct 中某个成员的 getter/setter
+#        - c: 鼠标点击到某个变量后，shift+f6
+#          x: 批量修改变量名
+#
+#        # goland 快捷操作 struct
+#        - c: 把 json 直接复制到 goland 即可
+#          x: json直接转换成结构体
+#        - c: ctrl+T+引入类型
+#          x: 即可把结构体的内嵌结构体，转移到外部
+#        - c: opt+enter+Change field name style in tags
+#          x: 即可修改命名风格，为小驼峰
+#        - c: opt+enter+Update key value in tags
+#          x: 给所有 tag 添加omitempty等标签
+#        - c: opt+enter+Add key to tags
+#          x: 给所有 tag 添加 key
+```
+
+
+
+
+
+## golang
+
+```yaml
+- url: https://github.com/golang/go
+  cmd:
+    - c: go get -u
+      x: 更新项目依赖到最新版本
+    - c: go clean -modcache
+      x: 清除模块缓存
+    - c: go build -gcflags '-m -l' main.go
+      x: 使用 go build -gcflags='-m=2' 查看编译器报告，来查看是否发生了内存逃逸。(-m 最大为 4，通常使用 2，否则返回信息太多)
+    - c: go test ./...
+      x: 运行当前文件夹下的所有 case
+    - c: go test foo/...
+      x: 指定目录下的所有 case
+    - c: go test foo...
+      x: 指定前缀的所有 case
+    - c: go test ...
+      x: 运行 GOPATH 下的所有 case ⚠️
+    - c: go test -cover
+      x: 代码覆盖率
+    - c: go test -covermode=set
+      x: 覆盖测试模式，有三种值 set,count,atomic, 其中 set 代表的是这个语句运行吗？count 代表的是这个语句执行多少次，atomic 代表的是多线程正确使用的，耗资源的。
+    - c: go test -v -coverprofile=c.out && go tool cover -html=c.out -o=tag.html
+      x: 生成测试覆盖率报告，并转化为 html 文件进行预览
+    - c: go test -bench=.
+      x: 基准测试
+    - c: go test -benchtime=3s -bench=.
+      x: 在持续时间 3s 内运行每个基准测试
+    - c: go test -benchmem -bench=.
+      x: 打印基准测试时的内存分配
+    - c: go test -count=2 -bench=.
+      x: 执行指定次数的基准测试，在 - count=1 时相当于禁用缓存
+    - c: go test -cpu=1 -bench=.
+      x: 设置指定的 cpu 数量来进行基准测试，可以指定多个不同的 cpu 个数列别，比如：-cpu=1,2,4
+    - c: go test -timeout=3s
+      x: 默认情况下，测试执行超过 10 分钟就会超时而退出，我们可以通过这个时间指定超时时间
+    - c: go test -parallel=2
+      x: 当测试使用 t.Parallel () 方法将测试转为并发时，将受到最大并发数的限制，默认情况下最多有 GOMAXPROCS 个测试并发，其他的测试只能阻塞等待，这个可以用来并发安全的测试。
+    - c: go test -v -cpuprofile=cpuprof.out
+      x: 生成 cpuprof 的文件
+    - c: ls -1 $(go env GOPATH)/bin
+      x: 列出所有go install安装的bin (cli工具)
+```
+
+
+
+## pprof
+
+
+```yaml
+- url: https://github.com/google/pprof
+  cmd:
+    - c: pprof top10 -cum
+    - c: pprof web
+    - c: pprof web mapaccess1
+    - c: pprof web mallocgc
+    - c: pprof list DFS
+    - c: pprof list FindLoops
+```
+
+## umi
+
+```yaml
+- url: https://github.com/umijs/umi
+  cmd:
+    - c: umi dva list model
+      x: 列出所有 model
+    - c: umi plugin list
+      x: 列出所有插件
+    - c: umi generate page xxx --typescript --less
+      x: 目前只支持生成 page，生成基本页面 (其他文件如 model 都只能手动创建)
+    - c: umi generate dvx:model xxx
+```
+
+
+
+## redis
+
+```yaml
+- url: https://github.com/redis/redis
+  cmd:
+    - c: object encoding key
+      x: 查看某个 key 具体使用了哪种数据结构
+    - c: object refcount key
+      x: 查看某个 key 的共享对象的引用次数
+    - c: redis-cli --bigkeys
+      x: 用来查看所有bigkey
+    - c: redis-benchmark
+      x: redis 性能测试工具
+    - c: redis-check-aof
+      x: 检查 aof 日志的工具
+    - c: redis-check-dump
+      x: 检查 rdb 日志的工具
+    - c: CONFIG RESETSTAT
+    - c: INFO
+    - c: migrate
+      x: 实际上是 dump+restore+del 三个命令的组合，但是是原子性命令，支持源 redis 和目标 redis 之间直接迁移，比 dump+restore 好用，可以直接替代
+    - c: rename
+      x: key重命名会执行 del 删除旧键，如果数据太大，会阻塞 redis
+    - c: SETBIT key offset value
+      x: SETBIT；“置位”
+    - c: GETBIT key offset
+      x: GETBIT；“取值”
+    - c: BITCOUNT key [start end]
+      x: 返回位图中第一个值为 bit 的二进制位的位置；在默认情况下，命令将检测整个位图，但是用户可以通过可选的 start 参数和 end 参数指定要检测的范围
+    - c: BITOP operation destKey key [key...]
+      x: BITOP 支持 and，or，not，xor 这四种操作；很常用的一条命令
+    - c: SLOWLOG GET <?N>
+      x: 查看最新的N条慢日志，包括命令本身、执行时间和执行时所在的时间戳
+```
+
+
+
+## go-zero
+
+```yaml
+- url: https://github.com/zeromicro/go-zero
+  des: go-zero 整体上做为一个稍重的微服务框架，提供了微服务框架需要具备的通用能力，同时也只带一部分的强约束，例如针对 web 和 rpc 服务需要按照其定义的 DSL 的协议格式进行定义，日志配置、服务配置、apm 配置等都要按照框架定义的最佳实践来走。
+  doc: https://go-zero.dev/docs/tasks
+  cmd:
+    - c: goctl api new <project>
+      x: 用这个命令生成的项目结构
+    - c: goctl api go -api *.api -dir . --style=goZero
+    - c: goctl rpc protoc *.proto --go_out=../ --go-rpc_out=../ -zrpc_out=../ --style=goZero
+    - c: goctl model mysql
+    - c: goctl model mysql datasource
+    - c: goctl model mysql ddl
+      x: goctl model mysql ddl -src blog.sql -dir ./model
+    - c: goctl model mysql ddl -src user.sql -dir ./users -c
+      x: 用来生成model层的CURD代码
+```
+
+
+
+
