@@ -7,6 +7,20 @@ import {themes as prismThemes} from 'prism-react-renderer';
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 
+// Reverse the sidebar items ordering (including nested category items)
+function reverseSidebarItems(items) {
+  // Reverse items in categories
+  const result = items.map((item) => {
+    if (item.type === 'category') {
+      return {...item, items: reverseSidebarItems(item.items)};
+    }
+    return item;
+  });
+  // Reverse items at current level
+  result.reverse();
+  return result;
+}
+
 const config: Config = {
   title: 'Lucas Blog',
   tagline: 'just for the record',
@@ -44,7 +58,16 @@ const config: Config = {
         docs: {
           routeBasePath: '/',
           sidebarCollapsible: false, // 默认展开所有侧边栏
-          // sidebarPath: require.resolve('./sidebars.js'),
+          sidebarPath: require.resolve('./sidebars.js'),
+          // showLastUpdateTime: true,
+          // showLastUpdateAuthor: true,
+          async sidebarItemsGenerator({
+                                        defaultSidebarItemsGenerator,
+                                        ...args
+                                      }) {
+            const sidebarItems = await defaultSidebarItemsGenerator(args);
+            return reverseSidebarItems(sidebarItems);
+          },
           // remarkPlugins: [
           //   [
           //     remarkKroki,
