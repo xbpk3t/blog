@@ -41,27 +41,28 @@ const config: Config = {
     [
       'classic',
       ({
-        // docs: {
-        //   routeBasePath: '/',
-        //   sidebarCollapsible: false, // 默认展开所有侧边栏
-        //   // sidebarPath: require.resolve('./sidebars.js'),
-        //   // remarkPlugins: [
-        //   //   [
-        //   //     remarkKroki,
-        //   //     {
-        //   //       alias: ['plantuml'],
-        //   //       server: 'https://kroki.io'
-        //   //     }
-        //   //   ]
-        //   // ]
-        // },
-        docs: false,
-        blog: {
+        docs: {
           routeBasePath: '/',
-          onUntruncatedBlogPosts: 'ignore',
-          blogSidebarCount: "ALL",
-          postsPerPage: 3,
+          sidebarCollapsible: false, // 默认展开所有侧边栏
+          // sidebarPath: require.resolve('./sidebars.js'),
+          // remarkPlugins: [
+          //   [
+          //     remarkKroki,
+          //     {
+          //       alias: ['plantuml'],
+          //       server: 'https://kroki.io'
+          //     }
+          //   ]
+          // ]
         },
+        blog: false,
+        // docs: false,
+        // blog: {
+        //   routeBasePath: '/',
+        //   onUntruncatedBlogPosts: 'ignore',
+        //   blogSidebarCount: "ALL",
+        //   postsPerPage: 3,
+        // },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
         },
