@@ -1,0 +1,17 @@
+
+
+
+比如我们要获取商品的详情，有日销量、月销量、库存数量、评价数量，这些数据都在Redis 缓存中，那么我们是要拿四趟？还是一趟呢？当然是一趟最好呀
+
+- MGET (批量查询字符串类型key)
+- HMGET (批量查询某个hash类型key中的field的value)
+- pipeline (不限制，但是尽量不要使用pipeline，因为cluster “由于 Redis Cluster 采用的是分片机制，这些键无法保证所有的 key 都在同一区域的哈希槽上。因此，即使使用了 Pipeline，每个命令仍可能在不同的节点上进行处理，导致多个命令的执行不在同一时刻。”)
+- lua （相比于HMGET只能查询某个hash key，lua就可以批量查询多个hash key）
+
+`eval "local rst={}; for i,v in pairs(KEYS) do rst[i]=redis.call('hgetall', v) end;return rst" 2 user:1 user:2`
+
+
+
+
+
+
