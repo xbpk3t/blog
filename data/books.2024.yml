@@ -412,12 +412,12 @@
         - name: 《合法性的政治》
           author: 赵鼎新
           tag: [社科]
-          url: https://gist.github.com/hxhac/06b771780f93ac1be543e2cc9f5fd7d7
+          url: https://gist.github.com/XBPk3T/06b771780f93ac1be543e2cc9f5fd7d7
           score: 7
         - name: 《时评写作十讲》
           author: 曹林
           score: 6
-          url: https://gist.github.com/hxhac/630de5cda58e4319b4e2357af2236202
+          url: https://gist.github.com/XBPk3T/630de5cda58e4319b4e2357af2236202
           des: 对初学者多有裨益，但是捞干了也只有二三两
 
         #- name: 《幻象》
@@ -442,10 +442,10 @@
         #- name: 《万历十五年》
         #  author: 黄仁宇
         #  score: 2
-        #  url: https://gist.github.com/hxhac/b91789dde640757e326583c50d078f22
+        #  url: https://gist.github.com/XBPk3T/b91789dde640757e326583c50d078f22
 
         - name: 《21世纪资本论》
-          url: https://gist.github.com/hxhac/58864cfcfede60e4f6fabc861ed335fc
+          url: https://gist.github.com/XBPk3T/58864cfcfede60e4f6fabc861ed335fc
           score: 7
 
 
@@ -481,7 +481,7 @@
 
         - name: 《搞定系统设计：面试敲开大厂的门》
           author: Alex Xu
-          url: https://gist.github.com/hxhac/7887a5865af2da4574536624266aa84a?permalink_comment_id=5176069#gistcomment-5176069
+          url: https://gist.github.com/XBPk3T/7887a5865af2da4574536624266aa84a?permalink_comment_id=5176069#gistcomment-5176069
 
 
 
@@ -490,7 +490,7 @@
 
         #- name: 《UNIX编程艺术》
         #  score: 4
-        #  url: https://gist.github.com/hxhac/0deb48e453a03c6ad89238af9b249fd9?permalink_comment_id=5174454#gistcomment-5174454
+        #  url: https://gist.github.com/XBPk3T/0deb48e453a03c6ad89238af9b249fd9?permalink_comment_id=5174454#gistcomment-5174454
         #  des: 最重要的是1.6 Unix哲学基础，介绍了一些写代码的通用经验，总结的很好，已经整理到docs了。其他内容或无关紧要，或已经过时了。
 
         - name: 《Go并发编程实战课》
@@ -510,5 +510,5 @@
         #  des: 没缘分，不看了
 
         - name: 《代码整洁之道：程序员的职业素养》
-          url: https://gist.github.com/hxhac/0deb48e453a03c6ad89238af9b249fd9?permalink_comment_id=5174551#gistcomment-5174551
+          url: https://gist.github.com/XBPk3T/0deb48e453a03c6ad89238af9b249fd9?permalink_comment_id=5174551#gistcomment-5174551
 

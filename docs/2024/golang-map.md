@@ -82,7 +82,7 @@ date: 2024-08-17
     - q: How to check whether the key of map exists?
 
     - q: "***手写实现 golang 中 map 的有序查找，且支持 add、支持 delete、支持迭代？构造一个辅助 slice***"
-      u: https://gist.github.com/hxhac/ddab2b9d20186ff27ec0e159e835e779
+      u: https://gist.github.com/XBPk3T/ddab2b9d20186ff27ec0e159e835e779
       x: How does map read data? And the specific process for finding key, assigning key, deleting key and traversing key?
 
     - q: slice 和 map 作为函数参数时，有什么区别？

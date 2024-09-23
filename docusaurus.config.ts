@@ -35,7 +35,7 @@ const config: Config = {
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  // organizationName: 'hxhac', // Usually your GitHub org/user name.
+  // organizationName: 'XBPk3T', // Usually your GitHub org/user name.
   // projectName: 'docs', // Usually your repo name.
 
   onBrokenLinks: 'throw', // docusaurus build 时忽略坏链
@@ -135,7 +135,7 @@ const config: Config = {
         //   // {to: '/blog/archive', label: '🌟 Blog', position: "right"},
         //   // {to: '/docs/diary', label: '🏝️ Diary', position: "right", type: "docSidebar", sidebarId: "diary"},
         //   // {
-        //   //   href: 'https://github.com/hxhac',
+        //   //   href: 'https://github.com/XBPk3T',
         //   //   label: 'GitHub',
         //   //   position: 'right',
         //   // },
@@ -154,7 +154,7 @@ const config: Config = {
         maxHeadingLevel: 5,
       },
       giscus: {
-        repo: 'hxhac/blog',
+        repo: 'XBPk3T/blog',
         repoId: 'R_kgDOMu21Og',
         category: 'General',
         categoryId: 'DIC_kwDOMu21Os4CiXzW',

@@ -54,7 +54,7 @@
         - q: instanceof
         - q: $data as &$key 是什么意思？
         - q: php的xdebug断点调试怎么搞？
-          u: https://gist.github.com/hxhac/4596477bd95bd797e5cb582d5f60abf4
+          u: https://gist.github.com/XBPk3T/4596477bd95bd797e5cb582d5f60abf4
           x: 其实php的xdebug断点调试也很简单，pecl install xdebug之后，修改 php.ini 中ext相关配置即可
 
       qq:
@@ -85,7 +85,7 @@
       cmd:
         - c: php-cs-fixer fix $PWD --config=cs.php
       qs:
-        - u: https://gist.github.com/hxhac/8ba0b43a6d38906c12825d5dede1e22a
+        - u: https://gist.github.com/XBPk3T/8ba0b43a6d38906c12825d5dede1e22a
           q: PHP Linters
     - url: https://github.com/phpstan/phpstan
       des: 静态检查工具Static Analysis Tool，和 cs-fixer 一样，一种是作为服务，一种是作为一个 laravel 的 composer 包。建议作为服务使用，以免影响生产环境性能，当然作为包使用更方便。如果laravel项目可以使用larastan。除此之外，其他工具还有 phplint、phpqa、grumPHP。需要注意PHP作为Dynamic-Lang，SAT工具实际上很鸡肋。
