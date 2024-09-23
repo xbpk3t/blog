@@ -1888,9 +1888,139 @@ weekly schedule
 
 
 
----
+### PARA
 
 [开学季 | 学习不止在课堂：这些方法和技巧帮你做好知识管理 - 少数派](https://sspai.com/post/68623) 还是知识管理的三个极端，输入、整理、输出。
+
+这篇文章还不错，对我有用的就是第二部分，关于笔记整理的内容。下面展开说说这部分的三个案例。
+
+~~[My workflow- 一个文科博士生的资料管理、阅读和笔记系统-基于 DEVONthink 3，Obsidian - 少数派](https://sspai.com/post/64795)~~
+
+[我是如何在 Notion 中运用 PARA 模型来整理第二大脑 - 少数派](https://sspai.com/post/74753) 使用notion来实操PARA方法
+
+```markdown
+Building a Second Brain 遵循这么一个模型，简称为 CODE：Capture, Organize, Distill, Express，总结来说：
+
+Capture：Keep what resonoates 记录能让你产生共鸣和思考的任何想法
+Organize：Save for actionability 把你记录的想法加以整理，形成能行动或者可执行的形式
+Distill：Find the essence 找到所记录的事情、想法本身的核心思想
+Express：Show your work 利用你记录的事情和想法，产生出经过你思考和理解的知识，并表达和分享出来
+
+---
+
+其中关于 CODE 里 Organize 这一块，有一个简称为 PARA 方法来做整理：Projects、Areas、Resources 和 Archives：
+
+Projects：Short-terms effects in your work or life that you are working now 表示你当前工作和生活阶段里正在进行的「短期项目」。项目一词可能过于正式，你可以理解为一系列可执行的任务 Task 的结合
+Areas：Long-term responsibilities you want to manage over time 表示你在当前生活或者工作阶段要涉及的「长期领域」，它跟 Projects 的区别在于期限的长短
+Resources：Topics or interests that may be useful in the future 在短期或者长期的未来里，你有可能用上的事情
+Archives: Inactive items from the other three categories 正如字面意思「归档」所描述的，当前已经用不上的不活跃的事情
+```
+
+```markdown
+PARA 能描述一个事情的生命周期的流向：如果它是你本身短期内专注的，那么它属于 Projects 类别，而如果在某个时间段已经完成了这个事情，那么你可以根据它的性质，移动到 Areas 或者 Resources；如果这个事情本身中途废弃了，那么你可以移动到 Archives 里进行归档 —— 而它的生命周期定义，完全是你个人根据 PARA 的指导来进行的。
+```
+
+
+![PARA.png](img/docs/PARA.png)
+
+PARA其实更偏向于TODO管理，
+
+
+
+[笔记系统回顾：我与 Obsidian 不知不觉的 4 年 - 少数派](https://sspai.com/post/85339) 看了下，还是用notion和obsidian用来当TODO管理和书籍和影视记录，这两个需求，TODO管理我直接用task.md实现了，更灵活。书籍之类的记录直接写到yaml里了，也更灵活。
+
+
+
+[PARA — 🌱 oldwinterの数字花园](https://notes.oldwinter.top/para)
+
+```markdown
+Tiago创造的PARA系统包含以下四个区块：
+
+Project：有明确deadline的东西（例如：论文发表、产品发布、马拉松训练）。另外，你会希望你的Project小到每一周都能有变化，这样你才有动力继续make progress。一旦你能清楚的列出手边的Project，这个系统就变得很容易了。
+Areas：你个人需要持续投资、维持的领域（例如：健康、感情、财富）。Areas通常是你寻找新尝试的好地方。
+Resources：可以和外人分享的东西（例如：笔记、食谱、文章）。
+Archive：短期不会用到的东西（请注意这不是垃圾桶），假如你有一些很久没看到资料夹或笔记本，他们就是可以被archive的。
+
+如果你还是不太会分辨，可以把Project想成书桌上的东西、Areas想成抽屉里的东西、Resources想成书柜上的东西、Archive则是储物间。
+```
+
+非常妥帖的类比，“可以把Project想成书桌上的东西、Areas想成抽屉里的东西、Resources想成书柜上的东西、Archive则是储物间。”
+
+用我的话来说就是，archive就是“退出机制”，确实需要。
+
+
+
+[PARA第四部分：实践指南（PARA Part 4 Setup Guide） - lcs-帅 - 博客园](https://www.cnblogs.com/luchaoshuai/p/18064872)
+
+
+[PARA第四部分：实践指南（PARA Part 4 Setup Guide） - lcs-帅 - 博客园](https://www.cnblogs.com/luchaoshuai/p/18064872) 存储介质太多了，有什么 task manager, 印象笔记、本地文件夹、google drive，相应的信息种类也太多了。存储介质应该都转成文本，信息种类也相应的只应该使用文本。
+
+
+[用RoamEdit实践 P.A.R.A-使用心得-RoamEdit官方论坛](https://club.roamedit.com/club/?thread-1479.htm)
+
+```markdown
+我认为PARA体系是目前最强大也是最先进的信息管理方法，因为它是第一个强调信息的流转而不仅仅局限于收集。有很多信息管理方法着眼于收集和组织上，前期系统运转还挺好，后面就烂尾了，因为使用者也不知道收集和整理的这些知识要怎么用，用在哪。所以PARA在信息流转方向上进行了探索，具有跨时代的意义。
+```
+
+```markdown
+PARA与GTD的区别？
+---
+
+首先两者的共同点是：都可以同时管理信息和任务。
+
+不同点是：PARA更擅长并且侧重信息的管理， GTD更擅长并且侧重任务的管理。关于两者的侧重，我们可以从它们的信息和任务模块的占比看出来。
+
+（PARA四个模块里只有一个是用来专门管理任务的）
+
+（GTD里只有“参考资料”部分是专门管理信息的）
+
+因为两者的侧重点不同，擅长点也不同，所以我们是完全可以连用两者的，可以用PARA的思想来管理GTD的“参考资料”部分，可以用GTD来管理PARA的项目部分，让两者互相交叉相融。
+
+```
+
+
+:::danger
+
+大概了解了一下
+
+***PARA是个着重于信息流转，而不仅限于收集的信息管理方法。***
+
+[為什麼我不用 PARA 了？PAI 個人知識管理系統（Notion 原創模版）](https://raymondhouch.com/notion/para-pai/)
+
+```markdown
+至少需要 5 个资料库（PARA + 笔记）来组织内容，标籤数量太多、需要常常跳转，内容零散在不同地方。
+以“收藏”为起步的工作流，让我们下意识一直在收藏外部（他人）的资讯和内容，却忘记真正有效的学习来自于内部（自己）的行动和产出。
+PARA 是一种“内容管理架构”，透过“收集→ 整理 → 输出”你可以发现，虽然作者在书中强调“输出决定了输入”，但在这个系统架构（四个主要分类站，外部内容的分类佔比是专案行动的 3 倍）下，我们很容易在使用上变成“不断思考要放哪、优化收集和整理内容的方法”，于是不知不觉下花了大量时间在整理、分类、归档别人的内容，却忘了我们最该做的是“自身的行动和输出”。
+
+毕竟回到人性，输入比起输出简单太多。
+
+打个比方来说，阅读文章、看影片、听 Podcast，比起你自己捲起袖子，写篇文章、拍支影片、分享自己上週解决的一个难题，还要容易轻鬆，所以就一直享受收藏，却忘了能帮助你成长的只有行动。
+```
+
+PARA必然会出现的问题包括但不限于：
+
+- Resource 必然从 read-it-later 变成 read-it-never。看到很多人说“限制read-it-later”的数量，但是这是不可能的，必然会从坚决遵守该规范，到偶尔不遵守，到彻底不遵守。所以我很早之前就不留存任何 read-it-later 的东西了。所有的东西都是 realtime 处理掉，要么顺手看完并写感受，要么直接x掉，不存在 read-it-later，这TM就是骗人的。
+- 正如上文所说，“PARA是个着重于信息流转，而不仅限于收集的信息管理方法”，但是其核心仍然是
+
+
+事实上，我现在的workflow本身就已经实现PARA了
+
+但是这个东西也并非没有给我带来启发：
+
+- 我现在的task.md里的task没有标注ddl
+- 
+- “你无法将当前的努力与长期目标联系起来”，放到OKR里就是没有拆分task，
+
+
+
+
+:::
+
+
+
+
+
+
 
 
 ### [2024-09-23]
