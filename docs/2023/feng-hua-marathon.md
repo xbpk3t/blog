@@ -93,15 +93,30 @@ slug: /2023/feng-hua-marathon
 
 
 
+![fenghua-certifacate_mosaic.png](img/marathon/fenghua-certifacate_mosaic.png)
+
+![fenghua-medal.JPG](img/marathon/fenghua-medal.JPG)
+
+![fenghua-record-coros.JPG](img/marathon/fenghua-record-coros.JPG)
+
+![fenghua-record-ypq.JPG](img/marathon/fenghua-record-ypq.JPG)
+
+![marathon-goods.png](img/marathon/marathon-goods.png)
+
+![wh-roadmap.JPG](img/marathon/wh-roadmap.JPG)
 
 
 
 ## 锦屏山（奉化中山公园）
 
 
+![jps.JPG](img/marathon/zsgy/jps.JPG)
+
+![zsgy.JPG](img/marathon/zsgy/zsgy.JPG)
 
 
+![zsgy2.JPG](img/marathon/zsgy/zsgy2.JPG)
 
 
-
+![zsgy3.JPG](img/marathon/zsgy/zsgy3.JPG)
 
