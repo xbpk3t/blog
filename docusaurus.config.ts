@@ -102,6 +102,10 @@ const config: Config = {
     [
       '@docusaurus/plugin-ideal-image',
       {
+        quality: 96,
+        max: 1000, // max resized image's size.
+        min: 420, // min resized image's size.
+        steps: 4, // #images b/w min and max (inclusive)
         disableInDev: false,
       },
     ],
