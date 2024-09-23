@@ -98,7 +98,7 @@ const config: Config = {
   ],
 
   plugins: [
-    require.resolve('docusaurus-plugin-image-zoom'),
+    'docusaurus-plugin-zooming',
     [
       '@docusaurus/plugin-ideal-image',
       {
@@ -191,13 +191,16 @@ const config: Config = {
 
         //... other Algolia params
       },
-      zoom: {
-        selector: '.markdown :not(em) > img',
+      zooming: {
+        selector: '.markdown img',
+        delay: 500,
         background: {
-          light: 'rgb(255, 255, 255)',
-          dark: 'rgb(50, 50, 50)'
+          light: 'rgba(101,108,133,0.8)',
+          dark: 'rgba(9,10,17,0.8)'
         },
-        config: {}
+        options: {
+          // See the docs of zooming for all available options: https://github.com/francoischalifour/medium-zoom#usage
+        }
       },
     }) satisfies Preset.ThemeConfig,
 };
