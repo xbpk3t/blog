@@ -1893,5 +1893,32 @@ weekly schedule
 [开学季 | 学习不止在课堂：这些方法和技巧帮你做好知识管理 - 少数派](https://sspai.com/post/68623) 还是知识管理的三个极端，输入、整理、输出。
 
 
+### [2024-09-23]
+
+把type下面的qs和des给移除掉了
+
+- 移除des，因为type本身就是不需要说明的，如果type还需要说明，那一定是
+- 移除qs，因为
+
+
+现在 algo.yml 的 qs 移除不了
+
+kernel.yml
+
+works.yml
+
+```yaml
+- type: x
+  repo:
+    - url: url
+      qq:
+        - topic: topic-name
+          qs:
+```
+
+移除掉topic，因为如果需要topic的，一定是需要“熟悉”乃至“熟练”的，直接在 s 里列出问题就可以了。如果需要topic，反而说明不懂，反而有问题了。
+
+
+
 
 

@@ -206,3 +206,62 @@ date: 2024-09-14
 
 ***综上，这是一本关于“专业主义”的书，是通过一个个作者自己经历过的事情和项目，来告诉我们这么做可能会更好。而非生硬的一条条准则和规范。所以也就没什么好总结的。***
 
+
+
+
+
+
+## 《100 Go Mistakes and How to Avoid Them》
+
+
+[深度阅读之《100 Go Mistakes and How to Avoid Them》 | qcrao 的博客](https://qcrao.com/post/100-go-mistakes-reading-notes/)
+
+[[长文]从《100 Go Mistakes》我总结了什么？ - luozhiyun`s Blog](https://www.luozhiyun.com/archives/797)
+
+
+
+```markdown
+- 不要边遍历 map 边写入 key
+- break 可以作用于 for, select, switch。但是只能跳出一重循环，因此要注意，break 是否跳到了你预想的地方。可以用 break with label 来解决。
+- 用 TrimPrefix, TrimSuffix，而不是TrimLeft, TrimRight，有坑。
+- 当我们要返回一个确定的、预期内的错误时，应该返回一个预先定义的 error value，也被称为 sentinel error；当返回非预期的错误时，返回特定的 error type。前者用 errors.Is 判断，后者用 errors.As 判断。
+- context的key要用预定义的（且私有的）const，而不是直接用字符串
+- 用 map[K]struct{} 这种形式来表示 set 不光是节省内存，还能明确表达出这是一个 set 的含义；如果把 struct{} 换成 bool 意义就没这么明确了。
+```
+
+- 用validator做各种验证，做好validator层，可以节省很多代码，不要用各种if进行参数验证。
+- 用好操作各种datatype时应该做好的的优化，以及避坑。这点相关内容那个很多，不多说。
+- 用各种code patterns，比如options, builder之类的。
+- 还有一些 kiss原则相关的，比如说OOP的SRP，其实就是降低（方法的）颗粒度。如果能够SRP的话，func的params本身就不会太多，这两个是相辅相成的。
+
+---
+
+```markdown
+- 方法里的入参超过 2 个，就用 slice/dict 之类的复合数据类型或者可变参数
+- 函数的“单一职责原则”，一个函数只做一件事情，把函数最小粒度化（不要使用 flag 把多个函数合并到一个函数里）
+- 使用抽象类和接口类，便于管理实体类
+- 尽量使用私有 struct 和私有方法，除非必要不公开
+- *enum 要注意 iota 初始值要和数据表中该字段默认值相同，否则如果缺少该参数，会有问题*
+
+---
+
+- 尽量不要使用 if，不要嵌套太多 if
+  - if 如果用于入参验证，把验证工作封装成一个 validator 类或者封装成一个单独的方法
+  - 如果 if 里处理的逻辑比较简单：找 if 里返回数据的共同点，封装成单独方法，统一处理
+  - 如果 if 里处理的逻辑比较复杂：*用面向接口开发，把不同的 if 封装成这个接口类的不同实现类*
+- if 判断里能用 bool 就用 bool，不要用`isResize == "success"`这样
+- if 里不要使用反义，逻辑更清晰
+
+```
+
+
+
+
+
+
+
+[Go中的一些优化笔记，简单而不简单](https://mp.weixin.qq.com/s/X8c6ZIJdBFptYA9CRj6wnA)
+
+
+
+

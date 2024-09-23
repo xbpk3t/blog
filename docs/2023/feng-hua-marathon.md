@@ -112,11 +112,9 @@ slug: /2023/feng-hua-marathon
 
 ![jps.JPG](img/marathon/zsgy/jps.JPG)
 
-![zsgy.JPG](img/marathon/zsgy/zsgy.JPG)
-
-
 ![zsgy2.JPG](img/marathon/zsgy/zsgy2.JPG)
 
 
 ![zsgy3.JPG](img/marathon/zsgy/zsgy3.JPG)
 
+![zsgy.JPG](img/marathon/zsgy/zsgy.JPG)
