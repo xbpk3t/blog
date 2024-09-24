@@ -1,6 +1,7 @@
 ---
 title: shell脚本常用语法
-last_update:2024-05-22
+last_update:
+  date:  2024-05-22
 slug: /2024/shell-syntax
 ---
 

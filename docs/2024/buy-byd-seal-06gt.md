@@ -1,6 +1,7 @@
 ---
 title: 【海豹06GT】购车记录
-last_update: 2024-09-13
+last_update:
+  date:   2024-09-13
 slug: /2024/buy-byd-seal-06gt
 ---
 

@@ -1,7 +1,8 @@
 ---
 title: 信息源管理2
 slug: /2024/feed-manage-2
-last_update:2024-09-07
+last_update:
+  date:  2024-09-07
 ---
 
 
