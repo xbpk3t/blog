@@ -24,10 +24,8 @@ import type * as Preset from '@docusaurus/preset-classic';
 function sortSidebarItems(items) {
   // 定义排序函数
   const sortByLastUpdatedAt = (a, b) => {
-    const dateA = new Date(a.lastUpdatedAt);
-    const dateB = new Date(b.lastUpdatedAt);
-    // 如果 dateA 比 dateB 旧，返回 1，否则返回 -1
-    return dateA > dateB ? 1 : -1;
+    // 直接比较时间戳
+    return b.lastUpdatedAt - a.lastUpdatedAt;
   };
 
   // 对当前层级的 items 进行排序

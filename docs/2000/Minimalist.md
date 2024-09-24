@@ -1,6 +1,7 @@
 ---
 title: 极简生活
-date: 2000-9-9
+last_update: 
+  date: 2000-9-9
 slug: /minimalist
 ---
 

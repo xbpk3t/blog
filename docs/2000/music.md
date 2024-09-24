@@ -1,7 +1,8 @@
 ---
 title: music常识
 slug: /music
-date: 2000-01-01
+last_update: 
+  date: 2000-01-01
 ---
 
 
