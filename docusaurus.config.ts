@@ -7,42 +7,6 @@ import {themes as prismThemes} from 'prism-react-renderer';
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 
-// Reverse the sidebar items ordering (including nested category items)
-// function reverseSidebarItems(items) {
-//   // Reverse items in categories
-//   const result = items.map((item) => {
-//     if (item.type === 'category') {
-//       return {...item, items: reverseSidebarItems(item.items)};
-//     }
-//     return item;
-//   });
-//   // Reverse items at current level
-//   result.reverse();
-//   return result;
-// }
-
-function sortSidebarItems(items) {
-  // 定义排序函数
-  const sortByLastUpdatedAt = (a, b) => {
-    // 直接比较时间戳
-    return b.lastUpdatedAt - a.lastUpdatedAt;
-  };
-
-  // 对当前层级的 items 进行排序
-  // 确保在这里进行排序
-  return items
-    .map((item) => {
-      if (item.type === 'category') {
-        // 递归排序子类别
-        return {
-          ...item,
-          items: sortSidebarItems(item.items)
-        };
-      }
-      return item;
-    })
-    .sort(sortByLastUpdatedAt);
-}
 
 const config: Config = {
   title: 'Lucas Blog',
@@ -70,8 +34,8 @@ const config: Config = {
   // metadata like html lang. For example, if your site is Chinese, you may want
   // to replace "en" with "zh-Hans".
   i18n: {
-    defaultLocale: 'en',
-    locales: ['en'],
+    defaultLocale: 'zh-Hans',
+    locales: ['zh-Hans', 'en'],
   },
 
   presets: [
@@ -81,16 +45,9 @@ const config: Config = {
         docs: {
           routeBasePath: '/',
           sidebarCollapsible: false, // 默认展开所有侧边栏
-          sidebarPath: require.resolve('./sidebars.js'),
+          sidebarPath: require.resolve('./sidebars.ts'),
           showLastUpdateTime: true,
           showLastUpdateAuthor: true,
-          async sidebarItemsGenerator({
-                                        defaultSidebarItemsGenerator,
-                                        ...args
-                                      }) {
-            const sidebarItems = await defaultSidebarItemsGenerator(args);
-            return sortSidebarItems(sidebarItems);
-          },
           // remarkPlugins: [
           //   [
           //     remarkKroki,
