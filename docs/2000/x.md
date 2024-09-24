@@ -1,6 +1,6 @@
 ---
 title: x
-last_update: 
+last_update:
   date: 2000-01-01
 slug: /x
 ---
