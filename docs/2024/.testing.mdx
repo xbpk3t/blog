@@ -1,0 +1,49 @@
+
+
+
+```yaml
+
+  qs:
+    - q: 完整的性能测试流程包括哪些？
+    - q: 性能测试包括哪些？
+      x: |
+        - `基准测试`在一个给定的基准下，能执行的最好情况。例如，在没有负重的情况下，你跑 100 米需要花多少时间（这边，没有负重是基准）
+        - `负载测试`在不同的负载下的。对于刚才那个例子，如果扩展为：在 50 公斤、100 公斤...等情况下，你跑 100 米需要花多少时间？
+        - `压力测试`在压力情况下的性能测试。对于刚才那个例子，如果改为：在一阵强风的情况下，你在负重或没有负重的情况下，跑 100 米需要花多少时间？
+        - 其他性能测试，比如`并发测试`、`spike测试`、`破坏性压力测试`、`稳定性测试`、`验收测试`、`失效恢复测试`
+
+    - q: 负载测试有哪几个维度?
+      x: 用户维度（`vu模型`）和请求数维度（`RPS模型`）
+
+    - q: 怎么估算一个系统的 QPS/TPS/RPS？
+      s:
+        - 性能测试指标(QPS/TPS/RPS/HPS/RT/ERROR)有哪些？
+        - QPS/RPS/TPS都是什么？怎么估算系统的QPS/RPS/TPS？
+        - p99/p95/p999
+      x: |
+        结论：RPS 和请求数 1:900（100 个 RPS，意味着 9 万个请求）
+
+        具体原理 `(总PV数*80%) / (3600* 20%) = QPS`和`峰值时间每秒QPS / 单台机器的QPS = 需要的机器数`
+
+        *Let’s talk about the conclusion first, RPS and number of requests 1:900 (100 RPS, means 90,000 requests)* Specific principle `(Total PV number * 80%) / (3600* 20%) = QPS` and `Peak time QPS per second / QPS of a single machine = number of machines required`
+
+
+    - q: 性别瓶颈的征兆 (performance bottleneck)？
+
+
+
+    - q: 最常见的测试场景的设计？
+    - q: 怎么设计尖峰测试的场景？
+    - q: 动态吞吐量的场景？
+    - q: 负载测试的场景？
+    - q: 怎么模拟真实用户场景？
+    - q: What are the Perf Testing Metrics?
+    - q: How to estimate the RPS of a service?
+    - q: "***Can you give me some conclusions on horizontally comparing various metrics, such as prom, linux and applications like redis, nginx, etc?***"
+    - q: Compare Test Reporting Tools, Which is better? (AllureReport)
+    - q: Perf Testing, Load Testing, Stress Testing
+    - q: "*Sign of perf bottleneck?* (memory, io, cpu, network)"
+    - q: 全链路压测 怎么搞？有哪些细节？
+
+
+```

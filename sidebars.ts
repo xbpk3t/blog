@@ -14,9 +14,9 @@ import type {SidebarsConfig} from '@docusaurus/plugin-content-docs';
 
 
 // @ts-check
-const fs = require("fs");
-const path = require("path");
-const matter = require('gray-matter');
+import fs from 'fs';
+import path from 'path';
+import matter from 'gray-matter'
 
 /**
  * @param {string} dir

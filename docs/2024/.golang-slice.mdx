@@ -1,0 +1,69 @@
+---
+title: golang slice
+date: 2024-08-17
+---
+
+
+```yaml
+
+# https://github.com/golang/go/tree/master/src/slices
+- topic: slice
+  url: https://github.com/golang/go/blob/master/src/runtime/slice.go
+  qs:
+    - q: 对 slice 赋值的具体实现？
+      x: 底层数组是可以同时被多个 slice 指向，所以对一个 slice 的元素进行操作是有可能会影响到其他 slice 的
+    - q: How to implement slice? =  (pointer, cap, len) Why cap? (相当于pool, 允许切片在一定范围内动态增长，避免频繁的内存分配操作) + How does slice create and expand?
+      x: (growslice, oldCap < 256(threshold)指数增长, >256 for..., 更平滑)
+    - q: Compare golang slice and redis list? 既然array完胜DLL，为啥redis还要用DLL实现list，而不是用array?
+      x: 核心区别就是slice基于Array，redis基于DLL。空间复杂度（slice内存开销更小）、读操作时间复杂度（slice更快）、扩容机制（预分配/按需分配）和使用场景的区别都是表现。很明显，DLL相比array更适合写多读少的场景，然而redis...DLL和Array就像绿皮火车和高铁
+    - q: slice pseudo shrink
+      x: slice和map都是pseudo shrink，且回收都要靠GC来完成（事实上只要是带GC的语言都是pseudo shrink，都是靠GC完成回收）三种：c/cpp这种无GC的真缩容、带GC的都是伪缩容、rust
+    - q: golang slice是否原生支持并发? Why?
+      x: 并发写操作肯定是不安全的。至于并发读，如果定义了len，并发读是安全的，因为一旦定义len，就不能在不重新分配底层数组的情况下改变。
+
+    - q: slice append()和 copy()
+      u: https://mp.weixin.qq.com/s?__biz=MzAxMTA4Njc0OQ==&mid=2651445035&idx=3&sn=7800fa08fe3f83015635dc3f2febb6fd
+
+    # [Go 中切片使用不当会造成内存泄漏的那些场景 - 掘金](https://juejin.cn/post/7065683956871462943)
+    - q: slice 内存泄漏
+      u: https://mp.weixin.qq.com/s?__biz=MzUxMDI4MDc1NA==&mid=2247492355&idx=1&sn=0e468b75394ba9778437b5c72e43c3ad
+      x: |
+        - 因切片容量而导致内存泄漏：在已有的切片或数组上进行切分操作而保留了原有切片的容量大小导致内存泄露。如果我们在一个大的切片上只切分出一个小的切片，那么大量内存将会保持分配状态但没有得到应用。
+        - 因指针类型导致内存泄露：当我们在切分一个元素类型为指针类型的切片或切片的类型是含有指针字段的结构体时，GC不会自动回收这些元素。在我们列举的例子中，我们通过将剩余元素手动置为nil已达到自动回收的目的。
+
+
+    - q: 如何在Go语言中执行slice的深拷贝?
+      x: 创建一个新的切片，并使用copy函数将原始切片中的元素复制到新切片中。这样可以确保原始切片和新切片是完全独立的。
+
+
+#    - q: 怎么使用 slices.Delete() 删除slice中的元素?
+#      u: https://github.com/golang/go/issues/63393
+#
+#    - q: How to remove element from slice of struct?
+#      u: https://gist.github.com/hxhac/14753a2822ef1d060077a78c38fba355
+
+    - u: https://gist.github.com/hxhac/20fc39ea8fcc6eaee461e341d473f540
+      q: append 无法修改传入参数 slice？
+
+    # https://ueokande.github.io/go-slice-tricks/
+    - q: golang slices pkg. Clip(), Clone(), Grow(), Insert(), Replace(), Reverse(), Func(BinarySearch(), Compact(), Compare(), Contains(), Delete(), Equal(), IsSorted(), Max(), Min(), Index(), Sort())
+      u: https://go.dev/wiki/SliceTricks
+
+    - q: Compare slice concat methods? append(), copy(), slices.Concat()
+    - q: Delete, DeleteFunc, Replace, Compact, CompactFunc等函数，缩容操作之后原slice的被缩掉的那部分数据被修改为0
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
