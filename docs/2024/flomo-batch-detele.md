@@ -1,6 +1,8 @@
 ---
 title: flomo批量删除脚本
 slug: /2024/flomo-batch-delete
+keywords: [flomo, 批量删除, js]
+description: 用来实现flomo批量删除的js脚本
 last_update:
   date:  2024-09-24
 ---
@@ -70,7 +72,7 @@ scrollAndCheck();
 
 然后就发现flomo不支持批量删除，然后就找了找其他的类似定位的工具，
 
-首先想到的就是 memos，但是其 maintainer 明确说了不会支持批删功能。[批量归档/删除 · Issue #1489 · usememos/memos](https://github.com/usememos/memos/issues/1489)
+首先想到的就是 memos，但是其 maintainer 明确说了 [不会支持批删功能](https://github.com/usememos/memos/issues/1489)。
 
 找了一圈最后还是决定自己写个js脚本实现这个feat
 
@@ -85,6 +87,7 @@ scrollAndCheck();
 - Memos同样不支持批量删除，还需要 self-hosted
 - Monolog妙想 和 Migi 只有APP，不支持多端同步
 - Thino 是 Obsidian的插件
+- 印象笔记等笔记类APP，上面说了，太重了，我不需要这种写长文的软件，并且这些笔记类APP普遍UI很粗糙，不好用。
 
 ---
 

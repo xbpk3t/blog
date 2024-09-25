@@ -1,45 +1,45 @@
-import React from "react";
-import { useThemeConfig, useColorMode } from "@docusaurus/theme-common";
-import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
-import { ThemeConfig } from "@docusaurus/preset-classic";
-import BrowserOnly from "@docusaurus/BrowserOnly";
-import Giscus, { GiscusProps } from "@giscus/react";
+import React from 'react'
+import { useThemeConfig, useColorMode } from '@docusaurus/theme-common'
+import Giscus, { GiscusProps } from '@giscus/react'
+import { useLocation } from '@docusaurus/router';
 
-interface CustomThemeConfig extends ThemeConfig {
-  giscus: GiscusProps & { darkTheme: string };
+const defaultConfig: Partial<GiscusProps> = {
+  id: 'comments',
+  mapping: 'specific',
+  reactionsEnabled: '1',
+  emitMetadata: '0',
+  inputPosition: 'top',
+  // loading: 'lazy',
+  strict: '1', // 用根据路径标题自动生成的 sha1 值，精确匹配 github discussion，避免路径重叠（比如父和子路径）时评论加载串了
+  lang: 'zh-CN',
 }
 
-const defaultConfig: Partial<GiscusProps> & { darkTheme: string } = {
-  id: "comments",
-  mapping: "title",
-  reactionsEnabled: "1",
-  emitMetadata: "0",
-  inputPosition: "top",
-  lang: "zh-CN",
-  theme: "light",
-  darkTheme: "dark",
-};
-
 export default function Comment(): JSX.Element {
-  const themeConfig = useThemeConfig() as CustomThemeConfig;
-  const { i18n } = useDocusaurusContext();
+  const themeConfig = useThemeConfig()
 
   // merge default config
-  const giscus = { ...defaultConfig, ...themeConfig.giscus };
+  const giscus = { ...defaultConfig, ...themeConfig.giscus }
 
   if (!giscus.repo || !giscus.repoId || !giscus.categoryId) {
     throw new Error(
-      "You must provide `repo`, `repoId`, and `categoryId` to `themeConfig.giscus`."
-    );
+      'You must provide `repo`, `repoId`, and `categoryId` to `themeConfig.giscus`.',
+    )
   }
 
+  const path = useLocation().pathname.replace(/^\/|\/$/g, '');
+  const firstSlashIndex = path.indexOf('/');
+  let subPath: string;
+  if (firstSlashIndex !== -1) {
+    subPath = path.substring(firstSlashIndex + 1)
+  } else {
+    subPath = "index"
+  }
+
+  giscus.term = subPath
   giscus.theme =
-    useColorMode().colorMode === "dark" ? giscus.darkTheme : giscus.theme;
-  giscus.lang = i18n.currentLocale;
+    useColorMode().colorMode === 'dark' ? 'transparent_dark' : 'light'
 
   return (
-    <BrowserOnly fallback={<div>Loading Comments...</div>}>
-      {() => <Giscus {...giscus} />}
-    </BrowserOnly>
-  );
+    <Giscus {...giscus} />
+  )
 }

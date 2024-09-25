@@ -3,6 +3,7 @@ title: 巴黎奥运会纪录
 last_update:
   date:  2024-8-13
 slug: /2024/record-for-paris-olympics
+keywords: [巴黎奥运会]
 ---
 
 
