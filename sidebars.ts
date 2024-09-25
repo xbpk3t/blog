@@ -23,7 +23,7 @@ const matter = require('gray-matter');
  * @param {string[]} blacklist
  * @returns {string[]}
  */
-function getFiles(dir: string, blacklist: string[]): string[] {
+export function getFiles(dir: string, blacklist: string[]): string[] {
   let files = [];
   const year = path.basename(dir);
 

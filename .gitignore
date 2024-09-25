@@ -3,8 +3,11 @@
 
 docs.xml
 
+.task
+
 # Production
 /build
+
 
 # Generated files
 .docusaurus

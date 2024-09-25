@@ -7,7 +7,9 @@ import MDXContent from '@theme/MDXContent';
 import type {Props} from '@theme/DocItem/Content';
 import {useDateTimeFormat} from '@docusaurus/theme-common/internal';
 
+
 import styles from './styles.module.css';
+import Toolbar from "@site/src/components/Toolbar";
 
 /**
  Title can be declared inside md content or declared through
@@ -85,6 +87,8 @@ export default function DocItemContent({children}: Props): JSX.Element {
           </div>
         </header>
       )}
+
+      <Toolbar></Toolbar>
 
       <MDXContent>{children}</MDXContent>
     </div>
