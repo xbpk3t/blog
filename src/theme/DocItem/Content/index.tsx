@@ -41,10 +41,6 @@ function useSyntheticDate(): number | null {
   return metadata.lastUpdatedAt;
 }
 
-function Spacer() {
-  return <>{' · '}</>;
-}
-
 function DateTime({
                     date,
                     formattedDate,
@@ -59,7 +55,6 @@ export default function DocItemContent({children}: Props): JSX.Element {
   const syntheticTitle = useSyntheticTitle();
   const ts = useSyntheticDate(); // 假设这是你的时间戳
   const date = new Date(ts);
-  // const formattedDate = date.getFullYear() + '年' + (date.getMonth() + 1) + '月' + date.getDate() + '日';
   const formattedDate = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
 
   const dateTimeFormat = useDateTimeFormat({
@@ -78,9 +73,7 @@ export default function DocItemContent({children}: Props): JSX.Element {
       {syntheticTitle && (
         <header>
           <Heading as="h1">{syntheticTitle}</Heading>
-          {/*<div class="margin-vert--md">{formattedDate}</div>*/}
           <div
-            // className={clsx(styles.container, 'margin-vert--md', className)}>
             className={clsx(styles.container, 'margin-vert--md')}>
             <DateTime date={formattedDate}
                       formattedDate={formatDate(formattedDate)}/>
