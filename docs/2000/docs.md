@@ -2064,3 +2064,27 @@ works.yml
 
 
 
+
+---
+
+
+```markdown
+每日复盘
+
+- PDCA: Plan(目标), Do(具体流程), Check, Act(处理检查结果)
+- KPT 复盘法: 在复盘的时候，首先回顾并记录之前的计划 / 目标和目前的现状 / 结果，然后问自己三个问题，写下回答：
+
+KPT是PDCA中A的具体流程（转动PDCA循环的一个工具，或者说是将PDCA中的A的部分进一步明确的方法）
+
+K （ Keep 保持）：有哪些细节、操作，是可以继续保持的？
+P （ Problem 问题）：遇到了什么问题？有哪些地方需要进一步思考、解决？
+T （ Try 尝试）：我可以尝试去做什么？
+
+- GRAI复盘法: Goal, Result, Analyse(Why), Insight(总结)
+- KISS复盘法: Keep, Improve, Stop, Start
+
+其实都是大同小异（都是PDCA的变形）
+```
+
+
+

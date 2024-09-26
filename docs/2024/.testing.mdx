@@ -47,3 +47,56 @@
 
 
 ```
+
+
+
+
+- 内存瓶颈征兆
+	- buff/cache增长过快
+	- Physical Memory（物理内存）使用率过高
+	- GC 过快，内存溢出
+- IO 瓶颈
+	- IO 队列过长，
+	- IO 处理时间过长
+	- IO 吞吐量过低
+	- await 与 svctm 差值过大
+- cpu 瓶颈
+	- 负载过高
+	- （sys+usr）利用率超过 80% 或者低于 50%
+	- Iowait 过高
+	- 运行队列过长
+	- 上下文切换过快，中断过快
+- 网络瓶颈
+	- 丢包，延迟过高
+	- 重传过高
+	- mtu 值过小
+- time_wait 增长过快
+
+
+
+
+
+---
+
+```markdown
+- Memory bottleneck symptoms
+  - buff/cache grows too fast
+  - Physical Memory usage is too high
+  - GC is too fast and memory overflows
+- IO bottleneck
+  - The IO queue is too long,
+  - IO processing time is too long
+  - IO throughput is too low
+  - The difference between await and svctm is too large
+- cpu bottleneck
+  - load too high
+  - (sys+usr) utilization exceeds 80% or falls below 50%
+  - Iowait is too high
+  - The run queue is too long
+  - Context switches too quickly and interrupts too quickly
+- Network bottleneck
+  - Packet loss, high latency
+  - Retransmission too high
+  - mtu value is too small
+- time_wait grows too fast
+```

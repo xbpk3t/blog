@@ -16,8 +16,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@main
-        with:
-          fetch-depth: 0 # [关于在 GitHub Action 中无法获取 Git 历史的问题 | HeyFE](https://blog.heyfe.org/blog/git-history-in-github-action.html) 默认浅克隆，但是这样的话docusaurus docs mode下无法获得history，showLastUpdateTime就不生效了。
       - uses: actions/setup-node@main
         with:
           node-version: 20
