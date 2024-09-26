@@ -96,8 +96,6 @@ slug: /2023/feng-hua-marathon
 
 ![fenghua-certifacate_mosaic.png](img/marathon/fenghua-certifacate_mosaic.png)
 
-![fenghua-medal.JPG](img/marathon/fenghua-medal.JPG)
-
 ![fenghua-record-coros.JPG](img/marathon/fenghua-record-coros.JPG)
 
 ![fenghua-record-ypq.JPG](img/marathon/fenghua-record-ypq.JPG)
