@@ -31,12 +31,12 @@
   --borderColor-neutral-muted: rgba(175,184,193,0.2);
 }
 
-/*img:not(.avatar__photo) {*/
-/*  !* 图片等比例缩小 *!*/
-/*  max-width: 70%;*/
-/*  !* 居中展示 *!*/
-/*  !*padding-left: 20%;*!*/
-/*}*/
+img:not(.avatar__photo) {
+  /* 图片等比例缩小 */
+  max-width: 70%;
+  /* 居中展示 */
+  padding-left: 20%;
+}
 
 
 img[src*="#w60"] {

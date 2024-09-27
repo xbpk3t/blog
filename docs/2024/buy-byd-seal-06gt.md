@@ -338,6 +338,12 @@ slug: /2024/buy-byd-seal-06gt
 
 
 
+---
+
+
+![us-new-cars.png](img/buy-byd-seal-06gt/us-new-cars.png)
+
+
 
 
 ### 中国汽车出海，主阵地是哪儿？
