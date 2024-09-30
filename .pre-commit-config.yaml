@@ -39,7 +39,7 @@ repos:
       - id: gitlint-ci
 
   - repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.41.0
+    rev: v0.42.0
     hooks:
       - id: markdownlint
         alias: md
@@ -60,7 +60,7 @@ repos:
         language: python
 
   - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.19.2
+    rev: v8.19.3
     hooks:
       - id: gitleaks
         name: Scan Secrets
