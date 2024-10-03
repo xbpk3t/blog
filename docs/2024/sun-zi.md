@@ -234,13 +234,31 @@ last_update:
 
 
 
-![image](img/sunzi/三十六计.webp)
+![image](img/sun-zi/三十六计.webp)
+
+
+---
+
+
+
+
+上屋抽梯：假之以便，唆之使前，断其援应，陷之死地。
+
+
+
+
+
+
+
+
+
+
 
 
 
 ## 《孙子兵法》
 
-![image](img/sunzi/孙子兵法.webp)
+![image](img/sun-zi/孙子兵法.webp)
 
 
 
