@@ -242,18 +242,18 @@ feeds-merge + BriefCake + gmail 这套用了半年多了，没有丝毫不适，
 
 - url: https://www.youtube.com/@%EB%9D%BC%EB%B2%A4/videos
 
-- url: https://www.youtube.com/@auddkasmr
+- url: https://www.youtube.com/@auddkasmr/videos
   des: 【Irene】
 
 - url: https://www.youtube.com/@RoseASMR/videos
-- url: https://www.youtube.com/@skyeASMR
-- url: https://www.youtube.com/@SleepySlugASMR
-- url: https://www.youtube.com/@softseraphinaasmr
-- url: https://www.youtube.com/@starryeyedasmr5187
-- url: https://www.youtube.com/@ritaglitchASMR
-- url: https://www.youtube.com/@QuietCreative
+- url: https://www.youtube.com/@skyeASMR/videos
+- url: https://www.youtube.com/@SleepySlugASMR/videos
+- url: https://www.youtube.com/@softseraphinaasmr/videos
+- url: https://www.youtube.com/@starryeyedasmr5187/videos
+- url: https://www.youtube.com/@ritaglitchASMR/videos
+- url: https://www.youtube.com/@QuietCreative/videos
 - url: https://www.youtube.com/@pomeko_ASMR./videos
-- url: https://www.youtube.com/@ScottishMurmurs
+- url: https://www.youtube.com/@ScottishMurmurs/videos
 
 
 - url: https://www.youtube.com/@soramsori/videos

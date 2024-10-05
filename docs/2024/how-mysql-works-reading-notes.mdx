@@ -808,7 +808,7 @@ execute阶段
 ```yaml
 #- topic: InnoDB 缓冲池(buffer-pool)
 
-- 避免每次读操作都进行磁盘 IO，具体来说，缓冲池缓存了大量数据页，让 CPU 读取和写入数据时，直接和缓冲区交互，不需要操作磁盘，从而避免磁盘拖慢数据库性能的问题（*注意缓冲池是 innoDB 引擎的特性，而不是 mysql 的*）
+- 什么是缓冲池 buffer-pool? # 避免每次读操作都进行磁盘 IO，具体来说，缓冲池缓存了大量数据页，让 CPU 读取和写入数据时，直接和缓冲区交互，不需要操作磁盘，从而避免磁盘拖慢数据库性能的问题（*注意缓冲池是 innoDB 引擎的特性，而不是 mysql 的*）
 - 缓冲池存哪些数据？ # 缓存表数据与索引数据，把磁盘上的数据加载到缓冲池，避免每次访问都进行磁盘 IO，起到加速访问的作用。
 - 缓冲池的工作机制？
 
@@ -830,6 +830,9 @@ execute阶段
 
 ### 脏页刷新
 
+
+
+![innodb-page-flushing.svg](img/mysql-45-lessons/innodb-page-flushing.svg)
 
 
 
@@ -954,10 +957,6 @@ Checkpoint机制每次刷新多少页，从哪里取脏页，什么时间触发�
 
 :::danger
 
-
-
----
-
 ```yaml
 - topic: InnoDB 预读
   qs:
@@ -968,10 +967,6 @@ Checkpoint机制每次刷新多少页，从哪里取脏页，什么时间触发�
     - q: 什么是缓冲池污染？
     - q: 怎么解决缓冲池污染的问题？
 ```
-
-
-
-
 
 :::
 
@@ -1005,7 +1000,7 @@ Checkpoint机制每次刷新多少页，从哪里取脏页，什么时间触发�
 
 
 
-## 20、redo日志
+## ***20、redo日志***
 
 [第20章 说过的话就一定要办到-redo日志（上）](https://relph1119.github.io/mysql-learning-notes/#/mysql/20-%E8%AF%B4%E8%BF%87%E7%9A%84%E8%AF%9D%E5%B0%B1%E4%B8%80%E5%AE%9A%E8%A6%81%E5%8A%9E%E5%88%B0-redo%E6%97%A5%E5%BF%97%EF%BC%88%E4%B8%8A%EF%BC%89)
 
@@ -1067,7 +1062,7 @@ redo日志是什么
 
 
 
-## 22、后悔了怎么办-undo日志（下）
+## ***22、undo日志***
 
 
 [第23章 后悔了怎么办-undo日志（下）](https://relph1119.github.io/mysql-learning-notes/#/mysql/23-%E5%90%8E%E6%82%94%E4%BA%86%E6%80%8E%E4%B9%88%E5%8A%9E-undo%E6%97%A5%E5%BF%97%EF%BC%88%E4%B8%8B%EF%BC%89?id=undo%e6%97%a5%e5%bf%97%e5%85%b7%e4%bd%93%e5%86%99%e5%85%a5%e8%bf%87%e7%a8%8b)
