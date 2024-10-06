@@ -15,15 +15,16 @@ const config: Config = {
   staticDirectories: ['static'],
 
   // Set the production url of your site here
-  url: 'https://blog.wrss.top',
+  url: 'https://xbpk3t.github.io',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: '/',
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  // organizationName: 'XBPk3T', // Usually your GitHub org/user name.
-  // projectName: 'docs', // Usually your repo name.
+  projectName: 'xbpk3t.github.io',
+  organizationName: 'xbpk3t',
+  trailingSlash: false,
 
   onBrokenLinks: 'throw', // docusaurus build 时忽略坏链
   onBrokenAnchors: 'throw',
