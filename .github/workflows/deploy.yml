@@ -41,18 +41,7 @@ jobs:
           user_name: github-actions[bot]
           user_email: 41898282+github-actions[bot]@users.noreply.github.com
 
-      #      - name: Publish to Cloudflare Pages
-      #        uses: cloudflare/pages-action@v1
-      #        with:
-      #          apiToken: ${{ secrets.CF_API_TOKEN }}
-      #          accountId: ${{ secrets.CF_ACCOUNT_ID }}
-      #          projectName: docs
-      #          directory: build
-      #          wranglerVersion: '3' # Enable Wrangler v3
-      #          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-      #          branch: gh-pages
-
-      - name: Publish to Cloudflare Pages
+      - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
