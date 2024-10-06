@@ -4,8 +4,8 @@
   <ShortName>Lucas Blog</ShortName>
   <Description>Search Lucas Blog</Description>
   <InputEncoding>UTF-8</InputEncoding>
-  <Image width="16" height="16" type="image/x-icon">https://blog.wrss.top/zh-Hans/img/favicon.svg</Image>
-  <Url type="text/html" method="get" template="https://blog.wrss.top/zh-Hans/search?q={searchTerms}"/>
-  <Url type="application/opensearchdescription+xml" rel="self" template="https://blog.wrss.top/zh-Hans/opensearch.xml" />
-  <moz:SearchForm>https://blog.wrss.top/zh-Hans/</moz:SearchForm>
+  <Image width="16" height="16" type="image/x-icon">https://xbpk3t.github.io/zh-Hans/img/favicon.svg</Image>
+  <Url type="text/html" method="get" template="https://xbpk3t.github.io/zh-Hans/search?q={searchTerms}"/>
+  <Url type="application/opensearchdescription+xml" rel="self" template="https://xbpk3t.github.io/zh-Hans/opensearch.xml" />
+  <moz:SearchForm>https://xbpk3t.github.io/zh-Hans/</moz:SearchForm>
 </OpenSearchDescription>
