@@ -22,9 +22,11 @@ const config: Config = {
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  projectName: 'xbpk3t.github.io',
+  projectName: 'blog',
   organizationName: 'xbpk3t',
   trailingSlash: false,
+  deploymentBranch: 'gh-pages',
+
 
   onBrokenLinks: 'throw', // docusaurus build 时忽略坏链
   onBrokenAnchors: 'throw',
