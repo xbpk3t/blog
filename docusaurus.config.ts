@@ -22,7 +22,7 @@ const config: Config = {
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  projectName: 'blog',
+  projectName: 'xbpk3t.github.io',
   organizationName: 'xbpk3t',
   trailingSlash: false,
   deploymentBranch: 'gh-pages',
