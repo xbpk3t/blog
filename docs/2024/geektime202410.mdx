@@ -1,0 +1,416 @@
+---
+title: x
+slug: /2024/golang-project-dev-practice
+last_update:
+  date: 2024-10-07
+---
+
+
+
+
+## 《Go 语言项目开发实战》读书笔记
+
+
+[marmotedu/geekbang-go: 极客时间 《Go 语言项目开发实战》课程补充教程。](https://github.com/marmotedu/geekbang-go)
+
+
+
+
+### git commit
+
+[05 规范设计（下）：commit 信息风格迥异、难以阅读，如何规范？](https://learn.lianglianglee.com/%E4%B8%93%E6%A0%8F/Go%20%E8%AF%AD%E8%A8%80%E9%A1%B9%E7%9B%AE%E5%BC%80%E5%8F%91%E5%AE%9E%E6%88%98/05%20%E8%A7%84%E8%8C%83%E8%AE%BE%E8%AE%A1%EF%BC%88%E4%B8%8B%EF%BC%89%EF%BC%9Acommit%20%E4%BF%A1%E6%81%AF%E9%A3%8E%E6%A0%BC%E8%BF%A5%E5%BC%82%E3%80%81%E9%9A%BE%E4%BB%A5%E9%98%85%E8%AF%BB%EF%BC%8C%E5%A6%82%E4%BD%95%E8%A7%84%E8%8C%83%EF%BC%9F.md)
+
+---
+
+
+![git-types-belongs.jpg](img/geektime202410/git-types-belongs.jpg)
+
+![git-commit-types.jpg](img/geektime202410/git-commit-types.jpg)
+
+```markdown
+如果我们变更了应用代码，比如某个 Go 函数代码，那这次修改属于代码类。在代码类中，有 4 种具有明确变更意图的类型：feat、fix、perf 和 style；如果我们的代码变更不属于这 4 类，那就全都归为 refactor 类，也就是优化代码。
+
+如果我们变更了非应用代码，例如更改了文档，那它属于非代码类。在非代码类中，有 3 种具有明确变更意图的类型：test、ci、docs；如果我们的非代码变更不属于这 3 类，那就全部归入到 chore 类。
+
+Angular 的 Commit Message 规范提供了大部分的 type，在实际开发中，我们可以使用部分 type，或者扩展添加我们自己的 type。但无论选择哪种方式，我们一定要保证一个项目中的 type 类型一致。
+```
+
+
+
+
+
+---
+
+
+
+```markdown
+提交频率
+在实际项目开发中，如果是个人项目，随意 commit 可能影响不大，但如果是多人开发的项目，随意 commit 不仅会让 Commit Message 变得难以理解，还会让其他研发同事觉得你不专业。因此，我们要规定 commit 的提交频率。
+
+那到底什么时候进行 commit 最好呢？
+
+我认为主要可以分成两种情况。一种情况是，只要我对项目进行了修改，一通过测试就立即 commit。比如修复完一个 bug、开发完一个小功能，或者开发完一个完整的功能，测试通过后就提交。另一种情况是，我们规定一个时间，定期提交。这里我建议代码下班前固定提交一次，并且要确保本地未提交的代码，延期不超过 1 天。这样，如果本地代码丢失，可以尽可能减少丢失的代码量。
+
+按照上面 2 种方式提交代码，你可能会觉得代码 commit 比较多，看起来比较随意。或者说，我们想等开发完一个完整的功能之后，放在一个 commit 中一起提交。这时候，我们可以在最后合并代码或者提交 Pull Request 前，执行 git rebase -i 合并之前的所有 commit。
+
+那么如何合并 commit 呢？接下来，我来详细说说。
+```
+
+
+
+
+```markdown
+修改 Commit Message
+
+```
+
+
+
+
+:::danger
+
+- 提交频率
+- 合并提交
+- 修改 commit message
+
+:::
+
+
+
+
+
+
+### Makefile
+
+[14 项目管理：如何编写高质量的Makefile？](https://learn.lianglianglee.com/%E4%B8%93%E6%A0%8F/Go%20%E8%AF%AD%E8%A8%80%E9%A1%B9%E7%9B%AE%E5%BC%80%E5%8F%91%E5%AE%9E%E6%88%98/14%20%E9%A1%B9%E7%9B%AE%E7%AE%A1%E7%90%86%EF%BC%9A%E5%A6%82%E4%BD%95%E7%BC%96%E5%86%99%E9%AB%98%E8%B4%A8%E9%87%8F%E7%9A%84Makefile%EF%BC%9F.md)
+
+```markdown
+首先，你需要熟练掌握Makefile的语法。我建议你重点掌握以下语法：Makefile规则语法、伪目标、变量赋值、特殊变量、自动化变量、条件语句和Makefile常用函数。
+
+接着，我们需要提前规划Makefile要实现的功能。一个大型Go项目通常需要实现以下功能：代码生成类命令、格式化类命令、静态代码检查、 测试类命令、构建类命令、Docker镜像打包类命令、部署类命令、清理类命令，等等。
+
+然后，我们还需要通过Makefile功能分类、文件分层、复杂命令脚本化等方式，来设计一个合理的Makefile结构。
+
+最后，我们还需要掌握一些Makefile编写技巧，例如：善用通配符、自动变量和函数；编写可扩展的Makefile；使用带层级的命名方式，等等。通过这些技巧，可以进一步保证我们编写出一个高质量的Makefile。
+```
+
+
+- makefile语法
+- makefile编写技巧
+
+
+
+
+```makefile
+include scripts/make-rules/golang.mk
+include scripts/make-rules/image.mk
+include scripts/make-rules/gen.mk
+include scripts/make-rules/...
+
+## build: Build source code for host platform.
+.PHONY: build
+build:
+	@$(MAKE) go.build
+
+## build.multiarch: Build source code for multiple platforms. See option PLATFORMS.
+.PHONY: build.multiarch
+build.multiarch:
+	@$(MAKE) go.build.multiarch
+
+## image: Build docker images for host arch.
+.PHONY: image
+image:
+	@$(MAKE) image.build
+
+## push: Build docker images for host arch and push images to registry.
+.PHONY: push
+push:
+	@$(MAKE) image.push
+
+## ca: Generate CA files for all iam components.
+.PHONY: ca
+ca:
+	@$(MAKE) gen.ca
+```
+
+
+```markdown
+另外，一个合理的Makefile结构应该具有前瞻性。也就是说，要在不改变现有结构的情况下，接纳后面的新功能。这就需要你整理好Makefile当前要实现的功能、即将要实现的功能和未来可能会实现的功能，然后基于这些功能，利用Makefile编程技巧，编写可扩展的Makefile。
+
+这里需要你注意：上面的Makefile通过 .PHONY 标识定义了大量的伪目标，定义伪目标一定要加 .PHONY 标识，否则当有同名的文件时，伪目标可能不会被执行。
+```
+
+
+[seisman/how-to-write-makefile: 跟我一起写Makefile重制版](https://github.com/seisman/how-to-write-makefile)
+
+[跟我一起写Makefile — 跟我一起写Makefile 1.0 文档](https://seisman.github.io/how-to-write-makefile/)
+
+
+[特别放送 给你一份Go项目中最常用的Makefile核心语法](https://learn.lianglianglee.com/%E4%B8%93%E6%A0%8F/Go%20%E8%AF%AD%E8%A8%80%E9%A1%B9%E7%9B%AE%E5%BC%80%E5%8F%91%E5%AE%9E%E6%88%98/%E7%89%B9%E5%88%AB%E6%94%BE%E9%80%81%20%E7%BB%99%E4%BD%A0%E4%B8%80%E4%BB%BDGo%E9%A1%B9%E7%9B%AE%E4%B8%AD%E6%9C%80%E5%B8%B8%E7%94%A8%E7%9A%84Makefile%E6%A0%B8%E5%BF%83%E8%AF%AD%E6%B3%95.md)
+
+
+
+### golang spec
+
+:::tip
+
+[code-spec.md](code-spec.md)
+
+:::
+
+[特别放送 给你一份清晰、可直接套用的Go编码规范](https://learn.lianglianglee.com/%E4%B8%93%E6%A0%8F/Go%20%E8%AF%AD%E8%A8%80%E9%A1%B9%E7%9B%AE%E5%BC%80%E5%8F%91%E5%AE%9E%E6%88%98/%E7%89%B9%E5%88%AB%E6%94%BE%E9%80%81%20%E7%BB%99%E4%BD%A0%E4%B8%80%E4%BB%BD%E6%B8%85%E6%99%B0%E3%80%81%E5%8F%AF%E7%9B%B4%E6%8E%A5%E5%A5%97%E7%94%A8%E7%9A%84Go%E7%BC%96%E7%A0%81%E8%A7%84%E8%8C%83.md)
+
+
+
+
+
+
+
+
+### 用cron+redsync自己实现分布式任务调度系统
+
+
+[特别放送 分布式作业系统设计和实现](https://learn.lianglianglee.com/%E4%B8%93%E6%A0%8F/Go%20%E8%AF%AD%E8%A8%80%E9%A1%B9%E7%9B%AE%E5%BC%80%E5%8F%91%E5%AE%9E%E6%88%98/%E7%89%B9%E5%88%AB%E6%94%BE%E9%80%81%20%E5%88%86%E5%B8%83%E5%BC%8F%E4%BD%9C%E4%B8%9A%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1%E5%92%8C%E5%AE%9E%E7%8E%B0.md)
+
+
+
+
+
+## 《许式伟的架构课》读书笔记
+
+[许式伟的架构课](https://learn.lianglianglee.com/%E4%B8%93%E6%A0%8F/%E8%AE%B8%E5%BC%8F%E4%BC%9F%E7%9A%84%E6%9E%B6%E6%9E%84%E8%AF%BE) 可以看到这本书分为几部分，从6到19是kernel相关，基本上都掌握；20到33是桌面client相关，用不到；34到46是“服务开发篇”；47到56是“服务治理篇”；57到67是“架构思维篇”；68到77是“软件工程篇”。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## 《架构设计面试精讲》
+
+[架构设计面试精讲](https://learn.lianglianglee.com/%E4%B8%93%E6%A0%8F/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E9%9D%A2%E8%AF%95%E7%B2%BE%E8%AE%B2) 没啥意思，3到8是分布式系统相关问题；9到12是mysql相关；13、14是redis相关；15到19是一些面试中分布式系统相关问题
+
+
+
+
+
+
+
+
+
+## 《从 0 开始学架构》
+
+[从 0 开始学架构](https://learn.lianglianglee.com/%E4%B8%93%E6%A0%8F/%E4%BB%8E%200%20%E5%BC%80%E5%A7%8B%E5%AD%A6%E6%9E%B6%E6%9E%84)
+
+
+
+
+
+
+## 《周志明的架构课》
+
+[周志明的架构课](https://learn.lianglianglee.com/%E4%B8%93%E6%A0%8F/%E5%91%A8%E5%BF%97%E6%98%8E%E7%9A%84%E6%9E%B6%E6%9E%84%E8%AF%BE)
+
+
+
+
+
+
+## 《高并发系统设计40问》
+
+[高并发系统设计40问](https://learn.lianglianglee.com/%E4%B8%93%E6%A0%8F/%E9%AB%98%E5%B9%B6%E5%8F%91%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A140%E9%97%AE)
+
+
+
+## 《由浅入深吃透 Docker》
+
+
+[由浅入深吃透 Docker-完](https://learn.lianglianglee.com/%E4%B8%93%E6%A0%8F/%E7%94%B1%E6%B5%85%E5%85%A5%E6%B7%B1%E5%90%83%E9%80%8F%20Docker-%E5%AE%8C)
+
+---
+
+
+
+## 《深入浅出 Docker 技术栈实践课》
+
+[深入浅出 Docker 技术栈实践课（完）](https://learn.lianglianglee.com/%E4%B8%93%E6%A0%8F/%E6%B7%B1%E5%85%A5%E6%B5%85%E5%87%BA%20Docker%20%E6%8A%80%E6%9C%AF%E6%A0%88%E5%AE%9E%E8%B7%B5%E8%AF%BE%EF%BC%88%E5%AE%8C%EF%BC%89)
+
+---
+
+
+
+## 《容器实战高手课》
+
+[容器实战高手课](https://learn.lianglianglee.com/%E4%B8%93%E6%A0%8F/%E5%AE%B9%E5%99%A8%E5%AE%9E%E6%88%98%E9%AB%98%E6%89%8B%E8%AF%BE)
+
+---
+
+
+
+
+
+
+
+
+##
+
+
+
+
+![csapp.png](img/csapp/csapp.png)
+
+
+[CSAPP 第五章 优化程序性能（一）基础优化与依赖机器架构的优化 | JR's Blog](https://willendless.github.io/%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B/2021/06/29/csapp-ch5/)
+
+[CSAPP 第五章 优化程序性能（一）基础优化与依赖机器架构的优化 | JR's Blog](https://willendless.github.io/%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B/2021/06/29/csapp-ch5/)
+
+[优化程序性能的几个方法（来自于《深入理解计算机系统》）-阿里云开发者社区](https://developer.aliyun.com/article/396481)
+
+
+
+```yaml
+#[深入浅出计算机组成原理](https://learn.lianglianglee.com/%e4%b8%93%e6%a0%8f/%e6%b7%b1%e5%85%a5%e6%b5%85%e5%87%ba%e8%ae%a1%e7%ae%97%e6%9c%ba%e7%bb%84%e6%88%90%e5%8e%9f%e7%90%86)
+```
+
+
+
+
+
+
+
+
+
+```yaml
+
+#- [ ] 分布式中间件实践之路（完）
+#- [ ] 分布式技术原理与实战 45 讲 - 完
+#- [ ] 24 讲吃透分布式数据库 - 完
+#- [ ] 300 分钟吃透分布式缓存 - 完
+
+```
+
+
+
+
+```yaml
+  qs:
+    - q: “三高架构”
+      x: |
+        高并发：
+
+        - *扩容*
+        - 无状态
+        - 拆分
+        - 服务化
+        - 消息队列
+        - 数据异构
+        - 缓存银弹
+        - 并发化（异步并发）
+        - 连接池
+        - 线程池
+        - 分布式任务
+
+        高可用：
+
+        - 系统高可用的核心是`备份 + 自动切换`
+        - 如果压力（不只是数据库或者服务器，各个层的压力）太大，考虑做“集群”，所以，也可以认为是`集群 + 自动切换`，核心思想是“去单点”，只不过是机器多少的问题
+
+        ---
+
+        - 事前：副本；隔离；配额，提前预案，探知
+        - 事发：监控和报警
+        - 事中：降级，回滚，应急预案，fairXXX 系列
+        - 事后：复盘，思考，技改
+
+        ---
+
+        - `熔断`，通过隔离实现故障隔离
+        - `降级`，通过降级实现部分可用，有损服务
+        - `回滚`，通过回滚机制快速修复错误版本
+        - `限流`，通过“限流”保护服务受到雪崩的影响
+        - `切流量`
+        - `兜底容灾`
+
+
+    - q: 怎么理解DDD
+      x: 一般 ddd 会划分几个领域，核心域 (核心业务），通用域 (比如用户中心），支撑域 (比如 MySQL REDIS KAFKA)，ddd 最难的应该就是核心域的服务拆分，但是不管怎么拆分每个服务一般都有自己的缓存 (Redis），持久化 (mySQL)，事件（katka)，服务与服务之间一般通过事件做通信
+
+```
+
+
+
+
+```yaml
+    - q: "***分布式场景常见问题：分布式场景下的`分布式事务`，`幂等控制`，`异步消息乱序`，和`补偿方案`等问题？***"
+      x: |
+        目前的主流方案是 *`待处理内容写入本地表`+`事务外实时触发`+`定时调度补偿`* ，可以基本满足`分布式事务`，`同步异步补偿`，`实时非实时触发`等复杂场景的处理
+
+        - 分布式事务
+          - 事务中直接 RPC 调用达到强一致性
+          - 事务中进行异步消息推送
+          - 解决方案
+          - 目前我们使用的解决方案
+        - 幂等控制
+        - 异步消息乱序
+          - 异步消息结合状态驱动
+        - 补偿方案
+          - `HTTP同步调用的补偿`
+          - `异步消息消费失败的补偿`
+
+    - q: 如何解决时间漂移问题在多处理器系统、分布式系统中带来的时序相关的问题？在分布式系统中，怎么使用逻辑时钟和向量时钟？这两种方案做个比较。哪种方法更好呢？
+      u: https://www.hitzhangjie.pro/blog/2021-03-09-%E8%81%8A%E8%81%8A%E8%AE%A1%E7%AE%97%E6%9C%BA%E4%B8%AD%E7%9A%84%E6%97%B6%E9%97%B4/
+      x: 分布式数据库、分布式锁等场景使用向量时钟。向量时钟相比逻辑时钟更加复杂。
+
+    - q: most common problems in distributed scenarios? How to resolve?
+      x: distributed transactions, idempotent control, async msg out-of-order, compensation schemes
+    - q: "***分布式场景下的分布式事务，幂等控制，异步消息乱序，和补偿方案等问题？***"
+      x: 目前的主流方案是 *`待处理内容写入本地表`+`事务外实时触发`+`定时调度补偿`* ，可以基本满足`分布式事务`，`同步异步补偿`，`实时非实时触发`等复杂场景的处理
+
+
+    - q: 服务治理（包括但不限于：限流，熔断、负载、监控、鉴权、服务发现和注册等等）
+    - q: 服务容错（失败切换（failover），失败通知（failback），失败缓存（failcache）， 快速失败（failfast）、双发 backuprequest）
+      x: |
+        服务容错的常用手段：
+
+        #FailOver 失败自动切换
+        服务消费者发现调用失败或者超时后，自动从可用的服务节点列表中选择下一个节点重新发起调用，也可以设置重试次数。要求服务调用幂等，不管调用多少次，只要是同一个调用，返回结果必须相等，适合读请求。
+
+        #FailBack 失败通知
+        消费者调用失败后，不再重试。而是根据失败的详细信息，决定后续的执行策略。对于非幂等的调用场景，不能重试，而是应该查询服务端状态，看调用到底是否实际生效。
+
+        #FailCache 失败缓存
+        服务消费者调用失败或者超时后，不立即重试，而是间隔一段时间再次尝试发起调用。
+
+        #FailFast 快速失败
+        消费者调用一次失败后，不再重试。一般非核心业务调用，采用快速失败，记录日志后就返回。
+
+        一般幂等的使用FailOver或者FailCache，不是幂等调用选择FailBack或者FailFast。
+
+```
+
+
+
+
+
+为什么很多分布式系统都是以DAG（Directed acyclic graph ）实现运算的？
+
+
+[分布式中间件实践之路（完）](https://learn.lianglianglee.com/%E4%B8%93%E6%A0%8F/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%AD%E9%97%B4%E4%BB%B6%E5%AE%9E%E8%B7%B5%E4%B9%8B%E8%B7%AF%EF%BC%88%E5%AE%8C%EF%BC%89)
+
+[分布式技术原理与实战45讲-完](https://learn.lianglianglee.com/%E4%B8%93%E6%A0%8F/%E5%88%86%E5%B8%83%E5%BC%8F%E6%8A%80%E6%9C%AF%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%9845%E8%AE%B2-%E5%AE%8C)
+
+[24讲吃透分布式数据库-完](https://learn.lianglianglee.com/%E4%B8%93%E6%A0%8F/24%E8%AE%B2%E5%90%83%E9%80%8F%E5%88%86%E5%B8%83%E5%BC%8F%E6%95%B0%E6%8D%AE%E5%BA%93-%E5%AE%8C)
