@@ -1225,6 +1225,14 @@
     - name: 《csapp》
     - name:
 
+    - name: 《代码大全 (Code Complete)》
+
+    - name: 《七周七并发模型》
+      author: Paul Butcher
+
+    - name: 《重构：改善既有代码设计》
+      url: https://book-refactoring2.ifmicro.com/
+      author: Martin Fowler
 
 
 #    - name: 《大话设计模式》

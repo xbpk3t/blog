@@ -534,6 +534,17 @@ HN讨论
 urge鱼定律：百分之九十的东西都是拉圾。技术内容也不例外。正如文章所指出的，必然的结果是您必须自己思考，评估遇到的每一个内容。
 ```
 
+***复制粘贴编程？如果不追问为什么，互联网上大多数技术内容都是胡扯***
+
+[Most tech content is bullshit | Hacker News](https://news.ycombinator.com/item?id=23448489)
+
+[Most tech content is bullshit](https://www.aleksandra.codes/tech-content-consumer/)
+
+
+![tech-bullshit.png](img/x/tech-bullshit.png)
+
+
+
 
 
 
