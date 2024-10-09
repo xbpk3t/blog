@@ -288,6 +288,20 @@ last_update:
 
 
 
+## [2024-10-10]《重构：改善既有代码的设计》
+
+
+[简介 · 重构: 改善既有代码的设计](https://book-refactoring2.ifmicro.com/)
+
+
+
+
+
+
+
+
+
+
 
 
 

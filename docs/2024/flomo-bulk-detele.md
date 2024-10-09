@@ -49,7 +49,17 @@ scrollAndCheck();
 
 直接在 chrome console 中使用即可
 
-搜了一下目前网上还没人写，所以随手写个分享出来。本来想顺手写个油猴脚本，但是懒得搞了。直接存在 alfred snippet 里了，用起来还算方便。
+搜了一下目前网上还没人写，所以随手写个分享出来。~~本来想顺手写个油猴脚本，但是懒得搞了。直接存在 alfred snippet 里了，用起来还算方便。~~
+
+
+
+## [2024-10-10] flomo 油猴脚本
+
+[flomo清空笔记助手](https://greasyfork.org/en/scripts/512010-flomo%E6%B8%85%E7%A9%BA%E7%AC%94%E8%AE%B0%E5%8A%A9%E6%89%8B)
+
+
+
+
 
 
 
