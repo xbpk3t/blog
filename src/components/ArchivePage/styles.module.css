@@ -161,12 +161,12 @@ p {
   margin-bottom: 16px;
 }
 
-@media (max-width: 768px) {
-  h2 {
-    font-size: 20px; /* 移动端字体大小 */
-  }
+/*@media (max-width: 768px) {*/
+/*  h2 {*/
+/*    font-size: 20px; !* 移动端字体大小 *!*/
+/*  }*/
 
-  p {
-    font-size: 14px; /* 移动端字体大小 */
-  }
-}
+/*  p {*/
+/*    font-size: 14px; !* 移动端字体大小 *!*/
+/*  }*/
+/*}*/

@@ -33,7 +33,7 @@
 
 img:not(.avatar__photo) {
   /* 图片等比例缩小 */
-  max-width: 70%;
+  max-width: 60%;
    /*居中展示 */
   /*padding-left: 20%;*/
 }
