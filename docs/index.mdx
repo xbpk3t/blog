@@ -5,12 +5,11 @@ sidebar_title: Archive
 pagination_next: null
 pagination_prev: null
 
-#hide_title: true
-#hide_table_of_contents: true
+hide_title: true
+hide_table_of_contents: true
 ---
+import archiveData from '@site/scripts/archive.json';
 
-[//]: # (import DynamicDocsList from '@site/src/components/ArchiveList';)
+<BlogArchive archive={archiveData} />
 
 
-
-[//]: # (<DynamicDocsList dir="../docs" />)

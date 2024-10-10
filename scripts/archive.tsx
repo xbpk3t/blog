@@ -3,10 +3,11 @@ import path from 'path';
 import matter from 'gray-matter';
 
 interface Post {
-  name: string;
-  path: string;
-  lastUpdate: Date;
-  ext: string;
+  metadata: {
+    date: string;
+    permalink: string;
+    title: string;
+  };
 }
 
 /**
@@ -31,24 +32,26 @@ export function getFiles(dir: string, blacklist: string[]): Post[] {
       const matterData = matter(content);
       const lastUpdate = matterData.data.last_update ? new Date(matterData.data.last_update.date) : new Date();
       const fileName = path.basename(file).replace(/\.mdx$|\.md$/, "");
+      const slug = matterData.data.slug;
 
-      if (!blacklist.includes(fileName)) {
+      if (!blacklist.includes(fileName) && slug != undefined) {
         files.push({
-          name: fileName,
-          path: `${year}/${fileName}`,
-          lastUpdate,
-          ext: path.extname(file) || '.md'
+          metadata: {
+            date: lastUpdate.toISOString().split('T')[0],
+            permalink: `${slug}`,
+            title: matterData.data.title || fileName,
+          },
         });
       }
     }
   });
 
-  files.sort((a, b) => b.lastUpdate.getTime() - a.lastUpdate.getTime());
+  files.sort((a, b) => new Date(b.metadata.date).getTime() - new Date(a.metadata.date).getTime());
 
   return files;
 }
 
-export function generateArchiveContent() {
+export function generateArchiveData() {
   const projectRoot = path.resolve(__dirname, '..');
   const docsDir = path.join(projectRoot, 'docs');
   const blacklist: string[] = [];
@@ -57,38 +60,34 @@ export function generateArchiveContent() {
   fs.readdirSync(docsDir).forEach((yearDir) => {
     const yearPath = path.join(docsDir, yearDir);
     if (fs.statSync(yearPath).isDirectory()) {
-      const files = getFiles(yearPath, blacklist);
-      allFilesByYear[yearDir] = files;
+      allFilesByYear[yearDir] = getFiles(yearPath, blacklist);
     }
   });
 
   const sortedYears = Object.keys(allFilesByYear).sort((a, b) => parseInt(b) - parseInt(a));
 
-  let archiveContent = '';
+  let archiveData = {
+    blogPosts: [],
+  };
+
   for (const year of sortedYears) {
     const files = allFilesByYear[year];
-    archiveContent += `## ${year}\n\n`;
     files.forEach((file) => {
-      const dateString = file.lastUpdate.toISOString().split('T')[0];
-      archiveContent += `- **${dateString}**  \n [${file.name}](${file.path}${file.ext})\n\n`;
+      archiveData.blogPosts.push(file);
     });
   }
 
-  return archiveContent;
+  return archiveData;
 }
 
-export async function appendToIndex() {
-  const archiveContent = generateArchiveContent();
-  const docsDir = 'docs/';
-  const indexPath = path.join(docsDir, 'index.md');
-
-  let content = fs.readFileSync(indexPath, 'utf8');
-  content += '\n\n' + archiveContent;
-  fs.writeFileSync(indexPath, content);
-  console.log('Archive content appended to index.md');
+export function writeArchiveDataToFile(archiveData: any, filePath: string) {
+  fs.writeFileSync(filePath, JSON.stringify(archiveData, null, 2), 'utf8');
+  console.log(`Archive data written to ${filePath}`);
 }
 
 // 在构建时自动执行
-if (process.env.NODE_ENV === 'production' || process.argv.includes('build')) {
-  appendToIndex();
-}
+// if (process.env.NODE_ENV === 'production' || process.argv.includes('build')) {
+const archiveData = generateArchiveData();
+const outputFilePath = path.join(__dirname, 'archive.json');
+writeArchiveDataToFile(archiveData, outputFilePath);
+// }

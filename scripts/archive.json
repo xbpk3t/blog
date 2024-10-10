@@ -1,0 +1,326 @@
+{
+  "blogPosts": [
+    {
+      "metadata": {
+        "date": "2024-10-07",
+        "permalink": "/2024/golang-project-dev-practice",
+        "title": "速读几本极客时间课程"
+      }
+    },
+    {
+      "metadata": {
+        "date": "2024-10-06",
+        "permalink": "/2024/reading-methods",
+        "title": "《聪明的阅读者》读书笔记"
+      }
+    },
+    {
+      "metadata": {
+        "date": "2024-10-03",
+        "permalink": "/2024/monthly9",
+        "title": "Monthly#9"
+      }
+    },
+    {
+      "metadata": {
+        "date": "2024-09-30",
+        "permalink": "/2024/mysql-45-lessons",
+        "title": "《MySQL 45讲》读书笔记"
+      }
+    },
+    {
+      "metadata": {
+        "date": "2024-09-29",
+        "permalink": "/2024/how-mysql-works",
+        "title": "《MySQL是怎么运行的》读书笔记"
+      }
+    },
+    {
+      "metadata": {
+        "date": "2024-09-28",
+        "permalink": "/2024/goreleaser",
+        "title": "用 goreleaser 代替 changelogithub"
+      }
+    },
+    {
+      "metadata": {
+        "date": "2024-09-26",
+        "permalink": "/2024/tech-team-managing",
+        "title": "《技术管理实战 36 讲》读书笔记"
+      }
+    },
+    {
+      "metadata": {
+        "date": "2024-09-24",
+        "permalink": "/2024/flomo-bulk-delete",
+        "title": "flomo批量删除脚本"
+      }
+    },
+    {
+      "metadata": {
+        "date": "2024-09-19",
+        "permalink": "/2024/deprecated-commands",
+        "title": "备份gh.yml中废弃的repo命令"
+      }
+    },
+    {
+      "metadata": {
+        "date": "2024-09-16",
+        "permalink": "/2024/alfred-vs",
+        "title": "alfred-vs"
+      }
+    },
+    {
+      "metadata": {
+        "date": "2024-09-15",
+        "permalink": "/2024/",
+        "title": "s"
+      }
+    },
+    {
+      "metadata": {
+        "date": "2024-09-14",
+        "permalink": "/2024/regex",
+        "title": "regex"
+      }
+    },
+    {
+      "metadata": {
+        "date": "2024-09-14",
+        "permalink": "/2024/xq",
+        "title": "相亲"
+      }
+    },
+    {
+      "metadata": {
+        "date": "2024-09-13",
+        "permalink": "/2024/buy-byd-seal-06gt",
+        "title": "【海豹06GT】购车记录"
+      }
+    },
+    {
+      "metadata": {
+        "date": "2024-09-07",
+        "permalink": "/2024/feed-manage-2",
+        "title": "信息源管理2"
+      }
+    },
+    {
+      "metadata": {
+        "date": "2024-08-30",
+        "permalink": "/2024/sun-zi",
+        "title": "《孙子兵法》读书笔记"
+      }
+    },
+    {
+      "metadata": {
+        "date": "2024-08-30",
+        "permalink": "/2024/system-design-interview",
+        "title": "《搞定系统设计：面试敲开大厂的门》"
+      }
+    },
+    {
+      "metadata": {
+        "date": "2024-08-30",
+        "permalink": "/2024/how-to-write-commentary",
+        "title": "《时评写作十讲》读书笔记"
+      }
+    },
+    {
+      "metadata": {
+        "date": "2024-08-30",
+        "permalink": "/2024/how-to-write-book-review",
+        "title": "怎么写书评？"
+      }
+    },
+    {
+      "metadata": {
+        "date": "2024-08-29",
+        "permalink": "/2024/zai-zhi-tian-xia",
+        "title": "《宰执天下》书评"
+      }
+    },
+    {
+      "metadata": {
+        "date": "2024-08-25",
+        "permalink": "/2024/weekly34",
+        "title": "Weekly#34"
+      }
+    },
+    {
+      "metadata": {
+        "date": "2024-08-24",
+        "permalink": "/2024/wechat-read-app",
+        "title": "微信读书APP"
+      }
+    },
+    {
+      "metadata": {
+        "date": "2024-08-18",
+        "permalink": "/2024/weekly33",
+        "title": "Weekly#33"
+      }
+    },
+    {
+      "metadata": {
+        "date": "2024-08-12",
+        "permalink": "/2024/record-for-paris-olympics",
+        "title": "巴黎奥运会纪录"
+      }
+    },
+    {
+      "metadata": {
+        "date": "2024-07-15",
+        "permalink": "/2024/argumentative-writing",
+        "title": "议论文"
+      }
+    },
+    {
+      "metadata": {
+        "date": "2024-05-22",
+        "permalink": "/2024/feed-manage-1",
+        "title": "信息源管理1（rss）"
+      }
+    },
+    {
+      "metadata": {
+        "date": "2024-05-22",
+        "permalink": "/2024/shell-syntax",
+        "title": "shell脚本常用语法"
+      }
+    },
+    {
+      "metadata": {
+        "date": "2024-04-01",
+        "permalink": "/2024/weekly13",
+        "title": "Weekly#13"
+      }
+    },
+    {
+      "metadata": {
+        "date": "2024-03-29",
+        "permalink": "/2024/politics-of-legitimacy",
+        "title": "《合法性的政治》读书笔记"
+      }
+    },
+    {
+      "metadata": {
+        "date": "2024-01-01",
+        "permalink": "/2024/leng-jing",
+        "title": "【Hac棱镜】文章合集"
+      }
+    },
+    {
+      "metadata": {
+        "date": "2023-12-31",
+        "permalink": "/2023/weekly52",
+        "title": "Weekly#52"
+      }
+    },
+    {
+      "metadata": {
+        "date": "2023-10-08",
+        "permalink": "/2023/weekly40",
+        "title": "Weekly#40"
+      }
+    },
+    {
+      "metadata": {
+        "date": "2023-09-16",
+        "permalink": "/2023/kernel",
+        "title": "《趣谈 Linux 操作系统》读书笔记"
+      }
+    },
+    {
+      "metadata": {
+        "date": "2023-09-16",
+        "permalink": "/2023/network-protocol",
+        "title": "network-protocol"
+      }
+    },
+    {
+      "metadata": {
+        "date": "2023-09-15",
+        "permalink": "/2023/secretary-work-handbook",
+        "title": "《秘书工作手记》读书笔记"
+      }
+    },
+    {
+      "metadata": {
+        "date": "2023-08-30",
+        "permalink": "/2023/capital-in-the-twenty-first-century",
+        "title": "《21世纪资本论》读书笔记"
+      }
+    },
+    {
+      "metadata": {
+        "date": "2023-08-29",
+        "permalink": "/2023/ru-zi-di",
+        "title": "《孺子帝》读后感"
+      }
+    },
+    {
+      "metadata": {
+        "date": "2023-08-16",
+        "permalink": "/2023/renamer-tool",
+        "title": "文件批量重命名工具"
+      }
+    },
+    {
+      "metadata": {
+        "date": "2023-03-20",
+        "permalink": "/2023/feng-hua-marathon",
+        "title": "复盘奉化马拉松"
+      }
+    },
+    {
+      "metadata": {
+        "date": "2000-09-08",
+        "permalink": "/minimalist",
+        "title": "极简生活"
+      }
+    },
+    {
+      "metadata": {
+        "date": "2000-01-01",
+        "permalink": "/books",
+        "title": "books.yml"
+      }
+    },
+    {
+      "metadata": {
+        "date": "2000-01-01",
+        "permalink": "/docs",
+        "title": "docs"
+      }
+    },
+    {
+      "metadata": {
+        "date": "2000-01-01",
+        "permalink": "/movies",
+        "title": "movies.yml"
+      }
+    },
+    {
+      "metadata": {
+        "date": "2000-01-01",
+        "permalink": "/music",
+        "title": "music常识"
+      }
+    },
+    {
+      "metadata": {
+        "date": "2000-01-01",
+        "permalink": "/tv",
+        "title": "tv.yml"
+      }
+    },
+    {
+      "metadata": {
+        "date": "2000-01-01",
+        "permalink": "/x",
+        "title": "x"
+      }
+    }
+  ]
+}

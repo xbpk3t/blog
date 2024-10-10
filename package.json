@@ -5,24 +5,28 @@
   "scripts": {
     "docusaurus": "docusaurus",
     "start": "docusaurus start",
-    "build": "docusaurus build",
+    "build": "yarn archive && docusaurus build",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
     "clear": "docusaurus clear",
     "serve": "docusaurus serve",
     "write-translations": "docusaurus write-translations",
     "write-heading-ids": "docusaurus write-heading-ids",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "archive": "npx ts-node scripts/archive.tsx"
   },
   "dependencies": {
     "@docusaurus/core": "^3.5.2",
     "@docusaurus/preset-classic": "^3.5.2",
     "@giscus/react": "^3.0.0",
+    "@iconify/react": "^5.0.2",
     "@mdx-js/react": "^3.0.1",
     "docusaurus-plugin-zooming": "^1.0.0",
+    "framer-motion": "^11.11.7",
     "raw-loader": "^4.0.2",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "tailwind-merge": "^2.5.3"
   },
   "devDependencies": {
     "@docusaurus/types": "^3.5.2",

@@ -4,6 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
+import { type ClassValue, clsx } from 'clsx'
+import { twMerge } from 'tailwind-merge'
+
 
 // Inspired by https://github.com/you-dont-need/You-Dont-Need-Lodash-Underscore#_sortby-and-_orderby
 export function sortBy<T>(
@@ -26,4 +29,11 @@ export function toggleListItem<T>(list: T[], item: T): T[] {
   const newList = [...list];
   newList.splice(itemIndex, 1);
   return newList;
+}
+
+
+
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
 }

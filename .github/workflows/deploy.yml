@@ -21,6 +21,8 @@ jobs:
         with:
           node-version: 20
           cache: yarn
+
+      - run: yarn add --dev ts-node
       - name: Install dependencies
         run: yarn install
       - name: Build website
