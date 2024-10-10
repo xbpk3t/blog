@@ -10,7 +10,7 @@ repos:
       - id: trailing-whitespace # 移除尾部空格符
         args: [--markdown-linebreak-ext=md]
       - id: check-added-large-files  # 定义的hook脚本，在repo的.pre-commit-hooks.yaml中定义
-        args: ['--maxkb=4096']
+        args: ['--maxkb=6144']
       - id: trailing-whitespace  # 移除尾部空格符
         args: [--markdown-linebreak-ext=md]  # 传入参数，不处理markdown
       - id: check-merge-conflict  # 检查是否含有合并冲突符号
