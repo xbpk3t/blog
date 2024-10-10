@@ -22,7 +22,8 @@ jobs:
           node-version: 20
           cache: yarn
 
-      - run: yarn add --dev ts-node
+      - run: yarn global add typescript
+      - run: yarn global add ts-node
       - name: Install dependencies
         run: yarn install
       - name: Build website
