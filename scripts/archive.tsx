@@ -34,9 +34,9 @@ export function getFiles(dir: string, blacklist: string[]): Post[] {
       const fileName = path.basename(file).replace(/\.mdx$|\.md$/, "");
       const slug = matterData.data.slug;
       const isDraft = matterData.data.draft;
-      const isUnlist = matterData.data.unlist;
+      const isUnlisted = matterData.data.unlisted;
 
-      if (!blacklist.includes(fileName) && slug != undefined && !isDraft && !isUnlist) {
+      if (!blacklist.includes(fileName) && slug != undefined && !isDraft && !isUnlisted) {
         files.push({
           metadata: {
             date: lastUpdate.toISOString().split('T')[0],
