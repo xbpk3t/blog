@@ -1,7 +1,6 @@
 ---
 title: books.yml
-last_update:
-  date: 2000-01-01
+date: 2000-01-01
 slug: /books
 ---
 import CodeBlock from '@theme/CodeBlock';

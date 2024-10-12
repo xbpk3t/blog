@@ -1,8 +1,7 @@
 ---
 title: 《孙子兵法》读书笔记
 slug: /2024/sun-zi
-last_update:
-  date:  2024-08-30
+date:  2024-08-30
 ---
 
 

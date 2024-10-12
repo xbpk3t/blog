@@ -1,7 +1,6 @@
 ---
 title: 常用mysql sql整理
-last_update:
-  date:  2024-08-01
+date:  2024-08-01
 ---
 
 

@@ -1,7 +1,6 @@
 ---
 title: 为什么在CI中应该用pre-commit代替linters?
-last_update:
-  date:  2024-07-31
+date:  2024-07-31
 ---
 
 

@@ -3,8 +3,7 @@ title: flomo批量删除脚本
 slug: /2024/flomo-bulk-delete
 keywords: [flomo, 批量删除, js]
 description: 用来实现flomo批量删除的js脚本
-last_update:
-  date:  2024-09-24
+date:  2024-09-24
 ---
 
 

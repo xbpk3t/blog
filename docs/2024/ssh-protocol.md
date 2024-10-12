@@ -1,7 +1,6 @@
 ---
 title: ssh协议
-last_update:
-  date:  2024-09-14
+date:  2024-09-14
 ---
 
 

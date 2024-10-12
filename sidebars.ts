@@ -11,8 +11,6 @@ import type {SidebarsConfig} from '@docusaurus/plugin-content-docs';
 
  Create as many sidebars as you want.
  */
-
-
 // @ts-check
 import fs from 'fs';
 import path from 'path';
@@ -46,13 +44,14 @@ export function getFiles(dir: string, blacklist: string[]): string[] {
     if (!blacklist.includes(f)) {
       const content = fs.readFileSync(filePath, 'utf8');
       const matterData = matter(content);
-      const lastUpdate = matterData.data.last_update ? matterData.data.last_update.date : null;
+      // const lastUpdate = matterData.data.last_update ? matterData.data.last_update.date : null;
+      const publishDate = matterData.data.date ? new Date(matterData.data.date) : new Date();
 
-      if (lastUpdate) {
+      if (publishDate) {
         files.push({
           name: f,
           path: `${year}/${f}`,
-          lastUpdate: new Date(lastUpdate)
+          lastUpdate: new Date(publishDate)
         });
       }
     }

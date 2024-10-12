@@ -1,7 +1,6 @@
 ---
 title: 《技术管理实战 36 讲》读书笔记
-last_update:
-  date: 2024-09-26
+date: 2024-09-26
 slug: /2024/tech-team-managing
 ---
 

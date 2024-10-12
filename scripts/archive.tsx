@@ -30,7 +30,8 @@ export function getFiles(dir: string, blacklist: string[]): Post[] {
     if (path.basename(file).endsWith(".mdx") || path.basename(file).endsWith(".md")) {
       const content = fs.readFileSync(filePath, 'utf8');
       const matterData = matter(content);
-      const lastUpdate = matterData.data.last_update ? new Date(matterData.data.last_update.date) : new Date();
+      const publishDate = matterData.data.date ? new Date(matterData.data.date) : new Date();
+
       const fileName = path.basename(file).replace(/\.mdx$|\.md$/, "");
       const slug = matterData.data.slug;
       const isDraft = matterData.data.draft;
@@ -39,7 +40,7 @@ export function getFiles(dir: string, blacklist: string[]): Post[] {
       if (!blacklist.includes(fileName) && slug != undefined && !isDraft && !isUnlisted) {
         files.push({
           metadata: {
-            date: lastUpdate.toISOString().split('T')[0],
+            date: publishDate.toISOString().split('T')[0],
             permalink: `${slug}`,
             title: matterData.data.title || fileName,
           },
