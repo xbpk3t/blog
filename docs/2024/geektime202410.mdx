@@ -1332,6 +1332,19 @@ Replication 备份: 一个分片可以有多个备份（副本）
 
 
 
+:::danger
+
+```yaml
+
+-
+
+```
+
+:::
+
+
+
+
 
 ### ES stack
 
@@ -1340,14 +1353,44 @@ Replication 备份: 一个分片可以有多个备份（副本）
 
 
 
-### 查询操作
+### 查询操作 (7-9)
 
 
 
 
 
 
-### 聚合操作
+### 聚合操作 (10-12)
+
+[10 聚合：聚合查询之Bucket聚合详解](https://learn.lianglianglee.com/%e4%b8%93%e6%a0%8f/ElasticSearch%e7%9f%a5%e8%af%86%e4%bd%93%e7%b3%bb%e8%af%a6%e8%a7%a3/10%20%e8%81%9a%e5%90%88%ef%bc%9a%e8%81%9a%e5%90%88%e6%9f%a5%e8%af%a2%e4%b9%8bBucket%e8%81%9a%e5%90%88%e8%af%a6%e8%a7%a3.md)
+
+
+```markdown
+ElasticSearch中桶在概念上类似于 SQL 的分组（GROUP BY），而指标则类似于 COUNT() 、 SUM() 、 MAX() 等统计方法。
+
+进而引入了两个概念：
+
+	桶（Buckets） 满足特定条件的文档的集合
+	指标（Metrics） 对桶内的文档进行统计计算
+
+所以ElasticSearch包含3种聚合（Aggregation)方式
+
+	桶聚合（Bucket Aggregration) - 本文中详解
+
+	指标聚合（Metric Aggregration) - 下文中讲解
+
+	管道聚合（Pipline Aggregration)
+
+	聚合管道化，简单而言就是上一个聚合的结果成为下个聚合的输入；
+
+（PS:指标聚合和桶聚合很多情况下是组合在一起使用的，其实你也可以看到，桶聚合本质上是一种特殊的指标聚合，它的聚合指标就是数据的条数count)
+```
+
+![es-agg-bucket.png](img/geektime202410/es/es-agg-bucket.png)
+
+
+
+---
 
 
 
@@ -1355,11 +1398,201 @@ Replication 备份: 一个分片可以有多个备份（副本）
 
 
 
-### 原理
 
-[13 原理：从图解构筑对ES原理的初步认知](https://learn.lianglianglee.com/%e4%b8%93%e6%a0%8f/ElasticSearch%e7%9f%a5%e8%af%86%e4%bd%93%e7%b3%bb%e8%af%a6%e8%a7%a3/13%20%e5%8e%9f%e7%90%86%ef%bc%9a%e4%bb%8e%e5%9b%be%e8%a7%a3%e6%9e%84%e7%ad%91%e5%af%b9ES%e5%8e%9f%e7%90%86%e7%9a%84%e5%88%9d%e6%ad%a5%e8%ae%a4%e7%9f%a5.md)
+:::danger
+
+```yaml
+
+- "***single-value metrics agg 和 multi-value metrics agg 分别有哪些关键字?***"
+
+```
+
+:::
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### 原理 (13-17)
+
 
 [14 原理：ES原理知识点补充和整体结构](https://learn.lianglianglee.com/%e4%b8%93%e6%a0%8f/ElasticSearch%e7%9f%a5%e8%af%86%e4%bd%93%e7%b3%bb%e8%af%a6%e8%a7%a3/14%20%e5%8e%9f%e7%90%86%ef%bc%9aES%e5%8e%9f%e7%90%86%e7%9f%a5%e8%af%86%e7%82%b9%e8%a1%a5%e5%85%85%e5%92%8c%e6%95%b4%e4%bd%93%e7%bb%93%e6%9e%84.md)
+
+
+![es-th.png](img/geektime202410/es/es-th.png)
+
+
+```markdown
+- 一个 ES Index 在集群模式下，有多个 Node （节点）组成。每个节点就是 ES 的Instance (实例)。
+- 每个节点上会有多个 shard （分片）， P1 P2 是主分片, R1 R2 是副本分片
+- 每个分片上对应着就是一个 Lucene Index（底层索引文件）
+- Lucene Index 是一个统称
+	- 由多个 Segment （段文件，就是倒排索引）组成。每个段文件存储着就是 Doc 文档。
+	- commit point记录了所有 segments 的信息
+```
+
+---
+
+![lucene-index-structure.png](img/geektime202410/es/lucene-index-structure.png)
+
+
+Lucene索引结构
+
+
+
+---
+
+
+![lucene-process-flow.jpeg](img/geektime202410/es/lucene-process-flow.jpeg)
+
+
+```markdown
+创建索引的过程：
+
+	准备待索引的原文档，数据来源可能是文件、数据库或网络
+	对文档的内容进行分词组件处理，形成一系列的Term
+	索引组件对文档和Term处理，形成字典和倒排表
+
+搜索索引的过程：
+
+	对查询语句进行分词处理，形成一系列Term
+	根据倒排索引表查找出包含Term的文档，并进行合并形成符合结果的文档集
+	比对查询语句与各个文档相关性得分，并按照得分高低返回
+
+```
+
+---
+
+ElasticSearch分析器
+
+
+```markdown
+分析 包含下面的过程：
+
+	首先，将一块文本分成适合于倒排索引的独立的 词条 ，
+	之后，将这些词条统一化为标准格式以提高它们的“可搜索性”，或者 recall
+
+分析器执行上面的工作。 分析器 实际上是将三个功能封装到了一个包里：
+
+	字符过滤器 首先，字符串按顺序通过每个 字符过滤器 。他们的任务是在分词前整理字符串。一个字符过滤器可以用来去掉HTML，或者将 & 转化成 and。
+
+	分词器 其次，字符串被 分词器 分为单个的词条。一个简单的分词器遇到空格和标点的时候，可能会将文本拆分成词条。
+
+	Token 过滤器 最后，词条按顺序通过每个 token 过滤器 。这个过程可能会改变词条（例如，小写化 Quick ），删除词条（例如， 像 a， and， the 等无用词），或者增加词条（例如，像 jump 和 leap 这种同义词）。
+
+
+Elasticsearch提供了开箱即用的字符过滤器、分词器和token 过滤器。 这些可以组合起来形成自定义的分析器以用于不同的目的。
+
+```
+
+
+:::danger
+
+```yaml
+
+- ES内置的内置分析器有啥用? 有哪些? 分别有啥用? # 标准分析器、简单分析器、空格分析器、语言分析器
+
+- 什么时候使用分析器?
+
+```
+
+:::
+
+
+---
+
+[15 原理：ES原理之索引文档流程详解](https://learn.lianglianglee.com/%e4%b8%93%e6%a0%8f/ElasticSearch%e7%9f%a5%e8%af%86%e4%bd%93%e7%b3%bb%e8%af%a6%e8%a7%a3/15%20%e5%8e%9f%e7%90%86%ef%bc%9aES%e5%8e%9f%e7%90%86%e4%b9%8b%e7%b4%a2%e5%bc%95%e6%96%87%e6%a1%a3%e6%b5%81%e7%a8%8b%e8%af%a6%e8%a7%a3.md)
+
+
+
+
+---
+
+
+[16 原理：ES原理之读取文档流程详解](https://learn.lianglianglee.com/%e4%b8%93%e6%a0%8f/ElasticSearch%e7%9f%a5%e8%af%86%e4%bd%93%e7%b3%bb%e8%af%a6%e8%a7%a3/16%20%e5%8e%9f%e7%90%86%ef%bc%9aES%e5%8e%9f%e7%90%86%e4%b9%8b%e8%af%bb%e5%8f%96%e6%96%87%e6%a1%a3%e6%b5%81%e7%a8%8b%e8%af%a6%e8%a7%a3.md)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### 其他 (20-21)
+
+
+[20 WrapperQuery](https://learn.lianglianglee.com/%e4%b8%93%e6%a0%8f/ElasticSearch%e7%9f%a5%e8%af%86%e4%bd%93%e7%b3%bb%e8%af%a6%e8%a7%a3/20%20WrapperQuery.md)
+
+
+[21 备份和迁移](https://learn.lianglianglee.com/%e4%b8%93%e6%a0%8f/ElasticSearch%e7%9f%a5%e8%af%86%e4%bd%93%e7%b3%bb%e8%af%a6%e8%a7%a3/21%20%e5%a4%87%e4%bb%bd%e5%92%8c%e8%bf%81%e7%a7%bb.md)
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1874,13 +2107,44 @@ Raft日志复制确保了etcd多节点间的数据一致性，我通过一个etc
 
 #### 一致性：为什么基于Raft实现的etcd还会出现数据不一致？
 
-[12 一致性：为什么基于Raft实现的etcd还会出现数据不一致？](https://learn.lianglianglee.com/%e4%b8%93%e6%a0%8f/etcd%e5%ae%9e%e6%88%98%e8%af%be/12%20%e4%b8%80%e8%87%b4%e6%80%a7%ef%bc%9a%e4%b8%ba%e4%bb%80%e4%b9%88%e5%9f%ba%e4%ba%8eRaft%e5%ae%9e%e7%8e%b0%e7%9a%84etcd%e8%bf%98%e4%bc%9a%e5%87%ba%e7%8e%b0%e6%95%b0%e6%8d%ae%e4%b8%8d%e4%b8%80%e8%87%b4%ef%bc%9f.md)
+[12 一致性：为什么基于Raft实现的etcd还会出现数据不一致？](https://learn.lianglianglee.com/%e4%b8%93%e6%a0%8f/etcd%e5%ae%9e%e6%88%98%e8%af%be/12%20%e4%b8%80%e8%87%b4%e6%80%a7%ef%bc%9a%e4%b8%ba%e4%bb%80%e4%b9%88%e5%9f%ba%e4%ba%8eRaft%e5%ae%9e%e7%8e%b0%e7%9a%84etcd%e8%bf%98%e4%bc%9a%e5%87%ba%e7%8e%b0%e6%95%b0%e6%8d%ae%e4%b8%8d%e4%b8%80%e8%87%b4%ef%bc%9f.md) 出现这种问题，首先要想想etcd写机制的整个流程，
+
+---
+
+```markdown
+
+其次我介绍了etcd数据不一致的核心原因：Raft算法只能保证各个节点日志同步的一致性，但Apply流程是异步的，它从一致性模块获取日志命令，应用到状态机的准确性取决于业务逻辑，这块是没有机制保证的。
+
+同时，defrag等运维管理操作，会直接修改底层存储数据，异常场景处理不严谨也会导致数据不一致。
+
+```
+
+
+
+```markdown
+在了解了etcd数据不一致的风险和原因后，我们在实践中有哪些方法可以提前发现和规避不一致问题呢？
+
+下面我为你总结了几个最佳实践，它们分别是：
+
+	开启etcd的数据毁坏检测功能；
+	应用层的数据一致性检测；
+	定时数据备份；
+	良好的运维规范（比如使用较新稳定版本、确保版本一致性、灰度变更）。
+```
+
+
+
+
 
 
 
 :::danger
 
 ```yaml
+
+
+- 基于Raft实现的etcd还会出现数据不一致，怎么排查问题？哪个环节最有可能出现问题的环节是哪个？ # Apply到MVCC的这步，ApplyEntryNormal里没有做失败时的重试机制
+
 
 ```
 
@@ -1893,11 +2157,63 @@ Raft日志复制确保了etcd多节点间的数据一致性，我通过一个etc
 
 [13 db大小：为什么etcd社区建议db大小不超过8G？](https://learn.lianglianglee.com/%e4%b8%93%e6%a0%8f/etcd%e5%ae%9e%e6%88%98%e8%af%be/13%20db%e5%a4%a7%e5%b0%8f%ef%bc%9a%e4%b8%ba%e4%bb%80%e4%b9%88etcd%e7%a4%be%e5%8c%ba%e5%bb%ba%e8%ae%aedb%e5%a4%a7%e5%b0%8f%e4%b8%8d%e8%b6%85%e8%bf%878G%ef%bc%9f.md)
 
+---
+
+![db.jpg](img/geektime202410/etcd/db.jpg)
+
+
+```markdown
+首先是启动耗时。etcd启动的时候，需打开boltdb db文件，读取db文件所有key-value数据，用于重建内存treeIndex模块。因此在大量key导致db文件过大的场景中，这会导致etcd启动较慢。
+
+其次是节点内存配置。etcd在启动的时候会通过mmap将db文件映射内存中，若节点可用内存不足，小于db文件大小时，可能会出现缺页文件中断，导致服务稳定性、性能下降。
+
+接着是treeIndex索引性能。因etcd不支持数据分片，内存中的treeIndex若保存了几十万到上千万的key，这会增加查询、修改操作的整体延时。
+
+然后是boltdb性能。大db文件场景会导致事务提交耗时增长、抖动。
+
+再次是集群稳定性。大db文件场景下，无论你是百万级别小key还是上千个大value场景，一旦出现expensive request后，很容易导致etcd OOM、节点带宽满而丢包。
+
+最后是快照。当Follower节点落后Leader较多数据的时候，会触发Leader生成快照重建发送给Follower节点，Follower基于它进行还原重建操作。较大的db文件会导致Leader发送快照需要消耗较多的CPU、网络带宽资源，同时Follower节点重建还原慢。
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+```markdown
+最后我们来小结下今天的内容。大db文件首先会影响etcd启动耗时，因为etcd需要打开db文件，初始化db对象，并遍历boltdb中的所有key-value以重建内存treeIndex。
+
+其次，较大db文件会导致etcd依赖更高配置的节点内存规格，etcd通过mmap将db文件映射到内存中。etcd启动后，正常情况下读etcd过程不涉及磁盘IO，若节点内存不够，可能会导致缺页中断，引起延时抖动、服务性能下降。
+
+接着treeIndex维护了所有key的版本号信息，当treeIndex中含有百万级key时，在treeIndex中搜索指定范围的key的开销是不能忽略的，此开销可能高达上百毫秒。
+
+然后当db文件过大后，boltdb本身连续空闲页的申请、释放、存储都会存在一定的开销。etcd社区已通过新的freelist管理数据结构hashmap对其进行优化，将时间复杂度降低到了O(1)，同时支持事务提交时不持久化freelist，而是通过重启时扫描page重建，以提升etcd写性能、降低db大小。
+
+随后我给你介绍了db文件过大后，count only、limit、大包查询等expensive request对集群稳定性的影响。建议你的业务尽量避免任何expensive request请求。
+
+最后我们介绍了大db文件对快照功能的影响。大db文件意味着更长的备份时间，而更长的只读事务则可能会导致db文件增长。同时Leader发送快照与Follower基于快照重建都需要较长时间，在集群写请求较大的情况下，可能会陷入死循环，导致落后的Follower节点一直无法追赶上Leader。
+```
+
 
 
 :::danger
 
 ```yaml
+- etcd为什么需要对db增加Quota限制，以及不建议你的etcd集群db大小超过8G呢？
+- 过大的db文件对集群性能和稳定性有哪些影响？
+
+- 使用etcd过程中，你遇到了哪些案例导致了etcd db大小突增呢？ 它们的本质原因是什么呢？
+
 
 ```
 
