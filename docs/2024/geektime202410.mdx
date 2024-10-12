@@ -1333,34 +1333,42 @@ key 的数量也是一个重要考虑因素。如果 key 数量不大，可以�
 
 ```markdown
 01 etcd的前世今生：为什么Kubernetes使用etcd？.md
-02 基础架构：etcd一个读请求是如何执行的？.md
-03 基础架构：etcd一个写请求是如何执行的？.md
-04 Raft协议：etcd如何实现高可用、数据强一致的？.md
-05 鉴权：如何保护你的数据安全？.md
-06 租约：如何检测你的客户端存活？.md
-07 MVCC：如何实现多版本并发控制？.md
-08 Watch：如何高效获取数据变化通知？.md
-09 事务：如何安全地实现多key操作？.md
-10 boltdb：如何持久化存储你的key-value数据？.md
-11 压缩：如何回收旧版本数据？.md
-12 一致性：为什么基于Raft实现的etcd还会出现数据不一致？.md
-13 db大小：为什么etcd社区建议db大小不超过8G？.md
-14 延时：为什么你的etcd请求会出现超时？.md
-15 内存：为什么你的etcd内存占用那么高？.md
-16 性能及稳定性（上）：如何优化及扩展etcd性能？.md
-17 性能及稳定性（下）：如何优化及扩展etcd性能_.md
-18 实战：如何基于Raft从0到1构建一个支持多存储引擎分布式KV服务？.md
-19 Kubernetes基础应用：创建一个Pod背后etcd发生了什么？.md
-20 Kubernetes高级应用：如何优化业务场景使etcd能支撑上万节点集群？.md
-21 分布式锁：为什么基于etcd实现分布式锁比Redis锁更安全？.md
-22 配置及服务发现：解析etcd在API Gateway开源项目中应用.md
-23 选型：etcd_ZooKeeper_Consul等我们该如何选择？.md
-24 运维：如何构建高可靠的etcd集群运维体系？.md
+
+基础篇
+
+	02 基础架构：etcd一个读请求是如何执行的？.md
+	03 基础架构：etcd一个写请求是如何执行的？.md
+	04 Raft协议：etcd如何实现高可用、数据强一致的？.md
+	05 鉴权：如何保护你的数据安全？.md
+	06 租约：如何检测你的客户端存活？.md
+	07 MVCC：如何实现多版本并发控制？.md
+	08 Watch：如何高效获取数据变化通知？.md
+	09 事务：如何安全地实现多key操作？.md
+	10 boltdb：如何持久化存储你的key-value数据？.md
+	11 压缩：如何回收旧版本数据？.md
+
+实践篇
+
+	12 一致性：为什么基于Raft实现的etcd还会出现数据不一致？.md
+	13 db大小：为什么etcd社区建议db大小不超过8G？.md
+	14 延时：为什么你的etcd请求会出现超时？.md
+	15 内存：为什么你的etcd内存占用那么高？.md
+	16 性能及稳定性（上）：如何优化及扩展etcd性能？.md
+	17 性能及稳定性（下）：如何优化及扩展etcd性能_.md
+	18 实战：如何基于Raft从0到1构建一个支持多存储引擎分布式KV服务？.md
+	19 Kubernetes基础应用：创建一个Pod背后etcd发生了什么？.md
+	20 Kubernetes高级应用：如何优化业务场景使etcd能支撑上万节点集群？.md
+	21 分布式锁：为什么基于etcd实现分布式锁比Redis锁更安全？.md
+	22 配置及服务发现：解析etcd在API Gateway开源项目中应用.md
+	23 选型：etcd_ZooKeeper_Consul等我们该如何选择？.md
+	24 运维：如何构建高可靠的etcd集群运维体系？.md
+
 特别放送 成员变更：为什么集群看起来正常，移除节点却会失败呢？.md
 结束语 搞懂etcd，掌握通往分布式存储系统之门的钥匙.md
 ```
 
 ![etcd.jpg](img/geektime202410/etcd/etcd-qs.jpg)
+*etcd典型问题*
 
 
 ![etcd-k.jpg](img/geektime202410/etcd/etcd-k.jpg)
@@ -1369,19 +1377,494 @@ key 的数量也是一个重要考虑因素。如果 key 数量不大，可以�
 ![etcd-practice.jpg](img/geektime202410/etcd/etcd-practice.jpg)
 
 
+
+```yaml
+
+        - q: "***“服务注册”和“服务发现”的具体流程？***"
+          u: https://mp.weixin.qq.com/s?__biz=MzUzNTY5MzU2MA==&mid=2247497005&idx=1&sn=f147d1aaeebdfe075946593f5765d9b9
+          x: |
+            > 服务注册
+
+            针对服务端，服务启动后需要注册，分为三个阶段：
+
+            - 启动注册：当一个服务节点启动后，需要把自己注册到 `Service Registry` 上，以便其他节点来发现自己。注册需要在服务启动完成，并可以接收请求时才去注册自己，并且会设置有效期，防止进程异常退出后依然被访问
+            - 定时续期：定时续期相当于 `keep alive`，定期告诉 `Service Registry` 自己还在，还能够继续服务
+            - 退出撤销：进程退出时，我们应该主动撤销注册信息，以便调用方及时将请求分发到别的节点 (同时，go-zero 通过自适应的负载均衡来保证即使节点退出没有主动注销，也能及时摘除该节点。)
+
+            > 服务发现
+
+            服务发现是针对调用端的
+
+            - 存量获取：`Service B`从 `Service Registry` 获取已有节点列表，然后根据自己的负载均衡算法选择合适的节点，发送请求
+            - 增量侦听：通知新增节点
+            - 应用`服务发现`故障：发生故障后，以 etcd 为例，遇到 etcd 故障时，我们就需要冻结 `Service B`的节点信息，不修改不清空，(gozero 会自动隔离和恢复故障节点)
+
+        - q: Compare (etcd, consul, rpcx, zk, nacos, eureka, vault) 这些组件都能实现服务发现、pubsub(消息发布与订阅)、负载均衡、分布式通知与协调、分布式锁、分布式队列、集群监控与 Leader 竞选，所以也应该从这些aspects进行比较
+
+        - q: "***etcd arch?***" # etcd server(WAL(Entry + snapshot)) + raft + storage(treeIndex + boltdb)
+          u: https://mp.weixin.qq.com/s?__biz=MzI4NDM0MzIyMg==&mid=2247489043&idx=2&sn=d2a5bdb76f65df8ad93d18487b17f823
+          s:
+            - raft 层：raft 是 etcd 节点之间同步数据的基本机制，它的性能受限于网络 IO、节点之间的 rtt 等，WAL 受到磁盘 IO 写入延迟
+            - 存储层：负责持久化存储底层 kv, 它的性能受限于磁盘 IO，例如：fdatasync 延迟、内存 treeIndex 索引层锁的 block、boltdb Tx 锁的 block 以及 boltdb 本身的性能
+            - 其他还有诸如宿主机内核参数、grpc api 层等性能影响因子
+
+
+        - q: etcd feats?
+          x: ectd 支持动态扩容缩容, MVCC, 可靠的事件监控，并且基于 MVCC 实现指定版本重放 (zk 的 watcher 没有 MVCC), 租约机制将 connection 和 session 分离
+        - q: etcd API (Put()/Delete(), Get(), Watch(), Transactions(), Leases(Grant/Revoke/KeepAlive))
+
+
+        - q: watch 机制
+          u: https://mp.weixin.qq.com/s?__biz=MzAxMTA4Njc0OQ==&mid=2651451271&idx=3&sn=43bcb53845660775f73f03fa359865a6
+          s:
+            - etcd 如何实现的 watch
+            - How to watch keys?
+            - mvcc & streaming watch (bptree, mmap)
+
+        - q: tx机制
+          s:
+            - mini-transactions机制
+
+        - q: 选举机制
+          s:
+            - "***etcd 的 leader 选举的过程？etcd 如何实现配置下发和服务发现？etcd 怎么选主？***"
+            - (lease)
+
+        - q: Proxy 模式 (etcd 作为一个反向代理把客户的请求转发给可用的 etcd 集群)
+        - q: Linearizable Read，snapshot 机制，WAL 的存储与回放
+
+        - q: "***How to optimize etcd?***"
+          u: https://mp.weixin.qq.com/s?__biz=MzAxMTA4Njc0OQ==&mid=2651441737&idx=2&sn=84d797acc722fdc23c67678aa2d875be
+          x: |
+            etcd 的服务端优化
+
+            - *etcd 对 cpu，内存，磁盘要求很高，至少要 4C8G 的独立宿主机部署。通过调节不同的 batch size 和 interval，使我们可以根据不同硬件和工作负载优化性能*
+            - 内存索引层。由于索引层大量使用锁机制同步对性能影响很大，通过优化锁的使用，提升了读写性能。
+            - lease 规模化使用。lease 是 etcd 支持 key 使用 ttl 过期的机制。在之前的版本中 scalability 较差，当有大量 lease 时性能下降的较为严重，通过优化 lease revoke 和过期失效的算法，解决了 lease 规模性的问题。
+            - 后端 boltdb 使用优化。etcd 使用 boltdb 作为底层数据库存储 kv，对整体性能影响很大。
+
+            etcd 的客户端优化
+
+            - *性能优化除了服务端要做的事情外，还需要客户端的帮助。保持客户端使用最佳实践将保证 etcd 集群稳定高效地运行*，这里我们分享 3 个最佳实践
+            - put 数据时避免大的 value, 大的 value 会严重影响 etcd 性能，例如：需要注意 Kubernetes 下 crd 的使用；
+            - 避免创建频繁变化的 key/value, 例如：Kubernetes 下 node 数据上传更新；
+            - 避免创建大量 lease 对象，尽量选择复用过期时间接近的 lease, 例如 Kubernetes 下 event 数据的管理。
+
+            ---
+
+            拆解一下很简单，就是实现和使用两方面（也就是服务端和客户端），使用方面没啥意思（比如不要创建大量lease以及不要频繁修改kv）。实现方面无非是raft和botldb，raft没有什么优化点，所以就集中在boltdb上（具体如下）
+
+            - raft 层：raft 是 etcd 节点之间同步数据的基本机制，它的性能受限于网络 IO、节点之间的 rtt 等，WAL 受到磁盘 IO 写入延迟
+            - 存储层：负责持久化存储底层 kv, 它的性能受限于磁盘 IO，例如：fdatasync 延迟、内存 treeIndex 索引层锁的 block、boltdb Tx 锁的 block 以及 boltdb 本身的性能
+
+
+
+```
+
+
+
+### 基础篇 (2-11)
+
+
+
+
+
+```markdown
+首先我们来看服务高可用及数据一致性。前面我们提到单副本存在单点故障，而多副本又引入数据一致性问题。
+
+因此为了解决数据一致性问题，需要引入一个共识算法，确保各节点数据一致性，并可容忍一定节点故障。常见的共识算法有Paxos、ZAB、Raft等。CoreOS团队选择了易理解实现的Raft算法，它将复杂的一致性问题分解成Leader选举、日志同步、安全性三个相对独立的子问题，只要集群一半以上节点存活就可提供服务，具备良好的可用性。
+
+其次我们再来看数据模型（Data Model）和API。数据模型参考了ZooKeeper，使用的是基于目录的层次模式。API相比ZooKeeper来说，使用了简单、易用的REST API，提供了常用的Get/Set/Delete/Watch等API，实现对key-value数据的查询、更新、删除、监听等操作。
+
+key-value存储引擎上，ZooKeeper使用的是Concurrent HashMap，而etcd使用的是则是简单内存树，它的节点数据结构精简后如下，含节点路径、值、孩子节点信息。这是一个典型的低容量设计，数据全放在内存，无需考虑数据分片，只能保存key的最新版本，简单易实现。
+```
+
+![etcdV2-feats.jpg](img/geektime202410/etcd/etcdV2-feats.jpg)
+
+
+
+![etcdV2-cons.jpg](img/geektime202410/etcd/etcdV2-cons.jpg)
+
+```markdown
+下面我分别从功能局限性、Watch事件的可靠性、性能、内存开销来分别给你剖析etcd v2的问题。
+
+首先是功能局限性问题。它主要是指etcd v2不支持范围和分页查询、不支持多key事务。
+
+第一，etcd v2不支持范围查询和分页。分页对于数据较多的场景是必不可少的。在Kubernetes中，在集群规模增大后，Pod、Event等资源可能会出现数千个以上，但是etcd v2不支持分页，不支持范围查询，大包等expensive request会导致严重的性能乃至雪崩问题。
+
+第二，etcd v2不支持多key事务。在实际转账等业务场景中，往往我们需要在一个事务中同时更新多个key。
+
+然后是Watch机制可靠性问题。Kubernetes项目严重依赖etcd Watch机制，然而etcd v2是内存型、不支持保存key历史版本的数据库，只在内存中使用滑动窗口保存了最近的1000条变更事件，当etcd server写请求较多、网络波动时等场景，很容易出现事件丢失问题，进而又触发client数据全量拉取，产生大量expensive request，甚至导致etcd雪崩。
+
+其次是性能瓶颈问题。etcd v2早期使用了简单、易调试的HTTP/1.x API，但是随着Kubernetes支撑的集群规模越来越大，HTTP/1.x协议的瓶颈逐渐暴露出来。比如集群规模大时，由于HTTP/1.x协议没有压缩机制，批量拉取较多Pod时容易导致APIServer和etcd出现CPU高负载、OOM、丢包等问题。
+
+另一方面，etcd v2 client会通过HTTP长连接轮询Watch事件，当watcher较多的时候，因HTTP/1.x不支持多路复用，会创建大量的连接，消耗server端过多的socket和内存资源。
+
+同时etcd v2支持为每个key设置TTL过期时间，client为了防止key的TTL过期后被删除，需要周期性刷新key的TTL。
+
+实际业务中很有可能若干key拥有相同的TTL，可是在etcd v2中，即使大量key TTL一样，你也需要分别为每个key发起续期操作，当key较多的时候，这会显著增加集群负载、导致集群性能显著下降。
+
+最后是内存开销问题。etcd v2在内存维护了一颗树来保存所有节点key及value。在数据量场景略大的场景，如配置项较多、存储了大量Kubernetes Events， 它会导致较大的内存开销，同时etcd需要定时把全量内存树持久化到磁盘。这会消耗大量的CPU和磁盘 I/O资源，对系统的稳定性造成一定影响。
+
+为什么etcd v2有以上若干问题，Consul等其他竞品依然没有被Kubernetes支持呢？
+
+一方面当时包括Consul在内，没有一个开源项目是十全十美完全满足Kubernetes需求。而CoreOS团队一直在聆听社区的声音并积极改进，解决社区的痛点。用户吐槽etcd不稳定，他们就设计实现自动化的测试方案，模拟、注入各类故障场景，及时发现修复Bug，以提升etcd稳定性。
+
+另一方面，用户吐槽性能问题，针对etcd v2各种先天性缺陷问题，他们从2015年就开始设计、实现新一代etcd v3方案去解决以上痛点，并积极参与Kubernetes项目，负责etcd v2到v3的存储引擎切换，推动Kubernetes项目的前进。同时，设计开发通用压测工具、输出Consul、ZooKeeper、etcd性能测试报告，证明etcd的优越性。
+
+etcd v3就是为了解决以上稳定性、扩展性、性能问题而诞生的。
+
+在内存开销、Watch事件可靠性、功能局限上，它通过引入B-tree、boltdb实现一个MVCC数据库，数据模型从层次型目录结构改成扁平的key-value，提供稳定可靠的事件通知，实现了事务，支持多key原子更新，同时基于boltdb的持久化存储，显著降低了etcd的内存占用、避免了etcd v2定期生成快照时的昂贵的资源开销。
+
+性能上，首先etcd v3使用了gRPC API，使用protobuf定义消息，消息编解码性能相比JSON超过2倍以上，并通过HTTP/2.0多路复用机制，减少了大量watcher等场景下的连接数。
+
+其次使用Lease优化TTL机制，每个Lease具有一个TTL，相同的TTL的key关联一个Lease，Lease过期的时候自动删除相关联的所有key，不再需要为每个key单独续期。
+
+最后是etcd v3支持范围、分页查询，可避免大包等expensive request。
+```
+
+
+
+```markdown
+最后我们来小结下今天的内容，我们从如下几个方面介绍了etcd的前世今生，并在过程中详细解读了为什么Kubernetes使用etcd：
+
+	- etcd诞生背景， etcd v2源自CoreOS团队遇到的服务协调问题。
+	- etcd目标，我们通过实际业务场景分析，得到理想中的协调服务核心目标：高可用、数据一致性、Watch、良好的可维护性等。而在CoreOS团队看来，高可用、可维护性、适配云、简单的API、良好的性能对他们而言是非常重要的，ZooKeeper无法满足所有诉求，因此决定自己构建一个分布式存储服务。
+	- 介绍了v2基于目录的层级数据模型和API，并从分布式系统的角度给你详细总结了etcd v2技术点。etcd的高可用、Watch机制与Kubernetes期望中的元数据存储是匹配的。etcd v2在Kubernetes的带动下，获得了广泛的应用，但也出现若干性能和稳定性、功能不足问题，无法满足Kubernetes项目发展的需求。
+	- CoreOS团队未雨绸缪，从问题萌芽时期就开始构建下一代etcd v3存储模型，分别从性能、稳定性、功能上等成功解决了Kubernetes发展过程中遇到的瓶颈，也捍卫住了作为Kubernetes存储组件的地位。
+
+希望通过今天的介绍， 让你对etcd为什么有v2和v3两个大版本，etcd如何从HTTP/1.x API到gRPC API、单版本数据库到多版本数据库、内存树到boltdb、TTL到Lease、单key原子更新到支持多key事务的演进过程有个清晰了解。希望你能有所收获，在后续的课程中我会和你深入讨论各个模块的细节。
+```
+
+---
+
+![etcdV2-changelog.jpg](img/geektime202410/etcd/etcdV2-changelog.jpg)
+
+![etcdV3-changelog.jpg](img/geektime202410/etcd/etcdV3-changelog.jpg)
+
+
+
+
+
+
+
+:::danger
+
+```yaml
+- etcdV2 的 changelog?
+- etcdV2 支持哪些 feats?
+- etcdV2 的 cons?
+
+- etcdV3 是怎么解决这些 etcdV2 的 cons?
+
+```
+
+:::
+
+
+
+
+
 ---
 
 
-[Kimi.ai - 帮你看更大的世界](https://kimi.moonshot.cn/chat/crmo515fc7u9ac67qf70) etcd
-
-[etcd-面试题库-创脉思面试题库](https://www.cms365.cn/topic/clw8xqqg247uqaz6xj9lrvrbt)
+02 基础架构：etcd一个读请求是如何执行的？
 
 
-[Etcd——大厂面试问题集合_etcd面试题-CSDN博客](https://blog.csdn.net/weixin_41605937/article/details/121920094)
+![etcd-arch-read.jpg](img/geektime202410/etcd/etcd-arch-read.jpg)
+
 
 etcd Linearizable Read
 
-[Put方法 | etcd官方文档中文版](https://doczhcn.gitbook.io/etcd/index-1/kv_service/put)
+```markdown
+Client层：Client层包括client v2和v3两个大版本API客户端库，提供了简洁易用的API，同时支持负载均衡、节点间故障自动转移，可极大降低业务使用etcd复杂度，提升开发效率、服务可用性。
+
+API网络层：API网络层主要包括client访问server和server节点之间的通信协议。一方面，client访问etcd server的API分为v2和v3两个大版本。v2 API使用HTTP/1.x协议，v3 API使用gRPC协议。同时v3通过etcd grpc-gateway组件也支持HTTP/1.x协议，便于各种语言的服务调用。另一方面，server之间通信协议，是指节点间通过Raft算法实现数据复制和Leader选举等功能时使用的HTTP协议。
+
+Raft算法层：Raft算法层实现了Leader选举、日志复制、ReadIndex等核心算法特性，用于保障etcd多个节点间的数据一致性、提升服务可用性等，是etcd的基石和亮点。
+
+功能逻辑层：etcd核心特性实现层，如典型的KVServer模块、MVCC模块、Auth鉴权模块、Lease租约模块、Compactor压缩模块等，其中MVCC模块主要由treeIndex模块和boltdb模块组成。
+
+存储层：存储层包含预写日志(WAL)模块、快照(Snapshot)模块、boltdb模块。其中WAL可保障etcd crash后数据不丢失，boltdb则保存了集群元数据和用户写入的数据。
+
+etcd是典型的读多写少存储，在我们实际业务场景中，读一般占据2/3以上的请求。为了让你对etcd有一个深入的理解，接下来我会分析一个读请求是如何执行的，带你了解etcd的核心模块，进而由点及线、由线到面地帮助你构建etcd的全景知识脉络。
+```
+
+
+
+
+
+```markdown
+最后我们来小结一下，一个读请求从client通过Round-robin负载均衡算法，选择一个etcd server节点，发出gRPC请求，经过etcd server的KVServer模块、线性读模块、MVCC的treeIndex和boltdb模块紧密协作，完成了一个读请求。
+
+通过一个读请求，我带你初步了解了etcd的基础架构以及各个模块之间是如何协作的。
+
+在这过程中，我想和你特别总结下client的节点故障自动转移和线性读。
+
+一方面， client的通过负载均衡、错误处理等机制实现了etcd节点之间的故障的自动转移，它可助你的业务实现服务高可用，建议使用etcd 3.4分支的client版本。
+
+另一方面，我详细解释了etcd提供的两种读机制(串行读和线性读)原理和应用场景。通过线性读，对业务而言，访问多个节点的etcd集群就如访问一个节点一样简单，能简洁、快速的获取到集群最新共识数据。
+
+早期etcd线性读使用的Raft log read，也就是说把读请求像写请求一样走一遍Raft的协议，基于Raft的日志的有序性，实现线性读。但此方案读涉及磁盘IO开销，性能较差，后来实现了ReadIndex读机制来提升读性能，满足了Kubernetes等业务的诉求。
+
+
+```
+
+
+:::danger
+
+```yaml
+- etcd arch?
+
+- etcd一个读请求是如何执行的？ # 一个读请求从client通过Round-robin负载均衡算法，选择一个etcd server节点，发出gRPC请求，经过etcd server的KVServer模块、线性读模块、MVCC的treeIndex和boltdb模块紧密协作，完成了一个读请求。
+
+- etcd的串行读和线性读的原理和使用场景
+
+
+
+```
+
+:::
+
+
+---
+
+
+[03 基础架构：etcd一个写请求是如何执行的？](https://learn.lianglianglee.com/%e4%b8%93%e6%a0%8f/etcd%e5%ae%9e%e6%88%98%e8%af%be/03%20%e5%9f%ba%e7%a1%80%e6%9e%b6%e6%9e%84%ef%bc%9aetcd%e4%b8%80%e4%b8%aa%e5%86%99%e8%af%b7%e6%b1%82%e6%98%af%e5%a6%82%e4%bd%95%e6%89%a7%e8%a1%8c%e7%9a%84%ef%bc%9f.md)
+
+
+![etcd-arch-write.jpg](img/geektime202410/etcd/etcd-arch-write.jpg)
+
+
+
+```markdown
+最后我们来小结一下，今天我给你介绍了etcd的写请求流程，重点介绍了Quota、WAL、Apply模块。
+
+首先我们介绍了Quota模块工作原理和我们熟悉的database space exceeded错误触发原因，写请求导致db大小增加、compact策略不合理、boltdb Bug等都会导致db大小超限。
+
+其次介绍了WAL模块的存储结构，它由一条条记录顺序写入组成，每个记录含有Type、CRC、Data，每个提案被提交前都会被持久化到WAL文件中，以保证集群的一致性和可恢复性。
+
+随后我们介绍了Apply模块基于consistent index和事务实现了幂等性，保证了节点在异常情况下不会重复执行重放的提案。
+
+最后我们介绍了MVCC模块是如何维护索引版本号、重启后如何从boltdb模块中获取内存索引结构的。以及etcd通过异步、批量提交事务机制，以提升写QPS和吞吐量。
+
+通过以上介绍，希望你对etcd的一个写语句执行流程有个初步的理解，明白WAL模块、Apply模块、MVCC模块三者是如何相互协作的，从而实现在节点遭遇crash等异常情况下，不丢任何已提交的数据、不重复执行任何提案。
+```
+
+
+
+:::danger
+
+```yaml
+
+
+
+- expensive read请求（如Kubernetes场景中查询大量pod）会影响写请求的性能吗？
+```
+
+:::
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### 实践篇 (12-24)
+
+[12 一致性：为什么基于Raft实现的etcd还会出现数据不一致？](https://learn.lianglianglee.com/%e4%b8%93%e6%a0%8f/etcd%e5%ae%9e%e6%88%98%e8%af%be/12%20%e4%b8%80%e8%87%b4%e6%80%a7%ef%bc%9a%e4%b8%ba%e4%bb%80%e4%b9%88%e5%9f%ba%e4%ba%8eRaft%e5%ae%9e%e7%8e%b0%e7%9a%84etcd%e8%bf%98%e4%bc%9a%e5%87%ba%e7%8e%b0%e6%95%b0%e6%8d%ae%e4%b8%8d%e4%b8%80%e8%87%b4%ef%bc%9f.md)
+
+
+
+:::danger
+
+```yaml
+
+```
+
+:::
+
+---
+
+
+[13 db大小：为什么etcd社区建议db大小不超过8G？](https://learn.lianglianglee.com/%e4%b8%93%e6%a0%8f/etcd%e5%ae%9e%e6%88%98%e8%af%be/13%20db%e5%a4%a7%e5%b0%8f%ef%bc%9a%e4%b8%ba%e4%bb%80%e4%b9%88etcd%e7%a4%be%e5%8c%ba%e5%bb%ba%e8%ae%aedb%e5%a4%a7%e5%b0%8f%e4%b8%8d%e8%b6%85%e8%bf%878G%ef%bc%9f.md)
+
+
+
+:::danger
+
+```yaml
+
+```
+
+:::
+
+
+---
+
+
+[14 延时：为什么你的etcd请求会出现超时？](https://learn.lianglianglee.com/%e4%b8%93%e6%a0%8f/etcd%e5%ae%9e%e6%88%98%e8%af%be/14%20%e5%bb%b6%e6%97%b6%ef%bc%9a%e4%b8%ba%e4%bb%80%e4%b9%88%e4%bd%a0%e7%9a%84etcd%e8%af%b7%e6%b1%82%e4%bc%9a%e5%87%ba%e7%8e%b0%e8%b6%85%e6%97%b6%ef%bc%9f.md)
+
+
+
+
+
+:::danger
+
+```yaml
+
+```
+
+:::
+
+
+
+---
+
+
+[15 内存：为什么你的etcd内存占用那么高？](https://learn.lianglianglee.com/%e4%b8%93%e6%a0%8f/etcd%e5%ae%9e%e6%88%98%e8%af%be/15%20%e5%86%85%e5%ad%98%ef%bc%9a%e4%b8%ba%e4%bb%80%e4%b9%88%e4%bd%a0%e7%9a%84etcd%e5%86%85%e5%ad%98%e5%8d%a0%e7%94%a8%e9%82%a3%e4%b9%88%e9%ab%98%ef%bc%9f.md)
+
+
+
+:::danger
+
+```yaml
+
+```
+
+:::
+
+
+---
+
+[16 性能及稳定性（上）：如何优化及扩展etcd性能？](https://learn.lianglianglee.com/%e4%b8%93%e6%a0%8f/etcd%e5%ae%9e%e6%88%98%e8%af%be/16%20%e6%80%a7%e8%83%bd%e5%8f%8a%e7%a8%b3%e5%ae%9a%e6%80%a7%ef%bc%88%e4%b8%8a%ef%bc%89%ef%bc%9a%e5%a6%82%e4%bd%95%e4%bc%98%e5%8c%96%e5%8f%8a%e6%89%a9%e5%b1%95etcd%e6%80%a7%e8%83%bd%ef%bc%9f.md)
+
+
+
+
+
+
+:::danger
+
+```yaml
+
+```
+
+:::
+
+
+---
+
+
+[17 性能及稳定性（下）：如何优化及扩展etcd性能_](https://learn.lianglianglee.com/%e4%b8%93%e6%a0%8f/etcd%e5%ae%9e%e6%88%98%e8%af%be/17%20%e6%80%a7%e8%83%bd%e5%8f%8a%e7%a8%b3%e5%ae%9a%e6%80%a7%ef%bc%88%e4%b8%8b%ef%bc%89%ef%bc%9a%e5%a6%82%e4%bd%95%e4%bc%98%e5%8c%96%e5%8f%8a%e6%89%a9%e5%b1%95etcd%e6%80%a7%e8%83%bd_.md)
+
+
+
+
+
+:::danger
+
+```yaml
+
+```
+
+:::
+
+
+---
+
+
+[18 实战：如何基于Raft从0到1构建一个支持多存储引擎分布式KV服务？](https://learn.lianglianglee.com/%e4%b8%93%e6%a0%8f/etcd%e5%ae%9e%e6%88%98%e8%af%be/18%20%e5%ae%9e%e6%88%98%ef%bc%9a%e5%a6%82%e4%bd%95%e5%9f%ba%e4%ba%8eRaft%e4%bb%8e0%e5%88%b01%e6%9e%84%e5%bb%ba%e4%b8%80%e4%b8%aa%e6%94%af%e6%8c%81%e5%a4%9a%e5%ad%98%e5%82%a8%e5%bc%95%e6%93%8e%e5%88%86%e5%b8%83%e5%bc%8fKV%e6%9c%8d%e5%8a%a1%ef%bc%9f.md)
+
+
+
+
+
+:::danger
+
+```yaml
+
+```
+
+:::
+
+
+---
+
+[19 Kubernetes基础应用：创建一个Pod背后etcd发生了什么？](https://learn.lianglianglee.com/%e4%b8%93%e6%a0%8f/etcd%e5%ae%9e%e6%88%98%e8%af%be/19%20Kubernetes%e5%9f%ba%e7%a1%80%e5%ba%94%e7%94%a8%ef%bc%9a%e5%88%9b%e5%bb%ba%e4%b8%80%e4%b8%aaPod%e8%83%8c%e5%90%8eetcd%e5%8f%91%e7%94%9f%e4%ba%86%e4%bb%80%e4%b9%88%ef%bc%9f.md)
+
+
+
+:::danger
+
+```yaml
+
+```
+
+:::
+
+
+---
+
+[21 分布式锁：为什么基于etcd实现分布式锁比Redis锁更安全？](https://learn.lianglianglee.com/%e4%b8%93%e6%a0%8f/etcd%e5%ae%9e%e6%88%98%e8%af%be/21%20%e5%88%86%e5%b8%83%e5%bc%8f%e9%94%81%ef%bc%9a%e4%b8%ba%e4%bb%80%e4%b9%88%e5%9f%ba%e4%ba%8eetcd%e5%ae%9e%e7%8e%b0%e5%88%86%e5%b8%83%e5%bc%8f%e9%94%81%e6%af%94Redis%e9%94%81%e6%9b%b4%e5%ae%89%e5%85%a8%ef%bc%9f.md)
+
+
+
+:::danger
+
+```yaml
+
+```
+
+:::
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

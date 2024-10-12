@@ -38,12 +38,9 @@ function useSyntheticDate(): number | null {
   // if (!shouldRender) {
   //   return null;
   // }
-  let dateTs = new Date(frontMatter.date).getTime()
-  // console.log(dateTs)
 
   // return metadata.lastUpdatedAt;
-  return dateTs;
-  // return new Date(frontMatter.date).getTime();
+  return new Date(frontMatter.date).getTime();
 }
 
 function DateTime({
