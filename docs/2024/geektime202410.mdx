@@ -1355,6 +1355,32 @@ Replication 备份: 一个分片可以有多个备份（副本）
 
 ### 查询操作 (7-9)
 
+[07 查询：DSL查询之复合查询详解](https://learn.lianglianglee.com/%e4%b8%93%e6%a0%8f/ElasticSearch%e7%9f%a5%e8%af%86%e4%bd%93%e7%b3%bb%e8%af%a6%e8%a7%a3/07%20%e6%9f%a5%e8%af%a2%ef%bc%9aDSL%e6%9f%a5%e8%af%a2%e4%b9%8b%e5%a4%8d%e5%90%88%e6%9f%a5%e8%af%a2%e8%af%a6%e8%a7%a3.md)
+
+
+---
+
+
+[08 查询：DSL查询之全文搜索详解](https://learn.lianglianglee.com/%e4%b8%93%e6%a0%8f/ElasticSearch%e7%9f%a5%e8%af%86%e4%bd%93%e7%b3%bb%e8%af%a6%e8%a7%a3/08%20%e6%9f%a5%e8%af%a2%ef%bc%9aDSL%e6%9f%a5%e8%af%a2%e4%b9%8b%e5%85%a8%e6%96%87%e6%90%9c%e7%b4%a2%e8%af%a6%e8%a7%a3.md)
+
+
+---
+
+[09 查询：DSL查询之Term详解](https://learn.lianglianglee.com/%e4%b8%93%e6%a0%8f/ElasticSearch%e7%9f%a5%e8%af%86%e4%bd%93%e7%b3%bb%e8%af%a6%e8%a7%a3/09%20%e6%9f%a5%e8%af%a2%ef%bc%9aDSL%e6%9f%a5%e8%af%a2%e4%b9%8bTerm%e8%af%a6%e8%a7%a3.md)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1589,39 +1615,6 @@ Elasticsearch提供了开箱即用的字符过滤器、分词器和token 过滤�
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ## ***《etcd实战课》***
 
 
@@ -1673,98 +1666,7 @@ Elasticsearch提供了开箱即用的字符过滤器、分词器和token 过滤�
 
 ![etcd-practice.jpg](img/geektime202410/etcd/etcd-practice.jpg)
 
-
-
-```yaml
-
-        - q: "***“服务注册”和“服务发现”的具体流程？***"
-          u: https://mp.weixin.qq.com/s?__biz=MzUzNTY5MzU2MA==&mid=2247497005&idx=1&sn=f147d1aaeebdfe075946593f5765d9b9
-          x: |
-            > 服务注册
-
-            针对服务端，服务启动后需要注册，分为三个阶段：
-
-            - 启动注册：当一个服务节点启动后，需要把自己注册到 `Service Registry` 上，以便其他节点来发现自己。注册需要在服务启动完成，并可以接收请求时才去注册自己，并且会设置有效期，防止进程异常退出后依然被访问
-            - 定时续期：定时续期相当于 `keep alive`，定期告诉 `Service Registry` 自己还在，还能够继续服务
-            - 退出撤销：进程退出时，我们应该主动撤销注册信息，以便调用方及时将请求分发到别的节点 (同时，go-zero 通过自适应的负载均衡来保证即使节点退出没有主动注销，也能及时摘除该节点。)
-
-            > 服务发现
-
-            服务发现是针对调用端的
-
-            - 存量获取：`Service B`从 `Service Registry` 获取已有节点列表，然后根据自己的负载均衡算法选择合适的节点，发送请求
-            - 增量侦听：通知新增节点
-            - 应用`服务发现`故障：发生故障后，以 etcd 为例，遇到 etcd 故障时，我们就需要冻结 `Service B`的节点信息，不修改不清空，(gozero 会自动隔离和恢复故障节点)
-
-        - q: Compare (etcd, consul, rpcx, zk, nacos, eureka, vault) 这些组件都能实现服务发现、pubsub(消息发布与订阅)、负载均衡、分布式通知与协调、分布式锁、分布式队列、集群监控与 Leader 竞选，所以也应该从这些aspects进行比较
-
-        - q: "***etcd arch?***" # etcd server(WAL(Entry + snapshot)) + raft + storage(treeIndex + boltdb)
-          u: https://mp.weixin.qq.com/s?__biz=MzI4NDM0MzIyMg==&mid=2247489043&idx=2&sn=d2a5bdb76f65df8ad93d18487b17f823
-          s:
-            - raft 层：raft 是 etcd 节点之间同步数据的基本机制，它的性能受限于网络 IO、节点之间的 rtt 等，WAL 受到磁盘 IO 写入延迟
-            - 存储层：负责持久化存储底层 kv, 它的性能受限于磁盘 IO，例如：fdatasync 延迟、内存 treeIndex 索引层锁的 block、boltdb Tx 锁的 block 以及 boltdb 本身的性能
-            - 其他还有诸如宿主机内核参数、grpc api 层等性能影响因子
-
-
-        - q: etcd feats?
-          x: ectd 支持动态扩容缩容, MVCC, 可靠的事件监控，并且基于 MVCC 实现指定版本重放 (zk 的 watcher 没有 MVCC), 租约机制将 connection 和 session 分离
-        - q: etcd API (Put()/Delete(), Get(), Watch(), Transactions(), Leases(Grant/Revoke/KeepAlive))
-
-
-        - q: watch 机制
-          u: https://mp.weixin.qq.com/s?__biz=MzAxMTA4Njc0OQ==&mid=2651451271&idx=3&sn=43bcb53845660775f73f03fa359865a6
-          s:
-            - etcd 如何实现的 watch
-            - How to watch keys?
-            - mvcc & streaming watch (bptree, mmap)
-
-        - q: tx机制
-          s:
-            - mini-transactions机制
-
-        - q: 选举机制
-          s:
-            - "***etcd 的 leader 选举的过程？etcd 如何实现配置下发和服务发现？etcd 怎么选主？***"
-            - (lease)
-
-        - q: Proxy 模式 (etcd 作为一个反向代理把客户的请求转发给可用的 etcd 集群)
-        - q: Linearizable Read，snapshot 机制，WAL 的存储与回放
-
-        - q: "***How to optimize etcd?***"
-          u: https://mp.weixin.qq.com/s?__biz=MzAxMTA4Njc0OQ==&mid=2651441737&idx=2&sn=84d797acc722fdc23c67678aa2d875be
-          x: |
-            etcd 的服务端优化
-
-            - *etcd 对 cpu，内存，磁盘要求很高，至少要 4C8G 的独立宿主机部署。通过调节不同的 batch size 和 interval，使我们可以根据不同硬件和工作负载优化性能*
-            - 内存索引层。由于索引层大量使用锁机制同步对性能影响很大，通过优化锁的使用，提升了读写性能。
-            - lease 规模化使用。lease 是 etcd 支持 key 使用 ttl 过期的机制。在之前的版本中 scalability 较差，当有大量 lease 时性能下降的较为严重，通过优化 lease revoke 和过期失效的算法，解决了 lease 规模性的问题。
-            - 后端 boltdb 使用优化。etcd 使用 boltdb 作为底层数据库存储 kv，对整体性能影响很大。
-
-            etcd 的客户端优化
-
-            - *性能优化除了服务端要做的事情外，还需要客户端的帮助。保持客户端使用最佳实践将保证 etcd 集群稳定高效地运行*，这里我们分享 3 个最佳实践
-            - put 数据时避免大的 value, 大的 value 会严重影响 etcd 性能，例如：需要注意 Kubernetes 下 crd 的使用；
-            - 避免创建频繁变化的 key/value, 例如：Kubernetes 下 node 数据上传更新；
-            - 避免创建大量 lease 对象，尽量选择复用过期时间接近的 lease, 例如 Kubernetes 下 event 数据的管理。
-
-            ---
-
-            拆解一下很简单，就是实现和使用两方面（也就是服务端和客户端），使用方面没啥意思（比如不要创建大量lease以及不要频繁修改kv）。实现方面无非是raft和botldb，raft没有什么优化点，所以就集中在boltdb上（具体如下）
-
-            - raft 层：raft 是 etcd 节点之间同步数据的基本机制，它的性能受限于网络 IO、节点之间的 rtt 等，WAL 受到磁盘 IO 写入延迟
-            - 存储层：负责持久化存储底层 kv, 它的性能受限于磁盘 IO，例如：fdatasync 延迟、内存 treeIndex 索引层锁的 block、boltdb Tx 锁的 block 以及 boltdb 本身的性能
-
-
-
-```
-
-
-
 ### 基础篇 (2-11)
-
-
-
-
 
 ```markdown
 首先我们来看服务高可用及数据一致性。前面我们提到单副本存在单点故障，而多副本又引入数据一致性问题。
@@ -2059,6 +1961,27 @@ Raft日志复制确保了etcd多节点间的数据一致性，我通过一个etc
 #### 压缩：如何回收旧版本数据？
 
 [11 压缩：如何回收旧版本数据？](https://learn.lianglianglee.com/%e4%b8%93%e6%a0%8f/etcd%e5%ae%9e%e6%88%98%e8%af%be/11%20%e5%8e%8b%e7%bc%a9%ef%bc%9a%e5%a6%82%e4%bd%95%e5%9b%9e%e6%94%b6%e6%97%a7%e7%89%88%e6%9c%ac%e6%95%b0%e6%8d%ae%ef%bc%9f.md)
+
+
+![compress-arch.jpg](img/geektime202410/etcd/compress-arch.jpg)
+
+
+```markdown
+
+在了解etcd压缩模块实现细节前，我先给你画了一幅压缩模块的整体架构图。从图中可知，你可以通过client API发起人工的压缩(Compact)操作，也可以配置自动压缩策略。在自动压缩策略中，你可以根据你的业务场景选择合适的压缩模式。目前etcd支持两种压缩模式，分别是时间周期性压缩和版本号压缩。
+
+当你通过API发起一个Compact请求后，KV Server收到Compact请求提交到Raft模块处理，在Raft模块中提交后，Apply模块就会通过MVCC模块的Compact接口执行此压缩任务。
+
+Compact接口首先会更新当前server已压缩的版本号，并将耗时昂贵的压缩任务保存到FIFO队列中异步执行。压缩任务执行时，它首先会压缩treeIndex模块中的keyIndex索引，其次会遍历boltdb中的key，删除已废弃的key。
+
+以上就是压缩模块的一个工作流程。接下来我会首先和你介绍如何人工发起一个Compact操作，然后详细介绍周期性压缩模式、版本号压缩模式的工作原理，最后再给你介绍Compact操作核心的原理。
+
+
+```
+
+
+
+
 
 
 
@@ -2722,6 +2645,13 @@ Raft日志复制确保了etcd多节点间的数据一致性，我通过一个etc
 ![wealth-mindmap-4.jpg](img/geektime202410/wealth/mindmap-4.jpg)
 
 ![wealth-mindmap-5.jpg](img/geektime202410/wealth/mindmap-5.jpg)
+
+
+
+
+
+
+
 
 
 
