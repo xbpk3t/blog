@@ -1,0 +1,196 @@
+---
+title: scrapy 相关存档
+date:  2024-09-14
+tags: [archive]
+unlisted: true
+---
+
+
+
+## scrapy
+
+
+
+### 技术选型
+
+- pyspider: 不维护了，因为该项目深度依赖的 phantomjs 不维护了
+- feapder: 框架很不错，内置了很多需要的服务，比如自动入库/好用的命令行工具 (支持比如生成 item 什么的)/定时更新/浏览器渲染 (不需要引入 selenium，怎么实现的？)/支持多种报警策略 (比如爬虫抓取速度，剩余任务/爬虫卡死报警/失败任务过多被反爬报警)/爬虫拉取数据的 dashboard。总的来说略微稍重，但是很好用
+
+
+### 概念
+
+运行原理
+
+scrapy 框架由哪几个部分组成？哪些组件？
+
+scrapy 的运行原理？执行过程？
+
+*scrapy 由调度器、下载器、爬虫、pipeline、引擎这 5 个基本组件，以及下载中间件和爬虫中间件两个附加组件构成*
+
+```markdown
+
+- `scheduler调度器`（负责接收引擎发送过来的 request 请求，并且按照一定的方式进行整理排序，入队，当引擎需要时，交还给引擎）
+- `downloader下载器`（负责下载 引擎 发送的所有 request，并且将其返回的数据，发送给 引擎，由引擎交给爬虫来处理）
+- `spider爬虫`（负责处理所有“返回数据”，从中分析提取数据，获取 item 字段需要的数据，并且将需要跟进的 URL 提交给 引擎，再次进入 调度器）
+- `pipeline管道`（负责处理 爬虫 中获取到的 item，并且进行后期处理（详细分析，过滤，存储等）的地方）
+- `引擎`（负责爬虫，管道，下载器，调度器之间的通讯，信号，数据传递等）
+- `下载中间件`（自定义拓展下载功能的地方）
+- `爬虫中间件`（自定义拓展和操作引擎和 爬虫 中间通信的功能组件；（比如 进入爬虫的“返回数据”，以及从 爬虫 出去的 requests））
+
+```
+
+
+### 中间件
+
+---
+
+scrapy 有哪几种中间件？
+
+- 下载中间件，请求之前更换代理 IP，更换 Cookies，更换 UA，自动重试等功能，以及返回响应时，对 response 的处理
+- 爬虫中间件，可以在中间件里处理爬虫本身的异常，比如数据处理错误，或者网站本身内容有问题导致的异常
+
+---
+
+scrapy 中间件的原理？
+
+
+
+
+
+### 常用配置
+
+```markdown
+
+
+log 相关
+
+- 是否启用 logging `LOG_ENABLED = True`
+- log 打印格式 `LOG_FORMAT = '%(asctime)s,%(msecs)d  [%(name)s] %(levelname)s: %(message)s'`
+
+---
+
+自动限流拓展
+
+- AUTOTHROTTLE_ENABLED
+- AUTOTHROTTLE_START_DELAY
+- AUTOTHROTTLE_MAX_DELAY
+- AUTOTHROTTLE_DEBUG
+- AUTOTHROTTLE_TARGET_CONCURRENCY
+
+HTTP 的缓存配置
+
+- HTTPCACHE_ENABLED
+- HTTPCACHE_EXPIRATION_SECS
+- HTTPCACHE_DIR
+- HTTPCACHE_IGNORE_HTTP_CODES
+- HTTPCACHE_STORAGE
+
+---
+
+Feed 相关配置
+
+- `FEED_URI`
+- `FEED_FORMAT`
+- `FEED_STORAGES`
+- `FEED_EXPORTERS` 可以设置为`JSON`/`JSON lines`/`CSV`/`XML`/`Pickle`/`Marshal`
+- `FEED_STORE_EMPTY`
+
+
+```
+
+### **选择器的使用**
+
+- scrapy 的 response 的 xpath、css 怎么写？
+- xpath 怎么获取包含某些特定文字的选择器？
+- xpath 获取最后一个标签
+- 最后一个`//div[contains(@class, 'paginator')]/a[last()]`
+- 倒数第二个`//div[contains(@class, 'paginator')]/a[last()-1]`
+- xpath 如何通过 class 来定位元素？
+- xpath 的一些常见语法？？？
+- 怎么在最后一个 item 里取值？直接使用 meta 进行传值，在最后一个 request() 里的 item 进行入库
+- get() 、getall() 、extract() 、extract_first() 这几个方法的区别？
+- extract():这个方法返回的是一个数组 list，，里面包含了多个 string，如果只有一个 string，则返回[‘ABC’]这样的形式。
+- extract_first()：这个方法返回的是一个 string 字符串，是 list 数组里面的第一个字符串。
+- scrapy 中有哪些处理 item 的技巧？
+
+### 常见问题
+
+- 怎么周期执行 scrapy？ScrapyKeeper/scrapyd+curl
+- scrapy 怎么同时执行多个爬虫？使用 scrapy 的 `CrawlerProcess`, `scrapy crawl命令`只能线性执行命令，无法并行
+- 怎么在爬虫执行之后，进行其他操作？实用 scrapy 的`CrawlerRunner`
+- 怎么 debug scrapy？
+- 怎么在一个 scrapy 项目中实现多个爬虫？
+- scrapy 中怎么传递参数？使用 `__init__()`
+- 如何在 scrapy 中使用 aiohttp？
+- 如何把 selenium 集成到 scrapy？
+
+
+---
+
+- 怎么在爬虫执行完成后，执行一段代码？看了不少 sof 上的帖子，不少人都通过在`spider里的closed()方法`里添加这段代码来解决这个问题；但是我自己试了一下，试过了几种方法都不能解决这个问题，最后还是通过`外挂一个脚本`，来解决这个问题
+- 怎么动态配置 custom_settings？怎么动态添加 start_urls？ *custom_settings 必须被定义为类属性，因为它们必须在初始化之前定义*
+- Scrapy 中怎么传递用户自定义的参数到爬虫文件所在的类中呢？其他参数都是可以的，除了`custom_settings`，这个参数一定要在 init() 之前就确定
+
+---
+
+- 你用过的爬虫框架或者模块有哪些？谈谈他们的区别或者优缺点？
+- scrapy 和 scrapy-redis 的区别？
+- scrapy 的优缺点？为什么要选择 scrapy 框架？
+- scrapy 和 requests 的使用情况？
+- 描述一下 scrapy 框架的运行机制？
+- 写爬虫使用多进程好，还是用多线程好？
+- 常见的反爬虫和应对方法？
+- 分布式爬虫主要解决什么问题？
+- 爬取时弹出对话框让验证，又该怎么处理？
+- 你在爬虫过程中，都是怎么解决反爬的，爬取多少数据，用了多长时间？
+- 爬取这些数据都用来做什么的？怎么交付给公司？客户是谁？爬取数据的影响因素？
+- 爬虫的基本流程？
+- 如何提高爬取效率？
+- request 请求方式中的 post、get 有什么区别
+- 模拟登陆原理？
+- 分布式原理？
+- scrapy 中间件有几种类，你用过那些中间件？
+- 代理失效了怎么处理
+- 使用 redis 搭建分布式系统时如何处理网络延迟和网络异常？
+
+---
+
+- 怎么获取某个相对协议 url 的完整 url？response.urljoin
+- selector 的使用？可以结合 scrapy 一起使用，实现`分页文章合并数据`，很牛逼的一个实现，网上的帖子都没提到这种方案 (参考 d1bz 项目)
+- start_requests() 和 init() 有什么区别？
+- scrapy 的 Itemloader？ItemLoader 最大的好处是作为一个容器，可以多个 spider 复用提取规则。可以把规则动态添加，因为规则可以放入数据库或者文件中。ItemLoader 不用考虑是否为空，是否是 0 的值。
+
+---
+
+scrapy 怎么实现异步抓取？
+
+[在 Scrapy 中如何使用 aiohttp？](https://mp.weixin.qq.com/s?__biz=MzI2MzEwNTY3OQ==&mid=2648978965&idx=1&sn=9cf95229f79bd544ec4565ca34283f69)
+
+- 用 asyncio 实现异步线程
+- 用 [aio-libs/aiohttp](https://github.com/aio-libs/aiohttp) 代替 request 实现异步 HTTP 请求
+
+还可以用 [MagicStack/uvloop: Ultra fast asyncio event loop.](https://github.com/MagicStack/uvloop) 代替 asyncio 实现更好的性能
+
+
+---
+
+怎么用 scrapy+splash 实现异步抓取？
+
+也可以用 `scrapy-splash中间件` 实现异步抓取
+
+
+---
+
+splash 和 selenium 的区别、使用场景？
+
+*都是无头浏览器，相比于 selenium，splash 可以实现异步渲染页面，爬虫的抓取效率很高；但是相比于 selenium，其键鼠操作和模拟登录等功能不完善*
+
+
+
+### 需求
+
+- 输出 rss
+- 模拟登录
+- 去重
+- scrapy-selenium
+

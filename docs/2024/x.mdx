@@ -1,0 +1,1855 @@
+---
+title: 存档log-xxx中精华内容
+date:  2024-10-14
+unlisted: true
+---
+
+
+
+
+
+### ***[xxx] 怎么优化 CentOS7？***
+
+
+:::tip
+
+- Upgrade, Time setting, Install Useful Packages, Optimize the SYSCTL, Optimize SSH
+- TCP congestion control (Tweaker, Westwood, BBR, BBRv3, Hybla)
+- Swap file + vm.swapiness value
+
+:::
+
+
+```markdown
+
+- 修改字符集
+- 关闭 selinux
+- 关闭 firewalld
+- 精简开机启动
+- 修改文件描述符
+- 安装常用工具及修改 yum 源
+- 优化系统内核
+- 加快 ssh 登录速度
+- 禁用 ctrl+alt+del 重启
+- 设置时间同步
+- history 优化
+
+```
+
+
+https://poe.com/s/YySmTRzEaTTK62lNGu82
+
+
+
+```shell
+# /etc/locale.conf
+# 修改字符集
+LANG=en_US.UTF-8
+
+# /etc/selinux/config
+# 关闭 SELinux
+SELINUX=disabled
+SELINUXTYPE=targeted
+
+# 关闭 firewalld
+systemctl stop firewalld
+systemctl disable firewalld
+
+# 精简开机启动
+# 禁用不需要的服务
+systemctl disable <service_name>
+# 请将 <service_name> 替换为要禁用的服务的名称
+
+# /etc/security/limits.conf
+# 修改文件描述符
+* soft nofile 65536
+* hard nofile 65536
+
+# 安装常用工具
+yum install -y vim wget curl net-tools
+
+# 优化系统内核
+# 网络设置优化
+net.core.rmem_max = 16777216
+net.core.wmem_max = 16777216
+net.ipv4.tcp_rmem = 4096 87380 16777216
+net.ipv4.tcp_wmem = 4096 65536 16777216
+net.ipv4.tcp_syncookies = 1
+net.ipv4.tcp_tw_reuse = 1
+net.ipv4.tcp_fin_timeout = 30
+net.ipv4.tcp_keepalive_time = 1200
+net.ipv4.ip_local_port_range = 1024 65000
+
+# 文件系统性能优化
+vm.swappiness = 10
+vm.dirty_ratio = 60
+vm.dirty_background_ratio = 2
+
+# /etc/ssh/sshd_config
+# 加快 SSH 登录速度
+UseDNS no
+GSSAPIAuthentication no
+
+# 禁用 Ctrl+Alt+Del 重启
+# /etc/systemd/system/ctrl-alt-del.target
+[Unit]
+Description=Disable Ctrl+Alt+Del for reboot
+
+[Service]
+ExecStart=/bin/true
+
+[Install]
+WantedBy=multi-user.target
+
+# /etc/chrony.conf
+# 设置时间同步
+server 0.centos.pool.ntp.org
+server 1.centos.pool.ntp.org
+server 2.centos.pool.ntp.org
+server 3.centos.pool.ntp.org
+
+# /etc/profile
+# History 优化
+HISTSIZE=10000
+HISTIGNORE="&:ls:ll:history"
+```
+
+
+
+
+
+
+:::danger
+
+其实这类问题都挺无聊的，
+
+在实际工作中，我们工作流通常是，用terraform批量创建机器之后，用ansible来批量修改这些机器的配置项。
+
+那这个问题实际上就是问，有哪些需要注意的配置项。
+
+通常我们直接从gh上搜对应的优化配置即可，比如说 "centos ansible optimizer" 就能搜到很多，比如：
+
+
+怎么用ansible初始化mac？
+
+使用ansible配置mac
+
+- [AlexNabokikh/mac-playbook: MacOS setup and configuration via Ansible.](https://github.com/AlexNabokikh/mac-playbook)
+- [ringods/macos-config: Automated setup of my MacOS system(s) based on Superlumic](https://github.com/ringods/macos-config)
+
+
+如果搜不到，就直接搜 "centos optimizer"
+
+[hawshemi/Linux-Optimizer: Linux Optimizer](https://github.com/hawshemi/Linux-Optimizer)
+
+[opiran-club/VPS-Optimizer: Linux Optimizer One-click bash script , swap maker and bbr tcp congestion control , xanmod kernel and bbrv3](https://github.com/opiran-club/VPS-Optimizer)
+
+然后自己写一个对应的ansible-playbook 就可以了
+
+
+---
+
+另外哈，其实像centos去聊优化，很多时候都是在鬼扯。因为linux kernel本身在新版本会有很多优化，但是像RHEL家的这些个linux发行版根本追不上新版本，自然这些优化都用不到。比如说昨天看的linux6.8通过优化cacheline，提高了TCP性能约40%，这个比怎么折腾BBR之类的东西都。包括HTTP3都实装了很久了，但是国内外绝大部分服务还是在用HTTP1.1，HTTP3相比HTTP1.1的性能提升大概有3~4倍（搜索"HTTP3 HTTP1.1 benchmark"），然后呢？ 所以讨论这些东西，感觉都挺可笑的。绝大部分服务都是嘴上说很注意性能，但是实际上很多已经很成熟的优化方案存在了，但是却不用
+
+
+:::
+
+
+
+
+
+
+
+### ***[doc] MySpace [2023/11/23]***
+
+
+[Blog - MySpace](https://www.hitzhangjie.pro/blog/) 这个 hugo 的主题真的很舒服，文档偏底层，以后再看。干货还是挺多的，可以看看。
+
+---
+
+***[JSON库性能对比及实现探究 - MySpace](https://www.hitzhangjie.pro/blog/2023-08-23-json%E5%BA%93%E6%80%A7%E8%83%BD%E5%AF%B9%E6%AF%94%E5%8F%8A%E5%AE%9E%E7%8E%B0%E6%8E%A2%E7%A9%B6/#%E6%9C%AC%E6%96%87%E6%80%BB%E7%BB%93)***
+
+```markdown
+本文首先介绍了下JSON标准，介绍了下JSON parser+generator在标准范围内的一些腾挪空间，然后我们列举了当前性能比较有优势的一些JSON库实现，并对它们属于parser、generator进行了分类，也指出了哪些库可以作为go标准库的平替方案。我们还比较详细地分析了各个JSON库的优化思路，其中重点介绍了simdjson这个被大量优秀开源项目使用的实现，以及针对go语言的bytedance/sonic这个在字节广泛使用的实现。从中我们认识到，JSON的使用场景比较多样化，泛型模式、有固定schema的模式、按需解析的模式，甚至还有对齐进行修改后再序列化的诉求，要实现一个支持全场景的方案本身就不简单，而且还要做到sonic开发者团队说的那样全场景top3的程度。
+
+目前，从效果上来看，sonic确实做的不错，但是它受限于amd64平台，继续支持其他平台可能并非sonic开发者能支持的，所以goccy/go-json的方案也值得借鉴下，虽然其在泛型模式下表现一般，但是其在有schema模式下已经可以实现和bytedance/sonic JIT优化后的差不多的效果了，看来goccy/go-json也可以有进一步优化战胜bytedance/sonic的空间
+
+```
+
+sonic 和 goccy/go-json
+
+
+```markdown
+sonic可以作为go标准库encoding/json的一个平替（至少在amd64平台上是可以），不仅如此，它还号称是在全场景中表现优异。开发者提到，此前很难找到支持全场景、并且在支持全场景中性能均保持top3的json库，这也是开发者最终开发bytedance/sonic的一个起因。
+
+bytedance/sonic有一篇非常不错的介绍性文章，see: 基于 JIT 技术的开源全场景高性能 JSON 库。其中提到了所谓的全场景的概念：
+
+- 泛型（generic）编解码：JSON 没有对应的 schema，只能依据自描述语义将读取到的 value 解释为对应语言的运行时对象，例如：JSON object 转化为 Go any, interface{}, map[string]interface{}；
+- 定型（binding）编解码：JSON 有对应的 schema（Go strcut），可以同时结合模型定义与 JSON 语法，将读取到的 value 绑定到对应的模型字段上去，同时完成数据解析与校验；
+- 查找（get）& 修改（set） ：指定某种规则的查找路径（一般是 key 与 index 的集合），只对需要的那部分 JSON value 进行查找或者修改。
+
+```
+
+
+---
+
+***[Linux性能问题排查60s - MySpace](https://www.hitzhangjie.pro/blog/2023-09-08-linux%E6%80%A7%E8%83%BD%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A560s/)***
+
+latency 数据
+
+```markdown
+L1 cache reference ......................... 0.5 ns
+Branch mispredict ............................ 5 ns
+L2 cache reference ........................... 7 ns
+Mutex lock/unlock ........................... 25 ns
+Main memory reference ...................... 100 ns
+Compress 1K bytes with Zippy ............. 3,000 ns  =   3 µs
+Send 2K bytes over 1 Gbps network ....... 20,000 ns  =  20 µs
+SSD random read ........................ 150,000 ns  = 150 µs
+Read 1 MB sequentially from memory ..... 250,000 ns  = 250 µs
+Round trip within same datacenter ...... 500,000 ns  = 0.5 ms
+Read 1 MB sequentially from SSD* ..... 1,000,000 ns  =   1 ms
+Disk seek ........................... 10,000,000 ns  =  10 ms
+Read 1 MB sequentially from disk .... 20,000,000 ns  =  20 ms
+Send packet CA->Netherlands->CA .... 150,000,000 ns  = 150 ms
+```
+
+checklist
+
+```shell
+
+uptime
+dmesg | tail
+vmstat 1
+mpstat -P ALL 1
+pidstat 1
+iostat -xz 1
+free -m
+sar -n DEV 1
+sar -n TCP,ETCP 1
+top
+
+```
+
+---
+
+*[go源码剖析 - go命令 - MySpace](https://www.hitzhangjie.pro/blog/2020-09-28-go%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90-go%E5%91%BD%E4%BB%A4/)*
+
+把需要的commands都整理到tldr-alfred了
+
+---
+
+[别用float作为map的key - MySpace](https://www.hitzhangjie.pro/blog/2019-05-23-%E5%88%AB%E7%94%A8float%E4%BD%9C%E4%B8%BAmap%E7%9A%84key/) 应该正常人都不会用float作为key吧
+
+---
+
+[聊聊计算机系统中的时间 - MySpace](https://www.hitzhangjie.pro/blog/2021-03-09-%E8%81%8A%E8%81%8A%E8%AE%A1%E7%AE%97%E6%9C%BA%E4%B8%AD%E7%9A%84%E6%97%B6%E9%97%B4/)
+
+如何解决时间漂移问题在多处理器系统、分布式系统中带来的时序相关的问题。
+
+```markdown
+这里还有个问题，就是时间漂移问题。尽管我们前面提及了精确测量时间、时间同步协议等尽可能保证时间准确的方式，但是效果也是”尽可能”让其精确，我们还是不能百分百地保证全球所有电子设备、分布式系统中节点的时间是完全一致的，甚至是同一个计算机但是是多处理器系统中的多个时钟也不是完全一致的。
+
+这回带来什么问题呢？如果运行其上的系统，依赖“时间”对操作顺序执行先后做判断，那这样的系统很可能是存在问题的。
+
+在分布式系统设计中，一般会采用“逻辑时钟”、“向量时钟”等方式来代替真实时钟，来作为操作顺序执行先后的判断依据。这里的内容有很多，后面我们有机会再单独写一篇文章来介绍。
+
+```
+
+```markdown
+在分布式系统中，怎么使用逻辑时钟和向量时钟？这两种方案做个比较
+
+---
+
+方案                         优点                                                     缺点
+逻辑时钟       - 简单易实现<br>- 不依赖于节点之间的通信<br>- 可以检测因果关系 - 无法准确反映物理时间<br>- 不适用于并发冲突的解决和一致性问题
+向量时钟       - 可以检测因果关系<br>- 可以解决并发冲突和一致性问题         - 需要维护较大的向量<br>- 通信开销较大<br>- 可能存在复杂的更新逻辑
+
+---
+
+
+哪种方法更好呢？
+
+---
+
+在选择逻辑时钟或向量时钟时，没有绝对的"更好"方法，而是要根据具体的需求和场景来确定。这取决于分布式系统的特点、应用需求和实现复杂性等因素。下面是一些考虑因素：
+
+1. 简单性和易实现性：
+ - 逻辑时钟相对简单，只需要维护一个递增计数器，易于实现和理解。
+ - 向量时钟需要维护一个向量，实现和维护稍微复杂一些。
+
+2. 物理时间的需求：
+ - 逻辑时钟不能准确反映物理时间，只能依靠事件发生的因果关系进行排序。
+ - 向量时钟也不能直接提供准确的物理时间，但可以通过比较向量元素来确定因果关系。
+
+3. 应用需求：
+ - 逻辑时钟适用于一些不需要考虑并发冲突和一致性问题的场景。
+ - 向量时钟更适用于需要解决并发冲突和一致性问题的场景，例如分布式数据库、分布式锁等。
+
+4. 通信开销：
+ - 逻辑时钟不需要节点之间的通信，仅依赖于事件发生的因果关系。
+ - 向量时钟需要节点之间的通信来传递和更新向量，可能引入一定的通信开销。
+
+需要根据具体需求进行权衡和选择。在某些情况下，逻辑时钟可能更简单和适用，而在需要解决并发冲突和一致性问题的场景中，向量时钟可能更合适。一些系统可能会结合两种方法，根据具体需求来灵活选择使用。
+
+因此，没有一种方法可以被普遍视为更好，而是要根据分布式系统的特点和应用需求来选择适合的时钟方案。
+
+```
+
+分布式数据库、分布式锁等场景使用向量时钟。向量时钟相比逻辑时钟更加复杂。
+
+
+
+
+
+---
+
+
+[选择合适的测试框架 - MySpace](https://www.hitzhangjie.pro/blog/2020-08-19-go%E5%BC%80%E5%8F%91%E5%A6%82%E4%BD%95%E5%81%9A%E6%B5%8B%E8%AF%95%E9%80%89%E6%8B%A9%E5%90%88%E9%80%82%E7%9A%84%E6%B5%8B%E8%AF%95%E6%A1%86%E6%9E%B6/)
+
+```markdown
+go单测中使用的比较多的，大致有如下这些选择， gomock+gostub+gomonkey+goconvey，现在go用的比较多的就是这几个，我比较推荐gomock、gomonkey，看情况，灵活组合使用吧，先总结下这几个的使用方式、优缺点。
+
+gomock是基于interface的，mockgen生成interface对应的mock桩代码，然后再去写mock代码。 如果前期没这些interface设计的话，也不方便测试。有的话，看起来也不是特别方便。
+gostub支持对变量、方法、过程进行mock，但是用上它，存量代码的话就要做些调整，对代码有侵入， 因为它是基于变量去作mock，比如func Hello(…)要改成var Hello=func(…)才能用
+gomonkey也支持对变量、方法、过程进行mock，我现在感觉这个比较好用，简单，对代码无侵入， 和gostub实现原理不太一样，比如函数，它通过汇编调整跳转地址，这么着对内联函数就支持不到了，就得-gcflags=“all=-l"禁用内联
+goconvey主要是用来更好地管理测试用例，可以根据情况用或者不用
+
+
+在深度使用上述几个测试框架之后，个人感觉gomonkey+goconvery组合是比较合适的，goconvey也可以考虑用go testing框架t.Run代替来维护子测试。
+```
+
+英雄所见略同，不过我是gotest+gomonkey
+
+---
+
+
+[剖析go二进制文件 - MySpace](https://www.hitzhangjie.pro/blog/2020-09-06-%E5%89%96%E6%9E%90go%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%96%87%E4%BB%B6/)
+
+
+```shell
+# 源码转汇编代码
+go build -gcflags -S program.go
+# bin包转汇编代码
+go tool objdump binaryFile
+```
+
+Capstone 反汇编框架
+
+gapstone
+
+
+```markdown
+当你在一个笔记本上编译一个go程序、默认输出是64位ELF格式（Executable Linkable Format）。ELF内部其实是被组织成了多个不同的节（section），每一个section都有不同的目的，如存储版本信息、程序元数据信息、可执行代码等等。ELF是被广泛采用的一个二进制程序标准，go语言标准库里面提供了一个 debug/elf package用来进行ELF文件数据的读写。ELF其实有点复杂，但是要实现反汇编的话其实我们只关心两个section就可以了。一个是符号表section（.symtab），一个是指令section （.text）。
+```
+
+直接用 godbolt 查看就行了
+
+
+---
+
+
+[Visualizing Your Go Code - MySpace](https://www.hitzhangjie.pro/blog/2020-10-06-visualizing-your-go-code/)
+
+```markdown
+流程控制 + 组件交互
+某种程度上，我认为理解代码也有相似之处。
+
+如果能够拎出那些比较重要的对象（objects），以及他们之间的通信（function call, chan send/recv），或者他们的私密信息（注释），是不是也能够大致有个了解呢？
+
+如果想更深入了解下，加上事情的脉络（控制结构，if-else, switch-case, for-loop）呢？
+```
+
+```markdown
+So…假如我用编程语言写了一段代码，如何知道我有没有犯错误呢？那就是编译器的工作，词法分析、语法分析、语义分析，一切OK之后会进入中间代码生成、代码优化、生成最终代码。通常一般在语法分析会构建语法分析树AST（Abstract Syntax Tree），如果能够正常构建出AST，表示代码是按照语言对应生成规则来写的，就没什么大问题，反之则可能又自我“发挥”犯错了。
+```
+
+---
+
+
+*[解决c10k c100k c10m问题 - MySpace](https://www.hitzhangjie.pro/blog/2024-01-06-%E8%A7%A3%E5%86%B3c10kc100kc10m%E9%97%AE%E9%A2%98/)*
+
+这篇文章选择的角度特别好，从c10k到c10m，也就是从上上个时代（200X年）到现在这个时间点（202X年）的跨度。还是从内核本身到一些比较前沿的kernel相关的优化方法。
+
+```markdown
+操作系统
+
+
+允许进程打开的最大fd数量，通常较小，需通过ulimit -n设置
+默认进程、线程栈大小，偏大且进程数、线程数多的话，容易OOM
+那个时代有些可观存在的限制：
+ glibc2.1以下版本使用16-bit数字记录句柄数，仅支持32767个
+ 有的系统使用16位记录进程ID、现成ID，so可能创建不了太多进程、线程
+ 有的系统预分配了太大的thread-local存储，比如1MB，假设虚地址空间2GB，那么最多创建2000个线程
+内核本身存在问题
+ select、poll、epoll的改进
+ thundering herd（惊群）问题
+
+
+服务实现
+
+
+网络IO管理机制，同步、异步
+服务采用的并发处理模型（ppc、tpc、cpc）
+框架实现
+ zero-copy问题，了解收一个网络包的旅程，从网卡端口、驱动中buffer、内核协议栈、应用程序缓冲区，可借助系统调用来减少拷贝开销，推荐常见的零拷贝技术
+ 使用writev避免发送小包，writev+iovec（scatter、gather分散读、聚集写）
+ 使用TCP_CORK避免发送小包，将多个小包合并达到MSS后发送, see TCP_CORK
+ 过载保护机制，过载时拒绝新连接，降低错误率。如使用IO ready的客户端数量来作为负载评估指标
+caching技术
+
+
+```
+
+```markdown
+说到这里，就不得不提下为什么要多个进程、多个线程，为了并发提高资源利用率。程序执行操作时，有些操作会阻塞程序执行导致其让出CPU，比如进行网络IO处理，或者执行一些其他的阻塞型的syscalls。
+
+针对网络IO处理，大家应该了解过同步阻塞、同步非阻塞、异步IO，我们就直说当前最成熟的、顶大梁的方案，同步非阻塞。Linux下通过epoll可以实现同步非阻塞IO，实现高效地IO事件处理。
+```
+
+PPC, TPC, CPC
+
+其实上面这么多内容，总结一句话就是我们平时常说的“什么c10k，不就是nginx随便起个服务就能搞定的吗？”，*换句话说，也正是因为nginx本身就实现了这些优化（比如COW, zero-copy, 包括TPC这些），所以才能轻松搞定c10k问题。*
+
+```markdown
+The c10m problem! 依靠内核是不能胜任这个问题的，内核恰恰是问题所在！
+
+---
+
+packet scaling：内核提供的收包机制太重了，自定义网卡驱动，接管对网卡的管理，将收到的包直接递交给应用程序缓冲区，而不是传给内核协议栈，像这样的实现包括：
+
+PF_RING
+Netmap
+Intel DPDK
+
+ps：现在有了一种相比较之下更好的技术，基于eBPF的高性能网络。
+
+---
+
+
+multi-core scaling
+
+spinlock,mutex,critical section,semaphores?
+
+no waiting
+un-synchonization
+core local data
+ring buffers
+RCU (read-copy-update)
+atomics
+cmpxchg
+lock add
+lockfree data structures
+thread models
+pipeline
+worker
+taskset
+thread affinity
+
+
+---
+
+CPU and memory
+
+co-locate data
+
+don’t: data structures all over memory connected via pointers
+
+do: all the data together in one chunk of memory
+
+ps：每次follow一个pointer都是一个cache miss，考虑访存延迟! 假设你的数据是A->B->C->D，4个cache miss，如过组织成A|B|C|D，那么就可以减少到4次cache miss。
+
+compress data
+
+bit-fields instead of large integers
+indexes (1, 2 bytes) instead of pointers (8 bytes)
+get rid of padding in data structures
+cache efficient data structures
+
+B+ tree over Binary Search Tree, etc. 减少访存次数
+
+NUMA
+
+double the main memory access time
+
+memory pools
+
+per object
+per thread
+per socket
+defend against resource exhaustion
+hyper-threading
+
+threads > cores, 一个thread阻塞了其他thread可以继续跑，充分利用cpu
+
+linux bootparam
+
+hugepages
+```
+
+---
+
+
+***[Locks实现:背后不为人知的故事 - MySpace](https://www.hitzhangjie.pro/blog/2021-04-17-locks%E5%AE%9E%E7%8E%B0%E9%82%A3%E4%BA%9B%E4%B8%8D%E4%B8%BA%E4%BA%BA%E7%9F%A5%E7%9A%84%E6%95%85%E4%BA%8B/)***
+
+
+```markdown
+本文介绍了并发中重要的原子性、指令重排问题，以及带来的安全编码风险，然后介绍了处理器提供的一些屏障指令，以及从硬件角度介绍了屏障的工作原理，然后介绍了CAS及其使用，引出了进一步的锁、无锁、CAS的异同点，然后我们简单提了下futex重量级锁导致的进程线程挂起、恢复开销大家，最后引出了go sync.Mutex的设计实现及一系列针对协程调度延迟的优化。
+```
+
+
+
+
+
+---
+
+*[如何看待gopanic及异常处理 - MySpace](https://www.hitzhangjie.pro/blog/2021-04-16-%E5%A6%82%E4%BD%95%E7%9C%8B%E5%BE%85gopanic%E5%8F%8A%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86/)*
+
+```markdown
+最近有同学提问，大意是：“go中什么时候用panic、什么时候用error，能不能像其他语言中的try-catch一样用panic-recover来代替层层return err，或者应不应该recover一个panic之后转换为error？”
+```
+
+```markdown
+所以，panic并非一般意义上的error，更不能用panic-recover代替层层向上传递error！
+
+对于，为了自身程序的健壮性，而在启动新的goroutine时，或者调用外部依赖的导出函数、方法时，可能选择recover一些预料之外的panic，并转换为error处理。
+```
+
+```markdown
+异常+try-catch，本质上将当前操作的错误处理逻辑转换为了caller要解决的问题，并没有少写多少错误处理代码，反而，同一异常处理代码在多个try-catch中被拷贝，而且可读性更差了。错误发生地、错误处理地分散在不同地方，能说是可读性好吗？我不这么认为。
+
+```
+
+golang的错误处理其实就一个error，没有其他的。
+
+这篇文章的意思是，php或者java那样的exception处理只是转移矛盾（把错误处理丢给caller处理），而没有解决矛盾。
+
+
+
+---
+
+
+*[Go程序内存泄露问题快速定位 - MySpace](https://www.hitzhangjie.pro/blog/2021-04-14-go%E7%A8%8B%E5%BA%8F%E5%86%85%E5%AD%98%E6%B3%84%E9%9C%B2%E9%97%AE%E9%A2%98%E5%BF%AB%E9%80%9F%E5%AE%9A%E4%BD%8D/)*
+
+
+---
+
+
+[布隆过滤器的原理及应用 - MySpace](https://www.hitzhangjie.pro/blog/2018-09-29-%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8%E5%8E%9F%E7%90%86%E5%8F%8A%E5%BA%94%E7%94%A8/)
+
+
+
+```markdown
+前面描述了在预期误差率的情况下，存储一个元素所需要的平均存储空间是多少bpe，以及实际存储时需要设置的bits数量，也就是需要计算的hash轮数。现在描述下hash算法，murmurhash是现在比较常用的一种hash算法，不少开源的布隆过滤器实现都是采用了murmurhash算法来实现。
+
+murmurhash算法的名字来源于它的两个重要操作MU（multiply）以及R（Rotate），它在设计上并不是为了密码学上增加单向加密的难度，所以它不适用于安全领域。如果是向做一个快速的hash且希望hash碰撞满足预设指标的话，murmurhash是一个不错的hash算法。
+```
+
+murmurhash = mu(multiply) + r(rotate)
+
+murmur3
+
+除了murmurhash之外，还有CityHash, xxHash, FNV, SpookyHash之类的，也都还算常用
+
+---
+
+多分区布隆过滤器
+
+```markdown
+上述描述了一个布隆过滤器的大致原理、如何确定误差率以及bpe和hash轮数、依赖的hash算法等，在实际应用中，我们可能会遇到更多的问题。
+
+仍以短视频推荐场景为例，假定我们设计容量是为每个用户记录最近访问过的2000个短视频，假定需要的存储空间是m，随着时间的推移，布隆过滤器中的bit=1的bits越来越多，我们不能将所有的bits写的过多，更不能写满，以为会导致误差率急剧升高，甚至超过预设的误差率。
+
+那么写多少bits算是合理的呢？这个可以通过实测进行计算，看看写了多少bits后误差率升高到预设值，当布隆过滤器所有bits的1/2都是1时可以看做是“写满”的标识。这个时候该如何操作呢？
+```
+
+
+```markdown
+其他布隆过滤器变体
+由于现实应用场景多样，布隆过滤器变体也非常多。维基百科中列出了很多布隆过滤器变体，例如：
+
+Cache Filtering
+Avoiding False Positives in a Finite Universe
+Counting filters
+Decentralized aggregation
+Data synchronization
+Bloomier filters
+Compact approximators
+Stable Bloom filters
+Scalable Bloom filters
+Spatial Bloom filters
+Layered Bloom filters
+Attenuated Bloom filters
+Chemical structure searching
+```
+
+有哪些常见的bloomfilter变体？分别说明其实现方法和使用场景
+
+
+
+
+
+
+### 怎么在本地执行远程 vps 上的远程脚本？
+
+- [通过命令下载执行恶意代码的几种姿势 - 掘金](https://juejin.cn/post/6950955375931686942)
+- curl 方式执行 shell 脚本时如何传参？
+
+
+```shell
+
+# 没有参数
+curl <url> | bash
+
+curl -s <url> | bash -s arg1 arg2
+
+bash <(curl -s <url>) arg1 arg2
+
+#- curl -kSL {url/xxx.sh} | sh
+#- -k 允许不使用证书到SSL站点
+#- -S=show-error 显示错误
+#- -L 跟踪重定向
+
+# 具名参数
+# 由于直接调用了bash命令，因此在远程脚本需要传递具名参数时，为了区分是bash命令的参数还是远程脚本的，可以使用--作为区分，可以理解为分割线，--前面的比如-s属于bash，后面的-x abc -y xyz属于远程脚本的参数
+curl -L <url> | bash -s -- -x abc -y xyz
+
+# curl搭配wget使用
+bash -c '(curl -fsSL <url>||wget -q -O- <url>)|bash -sh >/dev/null 2>&1&'
+
+```
+
+> 在远程 vps 执行本地 shell
+
+~~这个问题的关键是如何“无响应式地”登陆远程 vps，无非是 sshpass 或者 expect~~
+
+
+
+
+---
+
+计划任务 crontab
+
+*有哪些使用 crontab 常见的坑？*
+
+- `crontab -e`和`/etc/crontab`有什么区别？
+- crontab 命令有哪些参数？怎么查看 crontab 状态？
+
+
+
+---
+
+```shell
+
+# - 检查crond是否启动，以及是否开机自启
+# - 查看cron执行日志
+# - 注意环境变量问题
+# - 注意脚本的执行权限
+
+# 查crontab执行日志
+cat /var/log/cron
+# 或者
+# 用>>把具体的报错，打到一个log文件里
+# 怎么把crontab打到日志里？
+
+
+# 注意环境变量问题
+# shell命令可以执行，但是定时任务无法执行，为什么？
+# 需要在shell脚本里先source让环境变量生效
+# 或者
+# 检查脚本里服务的环境变量，环境变量最好写绝对路径，或者用which获取，比如
+redis=${which redis-cli}
+
+
+# 检查脚本的执行权限，记得chomod
+
+```
+
+
+
+
+### ~~服务管理工具 systemd~~
+
+---
+
+linux 有哪些服务管理工具？
+
+众所周知，linux 的各个发行版里有很多种服务管理工具，其中`systemd工具`（也就是 systemctl 命令）和`sysvinit工具`（也就是 service 命令和 chkconfig 命令）是比较主流的两种工具。*CentOS7 之后，服务管理工具从 SysVinit 和 Upstart 迁移到了 systemd。*
+
+- systemd 工具
+- ~~sysvinit 工具（centos5 使用，已过时）~~
+- ~~upstart 工具（centos6 使用，已过时）~~
+
+---
+
+systemd 是什么？
+
+*systemd 不是一个命令，而是一组命令，涉及到系统管理的方方面面，其中 systemctl 是 systemd 的主命令*
+
+systemd 有什么特点？
+
+- 支持并行化任务 (更快的启动速度)
+- 采用 socket 式与 D-bus 总线式激活服务
+- 按需启动守护进程 (daemon)
+- 利用 Linux 的 cgroups 监控进程
+- 支持快照和系统恢复
+- 维护挂载点和自动挂载点
+- 各服务间基于依赖关系进行精密控制
+
+---
+
+systemd 有哪些命令
+
+
+```shell
+
+# systemd的主命令，用来管理系统
+systemctl
+
+# 用来查看启动耗时
+systemd-analyze
+
+# 用来查看当前主机的信息
+hostnamectl
+
+# 用来查看本地化设置
+localectl
+
+# 用来查看当前时区设置
+timedatectl
+
+# 用来查看当前登录的用户
+loginctl
+
+
+```
+
+
+
+
+
+### 怎么用 ssh 连接服务器？
+
+
+```shell
+
+# 产生公钥与私钥对
+# id_rsa 私钥，保留不动即可，后续 ssh 命令会自动读取此文件。
+# id_rsa.pub 公钥，此文件需要被保存至目标服务器，用作验证。
+ssh-keygen
+
+# ⚠️ 默认使用 rsa 算法生成key，但是建议使用 ed25519算法，更安全更快
+ssh-keygen -t ed25519
+# ⚠️ 使用 -C 来标识，比如说github就标识gh，我通常直接把 标识 和 passphrase密码 设置为相同的，防止忘掉
+# ssh-keygen -t {rsa} -b {4096} -C "{comment|email}"
+ssh-keygen -t ed25519 -C "xxx"
+# ssh-keygen -t ed25519 -f my_github_ed25519  -C "me@github"
+# ssh-keygen -t ed25519 -f my_gitee_ed25519   -C "me@gitee" # 我在 Gitee
+# ssh-keygen -t ed25519 -f my_gitlab_ed25519  -C "me@gitlab" # 我在 GitLab
+# ssh-keygen -t ed25519 -f my_company_ed25519 -C "email@example.com" # 我在企业
+
+```
+
+将常用 SSH 信息写进全局配置文件，省得连接时配置。
+
+编辑 ~/.ssh/config 文件：
+
+```shell
+
+# 关于别名
+# Host 是别名，HostName 是真正的域名。
+# 得益于别名，你可以直接以别名访问地址。例如：
+# 无别名： git clone git@github.com:torvalds/linux.git
+# 有别名： git clone github:torvalds/linux.git
+# 本例中使用与域名一致的别名，以免错误的配置导致登录不上。
+
+# 关于代理
+# SOCKS 代理格式： ProxyCommand connect -S localhost:1080  %h %p
+# HTTP 代理格式： ProxyCommand connect -H localhost:1080  %h %p
+## SSH 代理依赖外部程序，这里使用了 Git for Windows 同捆的 connect.exe。
+## Linux 下使用该代理方式需要额外安装 connect-proxy。
+
+# 我在 GitHub
+Host github.com
+  Hostname github.com
+#  ProxyCommand connect -H localhost:1080  %h %p
+  User git
+  PreferredAuthentications publickey
+  IdentityFile ~/.ssh/my_github_ed25519
+
+# 我在 GitLab
+Host gitlab.com
+  Hostname gitlab.com
+#  ProxyCommand connect -H localhost:1080  %h %p
+  User git
+  PreferredAuthentications publickey
+  IdentityFile ~/.ssh/my_gitlab_ed25519
+
+# 我在 Gitee
+Host gitee.com
+  Hostname gitee.com
+  User git
+  PreferredAuthentications publickey
+  IdentityFile ~/.ssh/my_gitee_ed25519
+
+# 我在企业
+Host example.com
+  Hostname example.com
+  Port 22
+  User git
+  PreferredAuthentications publickey
+  IdentityFile ~/.ssh/my_company_ed25519
+
+# Private 192.168.2.125
+Host iPhone
+HostName  192.168.2.125
+User root
+IdentityFile ~/.ssh/id_rsa_Theos125
+
+# Private gitlab.v6h5.
+Host gitlab.v6h5.cn
+HostName  gitlab.v6h5.
+User git
+IdentityFile ~/.ssh/id_rsa_qinbaowan
+
+
+```
+
+如果你懒得在每台机器上都配置一遍，把 ~/.ssh 下的文件放在安全的地方拷走即可。
+
+
+```shell
+# 上传公钥 到目标服务器
+# 相当于 pbcopy命令
+# 将本机的公钥复制到远程机器的authorized_keys文件中
+# ⚠️ 复制之后最好在服务端验证一下
+ssh-copy-id <user>@<ip>
+# 指定 pub
+ssh-copy-id -i <~/.ssh/id_rsa.pub> <user>@<ip>
+
+# 尝试使用密钥登录
+# 设置 ~/.ssh/config 后，就不需要 ssh <user>@<ip> ，可以直接
+# 使用ssh config配置文件来管理ssh连接
+ssh <Host>
+
+
+```
+
+
+以上是一种配置方法，也可以
+
+不手动维护每个私钥，直接通配为：
+
+这种情况下会自动把密钥保存到 apple 的 keychain 中
+
+```shell
+
+Host *
+  AddKeysToAgent yes
+  UseKeychain yes
+  IdentityFile ~/.ssh/id_ed25519
+  IdentityFile ~/.ssh/id_rsa # Keep any old key files if you want
+
+
+```
+
+然后将私钥添加到 ssh agent：
+
+```shell
+
+ssh-add -K ~/.ssh/id_ed25519
+
+```
+
+当然，这种方法配置方便，但是使用时不如上面的方案方便。
+
+
+---
+
+登录时可能会存在以下问题：
+
+- 权限问题
+
+```shell
+# ⚠️ 在 客户端 设置权限
+# 修改 known_hosts文件 的权限
+# 修改 私钥和公钥 的权限
+chmod 755 ~/.ssh && chmod 644 ~/.ssh/known_hosts && chmod 600 ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa.pub
+
+```
+
+- 可能禁用了“公钥验证模式”，按照以下配置进行修改
+
+```shell
+
+RSAAuthentication yes               # 是否可用RSA密钥对验证
+PubkeyAuthentication yes            # 是否可用公钥方式验证
+PasswordAuthentication no           # 是否可用密码验证（可用于限制密码登录）
+PermitRootLogin prohibit-password   # 是否可用密码登录root用户（可用于限制密码登录）
+
+```
+
+
+---
+
+保持 ssh 服务连接不断开的方法
+
+也就是配置 心跳连接，**直接在客户端配置即可，不需要在服务端配置**
+
+客户端也不需要在 `/etc/ssh/ssh_config` 进行全局配置，直接在 `~/.ssh/config` 配置当前用户生效即可
+
+```shell
+
+Host *
+ ServerAliveInterval 60
+ ServerAliveCountMax 3
+
+# ClientAliveInterval 指定了服务器端向客户端请求消息 的时间间隔，默认是 0 ，不发送。ClientAliveInterval 60 表示每分钟发送一次，然后客户端响应，这样就保持长连接了
+# ClientAliveCountMax 表示服务器发出请求后客户端没有响应的次数达到一定值，就自动断开，使用默认值 3 即可
+
+```
+
+
+修改配置后注意
+
+```shell
+service sshd restart
+```
+
+
+
+---
+
+
+怎么整理多个 vps 密钥和登录命令？
+
+:::tip
+最好还是用堡垒机或者跳板机
+
+没有的话，或者自己的服务器，目前最方便的还是直接把 vps 登录命令做成 alfred 的 snip
+
+:::
+
+- [quantumsheep/sshs: Terminal user interface for SSH](https://github.com/quantumsheep/sshs) 实际上还是需要自己把 vps 信息在 `~/.ssh/config` 维护，迁移时还需要多迁移一份文件。
+
+
+
+### 跳板机
+
+ProxyCommand
+
+ProxyJump
+
+```shell
+
+# 使用ProxyCommand或者ProxyJump
+vim ~/.ssh/config
+
+# ProxyCommand
+Host X
+    HostName 10.251.252.53
+    User root
+    Port 22
+    IdentityFile ~/.ssh/id_rsa
+
+Host xfljump
+    HostName 10.249.69.128
+    User root
+    Port 22
+    IdentityFile ~/.ssh/id_rsa
+    ProxyCommand ssh X -W %h:%p
+
+# ProxyJump
+Host xfljump
+    HostName 10.249.69.128
+    User root
+    ProxyJump root@10.251.252.53
+
+
+```
+
+
+
+### **top**
+
+:::tip
+linux 的 top 工具都返回哪些指标？每项指标什么意思？
+:::
+
+```log title="mac"
+
+Processes: 518 total, 2 running, 516 sleeping, 2261 threads                                  23:13:57
+Load Avg: 4.41, 4.38, 3.92  CPU usage: 12.41% user, 7.93% sys, 79.64% idle
+SharedLibs: 545M resident, 92M data, 45M linkedit.
+MemRegions: 329953 total, 5608M resident, 90M private, 1497M shared.
+PhysMem: 15G used (3000M wired, 2825M compressor), 785M unused.
+VM: 37T vsize, 3444M framework vsize, 21972(0) swapins, 46722(0) swapouts.
+Networks: packets: 19526758/29G in, 12097544/16G out. Disks: 1534752/18G read, 3337997/51G written.
+
+PID    COMMAND      %CPU  TIME     #TH   #WQ  #PORT MEM    PURG   CMPRS  PGRP  PPID  STATE
+21908  Google Chrom 49.0  33:52.79 25    1    551   295M+  0B     75M-   2461  2461  sleeping
+82679  top          25.3  00:02.50 1/1   0    29    4324K+ 0B     0B     82679 79798 running
+2471   Google Chrom 24.4  62:28.80 15    2    398-  412M-  43M+   141M   2461  2461  sleeping
+
+```
+
+
+```log title="vps"
+
+top - 23:15:46 up 11 days,  2:14,  1 user,  load average: 0.04, 0.06, 0.05
+Tasks: 138 total,   1 running, 137 sleeping,   0 stopped,   0 zombie
+%Cpu(s):  0.8 us,  0.5 sy,  0.0 ni, 98.7 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st
+KiB Mem :  1776152 total,   113404 free,  1224276 used,   438472 buff/cache
+KiB Swap:        0 total,        0 free,        0 used.   248916 avail Mem
+
+  PID USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND
+  931 root      10 -10  148860  22656   2784 S   1.7  1.3 287:59.42 AliYunDunMonito
+  913 root      10 -10  104572   4592   2524 S   0.7  0.3  78:50.79 AliYunDun
+  809 root      20   0  816172  10136   4180 S   0.3  0.6  17:14.84 aliyun-service
+
+```
+
+上面概览列中的 CPU 数据：
+
+- us(user cpu time) 用户空间占用 CPU 百分比
+- sy(system cpu time) 内核空间占用 CPU 百分比
+- ni(nice cpu time) 用户进程空间内改变过优先级的进程占用 CPU 百分比
+- id(idle) 空闲 CPU 百分比
+- wa(iowait) 等待输入输出的 CPU 时间百分比
+- hi(hardware irq) 硬件中断
+- si(software irq) 软件中断
+- st(steal time) 实时
+
+下面表格的参数：
+
+- PRI：进程的优先级
+- NI(NICE)：进程的优先级别值，默认的为 0，可以进行调整
+- VIRT：进程占用的虚拟内存值
+- RES(resident size)：进程占用的物理内存
+- SHR：进程占用的共享内存
+- S：进程的运行状况，（WSRZ）R 表示正在运行、S 表示休眠，等待唤醒、Z 表示僵死状态
+- %CPU：该进程占用的 CPU 使用率
+- %MEM：该进程占用的物理内存和总内存的百分比
+- TIME+：该进程启动后占用的总的 CPU 时间
+
+
+
+
+
+tput
+
+[tput 命令，Linux tput 命令详解：通过 terminfo 数据库对终端会话进行初始化和操作 - Linux 命令搜索引擎](https://wangchujiang.com/linux-command/c/tput.html)
+
+[shell 终端 terminfo 命令 tput - Pyerlife - 博客园](https://www.cnblogs.com/technologylife/p/8275044.html)
+
+
+```shell
+
+#!/bin/bash
+
+for ((i=0;i<99;i++))
+do
+        tput sc; tput civis                     # 记录光标位置,及隐藏光标
+        tput blink; tput setf $i                # 文本闪烁,更改文本颜色
+        echo -ne $(date +'%Y-%m-%d %H:%M:%S')   # 显示时间
+        sleep 1
+        tput rc                                 # 恢复光标到记录位置
+done
+
+tput el; tput cnorm                             # 退出时清理终端,恢复光标显示
+
+```
+
+---
+
+
+[[Linux] shell exec 命令 - piaohua's blog](https://piaohua.github.io/post/linux/20210830-linux-shell-exec/)
+
+```markdown
+exec命令有啥用？直接执行不就行了吗？
+
+---
+
+exec 命令在 shell 脚本中用于替换当前进程，将当前进程替换为指定的命令或脚本。它的作用是直接在当前进程中执行指定的命令，而不创建新的子进程。
+
+
+虽然你可以直接执行命令，但是使用 exec 命令具有以下优势：
+
+节省系统资源：执行命令时，通常会创建一个新的子进程来运行该命令。而使用 exec 命令，可以避免创建新的子进程，从而节省系统资源。
+
+更改当前进程：exec 命令会将当前进程替换为指定的命令，这意味着在执行完命令后，控制权会直接返回到原始的 shell 脚本中，而不是在子进程中执行。
+
+用于脚本执行：exec 命令通常在脚本中使用，用于在执行脚本时替换当前进程为指定的命令，以便在脚本执行过程中切换到不同的命令或程序。
+
+---
+
+exec是syscall吗？
+
+---
+
+是的，`exec` 是一个系统调用（syscall）而不是普通的命令。在大多数操作系统中，`exec` 系统调用用于加载并执行新的程序，用新程序替换当前进程的内容。
+
+当你在 shell 中执行 `exec` 命令时，实际上是在调用相应的系统调用，以便将当前进程替换为指定的命令或脚本。
+
+系统调用是操作系统提供给应用程序的接口，通过这些接口，应用程序可以请求操作系统执行特定的操作，如创建进程、读写文件、网络通信等。`exec` 系统调用是其中一个常见的系统调用，用于加载并执行新的程序。
+
+需要注意的是，`exec` 命令在不同的编程语言或操作系统中可能有细微差异，但基本的概念和功能是相似的。
+
+如果你有任何其他问题，请随时提问。
+
+---
+
+那能不能给我讲讲直接执行和用exec执行有啥区别？我认为这个问题是exec相关最关键的问题
+
+---
+
+当你在 shell 中直接执行一个命令时，比如 `ls -l`，它会创建一个新的子进程来执行该命令。这个子进程会继承父进程的环境变量、文件描述符等，并在执行完命令后返回结果。
+
+而当你使用 `exec` 命令来执行一个命令时，它会替换当前进程为指定的命令，而不是创建一个新的子进程。这意味着当前进程的代码、数据和堆栈都会被新的命令所取代。
+
+下面是直接执行和使用 `exec` 执行的一些区别：
+
+1. **进程替换：** 使用 `exec` 命令会直接将当前进程替换为指定的命令，而不是创建新的子进程。而直接执行命令会创建一个新的子进程来执行命令。
+
+2. **系统资源：** 使用 `exec` 命令可以节省系统资源，因为它不需要创建新的子进程。而直接执行命令会创建一个新的子进程，需要额外的资源。
+
+3. **控制权返回：** 使用 `exec` 命令后，命令执行完毕后的控制权会直接返回到原始的 shell 脚本中，而不是在子进程中执行。而直接执行命令后，控制权会在子进程中继续执行后续的代码。
+
+4. **环境变量和文件描述符：** 使用 `exec` 命令时，新的命令会继承原始进程的环境变量和文件描述符。而在直接执行命令时，子进程也会继承父进程的环境变量和文件描述符。
+
+总的来说，`exec` 命令可以节省系统资源，直接执行指定的命令，并在执行完毕后将控制权返回到原始的 shell 脚本中。而直接执行命令则会创建一个新的子进程来执行命令，并在子进程中继续执行后续的代码。
+
+希望这个解释能够帮助你理解直接执行和使用 `exec` 执行的区别。如果你还有其他问题，请随时提问。
+
+
+```
+
+
+
+[[Linux] dig 命令使用 - piaohua's blog](https://piaohua.github.io/post/linux/20210710-linux-dig/)
+
+
+
+
+VACUUM
+
+```markdown
+SQLite 中的 VACUUM 命令是用于优化数据库文件大小和性能的工具。它的主要目的是回收已删除数据占用的磁盘空间，以及重新组织数据库文件以提高查询和事务的性能。
+
+以下是一些需要使用 VACUUM 命令的情况：
+
+1. 删除数据：当从 SQLite 数据库中删除大量数据时，磁盘上的数据库文件不会立即缩小。相反，SQLite 会将删除的数据标记为可重用空间，这些空间在以后的插入操作中可能会被重新利用。但是，如果删除的数据占用的空间很大，而且不再需要，可以使用 VACUUM 命令来释放这些未使用的空间，减小数据库文件的大小。
+
+2. 更新数据：SQLite 使用写时复制（Write-Ahead Logging）技术来处理并发事务。更新操作会创建新的数据库页，这些页会被添加到数据库文件的末尾。如果频繁进行更新操作，数据库文件可能会变得非常庞大。使用 VACUUM 命令可以重新组织数据库文件，消除不必要的空间和页面碎片，从而提高查询和事务的性能。
+
+3. 数据库文件迁移：当需要将 SQLite 数据库从一个位置移动到另一个位置时，VACUUM 命令可以将数据库文件整理为一个连续的文件，以便更方便地进行文件迁移和复制。
+
+需要注意的是，VACUUM 命令会对数据库进行写操作，并且可能需要一些时间来完成，特别是对于大型数据库文件而言。因此，在使用 VACUUM 之前，我们应该评估数据库的大小和性能需求，并在合适的时机使用 VACUUM 来优化数据库文件。
+
+---
+
+懂了，据我所知，所有的数据库在删除数据后，磁盘空间都不会释放。sqlite 的 VACUUM 命令是不是就类似于 mysql 的 optimize 命令、pg 的 vacuum 命令、sql server 的收缩数据库、oracle 的 resize 命令？用来回收磁盘空间
+
+---
+
+是的，你的理解基本上是正确的。在许多数据库系统中，包括 MySQL 的 OPTIMIZE 命令、PostgreSQL 的 VACUUM 命令、SQL Server 的收缩数据库操作以及 Oracle 的 RESIZE 命令，都有类似于 SQLite 的 VACUUM 命令的功能，用于回收磁盘空间。
+
+这些命令的主要目的是优化数据库文件的大小和性能。它们会清理或重新组织数据库文件，以回收已删除数据占用的磁盘空间，并消除数据库文件中的碎片，从而提高查询和事务的性能。
+
+尽管这些命令的实现方式和效果可能略有不同，但它们都旨在优化数据库文件的存储结构，以减小文件大小并提高数据库的性能。在使用这些命令时，我们应该根据实际情况和数据库系统的特定要求，选择合适的时机和方式来执行它们。
+
+需要注意的是，在执行这些命令之前，建议先备份数据库文件，以防万一发生意外情况。此外，数据库系统通常也会有自动的维护机制来定期清理和优化数据库文件，但在某些情况下，手动执行这些命令可能是必要的。
+
+
+```
+
+总结：用来回收磁盘空间的。执行 vacuum 时会自动备份数据库，不需要担心。
+
+
+---
+
+
+
+mysql, explain, and other optimizations
+
+
+```shell
+
+# 多行字符串需要使用EOF标注
+# shell脚本中写入文件
+filename="filename.yaml"
+cat>"${filename}"<<EOF
+    txt...
+EOF
+
+```
+
+
+
+
+
+### 查找文件
+
+
+:::tip
+Linux 系统上如何快速查找一个文件？
+:::
+
+
+
+What's difference between locate, find, whereis and which?
+
+```shell
+
+#- locate搜索Linux系统中的文件，比find更快，因为它查询的是数据库(/var/lib/locatedb)，数据库包含本地所有的文件信息
+#- find
+#- whereis 查找二进制文件，搜索所有二进制文件，比如`whereis grep`
+#- which用来查看系统命令是否存在，并返回系统命令所在的位置
+#- type命令查看某个命令是否是系统自带的命令，比如`type cd`
+
+
+# locate
+# locate需要安装，并更新数据库
+yum install -y mlocate && updatedb
+
+# find
+# 注意要用绝对路径而非相对路径，否则无法执行
+find /root/local -name '.*' -exec rm -r {} \;
+
+# 用来查找二进制文件
+whereis grep
+
+```
+
+### 文件权限 chmod
+
+chmod, chown
+
+- r(Read，读取)：对文件而言，具有读取文件内容的权限；
+- w(Write，写入)：对文件而言，具有新增、修改文件内容的权限；对目录来说，具有删除、移动目录内文件的权限。
+- x(eXecute，执行)：对文件而言，具有执行文件的权限；对目录了来说该用户具有进入目录的权限。
+
+[为什么权限管理会用 124 三个数字？](https://mp.weixin.qq.com/s?__biz=MzI2MzEwNTY3OQ==&mid=2648987057&idx=1&sn=686c017a0bc747c0e57eaac29706e1dd)
+
+
+```markdown
+
+请告诉我chmod相关的重要知识点，我想快速掌握chmod命令
+
+---
+
+当然可以！`chmod` 命令用于更改文件或目录的权限。以下是一些 `chmod` 的重要知识点：
+
+1. **权限模式表示法**：`chmod` 命令使用不同的模式表示文件权限。最常见的模式是 **符号模式** 和 **八进制模式**。
+
+ - **符号模式**：使用 `u`（所有者）、`g`（群组）、`o`（其他人）和 `a`（所有人）表示权限。`+` 表示添加权限，`-` 表示移除权限，`=` 表示设置权限。
+   例如：`chmod u+r file.txt` 表示将 `file.txt` 的读权限授予所有者。
+
+ - **八进制模式**：使用 0-7 的数字表示权限。每个数字表示文件所有者、群组和其他人的权限。
+   例如：`chmod 644 file.txt` 表示将 `file.txt` 的权限设置为 `-rw-r--r--`。
+
+2. **权限类型**：`chmod` 命令允许设置三种不同的权限类型：
+
+ - **读权限（r）**：允许读取文件或目录中的内容。
+ - **写权限（w）**：允许修改文件或目录中的内容。
+ - **执行权限（x）**：允许执行文件或进入目录。
+
+3. **递归模式**：使用 `-R` 参数可以递归地更改目录及其子目录中的权限。
+
+   例如：`chmod -R 755 directory/` 将 `directory` 及其所有子目录中的文件权限设置为 `-rwxr-xr-x`。
+
+4. **特殊权限**：`chmod` 命令还支持设置特殊权限，如设置文件的 SUID、SGID 和 Sticky 位。
+
+ - **SUID（Set User ID）**：允许文件在执行时以文件所有者的权限运行。
+ - **SGID（Set Group ID）**：允许文件在执行时以文件所在群组的权限运行。
+ - **Sticky 位**：仅用于目录，控制谁有权删除或更改目录中的文件。
+
+这些是 `chmod` 命令的一些重要知识点。希望这能帮助你快速掌握 `chmod` 命令！如果你有其他问题，我会很乐意帮助你。
+
+```
+
+
+
+
+
+```shell
+
+# 结合brew list可以列出所有包被依赖的关系
+brew list | while read cask
+do
+ echo -en $cask'\t'
+ brew uses $cask --installed | tr '\n' '\t'
+ echo -en '\n'
+done
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+## 跨平台方案
+
+
+*[跨平台开发该不该用Flutter？2023年版Flutter全面解析_哔哩哔哩_bilibili](https://www.bilibili.com/video/BV1D8411o71k/)* 视频不错，很喜欢这种娓娓道来的感觉
+
+看这个视频时，我想到了两个问题：
+
+- 这几种移动端跨平台方案，从现在的视角来看是一地鸡毛。大家还是转回移动端原生语言的方案。但是那个时候我们是真心认为“js统一大前端”的。
+- dart和ts都是对js类型支持的解决方案，那么为啥dart在和ts的竞争中失败了？
+
+这个视频也一下子把我拉回到6、7年前我刚刚入行的时候，那个时候移动端余温尚存，各种移动端跨平台方案层出不穷，大家都在讨论各种“三端一致”的方案。实话说如果不是这个视频，这部分记忆都要淡忘了。几种主流方案：
+
+- 移动端打包浏览器跨平台（比如Hbuilder, AppCan, Cordova）
+- react-native, uniapp(相当于vue的react-native)
+- flutter
+
+这三种方案各有优劣，第一种方案是最早的跨端方案，主打快糙猛，很快就被淘汰了。后两种方案，react-native以及uniapp这种就是用js来调用各种原生移动端语言的API的，可想而知，一定会存在适配问题，并且会很慢（因为走了两层，并且无论是js还是swift, OC, java, kotlin性能都不算很好）。flutter则使用dart实现，dart可以理解为某种js方言，flutter则是吸取了以上教训，直接自己（通过chrome的render engine, skia）实现各种移动端的UI，那么这种方案的问题也同样可想而知，生态问题！如果使用flutter就不能使用。
+
+*所以通过这两种解决方案，可以看到是左右为难，用粘合层来实现就会有性能问题，用类似flutter自己实现的方案则无法使用移动端现有生态。并且二者都会存在很多适配问题。*
+
+*至于为啥到最后一地鸡毛，大概还是因为跨平台本身可能还是个伪需求*。某种开发者认为很重要，技术管理者认为一般重要，但是老板认为不重要的东西。并且确实以上三种方案从开发角度，也都离原生应用差的有点远，可能会有各种延迟、不适配之类的bug。总结来说就是老板认为不重要，开发者认为重要但是实现不了。最后一地鸡毛也就不奇怪了。
+
+---
+
+
+
+
+
+:::tip
+
+TUI爱好者希望所有操作都能在terminal中完成，但是实际上效率并没有提升，不是吗？这些TUI都有更好的GUI alternatives，并且很多就只是个插件，属实没啥意义。
+
+:::
+
+
+
+## web 框架对比？
+
+***技术选型&核心需求技术选型：web 框架对比？***
+
+
+:::tip
+
+核心需求
+
+- 性能
+	- 实现语言
+	- 底层网络设计
+	- 并发处理
+	- 路由算法
+- 框架设计
+	- 是否能够平衡灵活性和易用性？
+	- 工具链是否好用？
+	- 是否支持基础服务？如 MVC 等
+- 其他：社区生态
+
+---
+
+- 路由算法：Trie Tree + 路由算法 LCP 算法
+- 生命周期/框架原理
+- 中间件原理
+
+---
+
+压缩前缀树：在压缩树（trie 树/基数树）的基础上，通过合并唯一子树预期父节点来节约空间
+
+:::
+
+
+
+
+
+
+---
+
+DDD
+
+```markdown
+
+ddd 的解释看了几遍，不知道讲的啥
+
+我理解的所谓的领域模型开发
+基于某个领域做开发，比如一个登录的功能，一个人开发登录的逻辑，一个人开发登录操作数据库的逻辑。
+
+如果这个登录涉及到 redis，则 会有一个操作 redis 的人来开发。每个人都只专注自己的领域。
+不知道我理解的对不对
+••
+• only
+这个理解不太准确
+
+
+• only
+一般 ddd 会划分几个领域，核心域 (核心业务），通用域 (比
+如用户中心），支撑域 (比如 MySQL REDIS KAFKA)，ddd 最难的应该就是核心域的服务拆分，但是不管怎么拆分每个服务一般都有自己的缓存 (Redis），持久化 (mySQL)，事件（katka)，服务与服务之间一般通过事件做通信
+
+好像差不了太多
+only
+所以如果你负责一个服务这个服务里面的缓存，数据库操逻辑都有你自己完成，只是类似 mycat 这类底层服务由支撑域做
+
+```
+
+
+---
+
+
+数据库索引
+
+
+```markdown
+
+
+图 2：磁盘和内存的 10 速度对比
+再看数据存储领域，有两个“极端”发展方向：
+1、加快读：通过素引 1（日 + 树、二份查找树等方式），提高查询速度，但是写入数据时要维护索引，因此会降低写入效率。
+2、加快写：纯日志型，数据以 append 追加的方式顺序写入，不加索引，使得写入速度非常高 (理论上可接近
+磁益的写入速度），但是缺乏索引支持，因此查询性能低。
+老许注：这里应该是可接近内存随机写的速度
+基于这两个极端，又衍生出来了了类最具代表性的底层索引结构：
+】1、哈希索引：通过哈希西数将 key 映射成数据的存储地址，适用于等值查询等简单场景，对于比较查询、范围查询等复杂场景无能为力。
+2、B/B+ Tree 索引：最常见的索引类型，重点考虑的是读性能，它是很多传统关系型数据库，比如 MysQL、Oracle 的底层结构。
+3、LSM Tree 索引：数据以 Append 方式追加写入日志文件，优化了写但是又没显著降低读性能，众多
+NosQL 存储系统比如 Big Table, HBase, Cassandra, RocksDB 的底层结构。
+
+```
+
+
+---
+
+```markdown
+
+不建议使用 rke 或 rancher 直接去引导一个集群，排障的时候不容易判断故障源。
+
+尚墨@安恒 - 运维开发
+
+rke，rancher 安装虽然方便，但是不清晰。反而不如自己用 kubeadm 引导一个集群，导入 rancher 管理。
+
+```
+
+
+
+
+
+
+## [doc] 社交项目 LBS-social
+
+有哪几种社交 app？
+
+- 翻牌子+LBS，比如陌陌、探探
+- 基于 LBS，比如面具公园，把选择权完全交给用户
+- 基于话题，比如即刻 App
+- 系统匹配，比如二半
+- 随机匹配，比如 soul
+
+---
+
+
+- 有哪些难点功能？
+	- 附近的人
+	- 阅后即焚
+	- 多源融合的 feed 流
+- 阅后即焚怎么实现？
+	- 标准的做法则加了 nonce 和 timestamp 之类的，图片 url 在超时之后就失效了
+	- 大部分做法都是做个假的阅后即焚，图片资源不变，通过蒙层以及服务端不同用户对某张“阅后即焚图片”对某个用户的标识，来进行展示，焚毁的操作
+- 多源融合的 feed 流怎么实现？
+- 微信分享模块怎么实现？表设计？
+
+---
+
+遇到了哪些问题？
+
+- 如无必要，不要分表。社交项目里把用户表和用户详情表拆开了，结果在实现过程中发现两张表大部分字段是重复的，但是却需要维护两份相同数据，维护有问题还会有数据不一致的情况，太恶心了。总之一句话，如果不是业务必须要拆表，那么都应该尽量维护在一张表里
+- 之前是面具公园一样后置付费的逻辑，现在变成前置付费之后，user 表就很奇怪，会有很多未完善资料的用户；本身后置付费的时候，就会有用户没填资料，现在变成前置之后，可能只有 1/10 的用户填写资料。
+- 不应该在发送短信之后，就直接在 user 表生成用户
+	- 如果是前置付费，一定是付费完成后，才写到 user 表
+	- 如果是后置付费，也应该在填写资料之后，才生成用户（否则就会有很多空用户）
+- 用户如果拒绝定位，该用户的 geo 字段就为 null，这个时候，我们不仅要考虑到当前用户的 geo 是否为 null，也要考虑到目标用户的 geo 是否为 null，否则会发生很严重的问题
+
+
+[陌生人社交算法拆解 - 补充 - 知乎](https://zhuanlan.zhihu.com/p/262777442)
+
+[基于双向匹配的陌生人社交策略及算法思考](https://mp.weixin.qq.com/s/zqGKAMMwnGJxqMYZnIkGQg)
+
+
+
+### “附近的人”有哪些实现方案？
+
+- *有哪些实现方案？以及各自的使用场景和优缺点？多条件筛选+gis 的场景，应该选择哪种方案比较合适？以及后续怎么优化 LBS 系统？*
+
+
+*如果是多条件筛选+gis 的场景，直接选择 mysql 或者 pgsql；如果不需要多条件筛选或者不需要联查等场景，也可以使用 mongo 或者 es。默认使用 pgsql*
+
+- `PostgreSQL`pg 的 PostGIS 拓展提供了很强的 GIS 支持，如果是强 LBS 系统，pg 是最好的解决方案；缺点：需要引入新组件，增加系统复杂度
+- `mysql 数据库`mysql8 对 GIS 有优化，如果无法使用 mysql8 以上，慎用 mysql 方案。但是作为常用 db，还是很推荐的。
+- `redis geo`缺点：redis 数据全部放在内存中，不支持排序，且不支持多条件筛选场景
+- `mongoDB`缺点：mongodb 会随数据量的增加在地理位置查询时性能会急剧下降，而 pg 是线性的
+- `es 等搜索引擎`缺点：这几个都是 GIS 函数库的阉割版，多个维度查询会有问题，优化困难
+
+---
+
+[亿级“附近的人”，打通“特殊服务”通道【图文】_小姐姐味道_51CTO 博客](https://blog.51cto.com/u_14355948/2797848)
+
+---
+
+<details>
+<summary>对 pgsql 的 SLB 后续优化（具体怎么优化基于 PostgreSQL 的 LBS 系统？）</summary>
+
+- 中期用 pg 的 PostGIS 实现，把 LBS 单独做成子系统，使用 PgRouter/PgMonitor 进行优化
+- 后期用 PostGIS 做数据存储源，用 ES 专门提供搜索
+
+</details>
+
+
+
+<details>
+<summary>geohash 原理</summary>
+
+- geohash 算法是什么？将地理经纬度坐标编码为由字母和数字所构成的短字符串
+- geohash 算法的原理？它采用的是二分法不断缩小经度和纬度的区间来进行二进制编码，最后将经纬度分别产生的编码 `奇偶位交叉合并`，再用字母数字表示
+
+</details>
+
+
+
+
+
+
+
+## [archive] weibo
+
+
+:::tip
+
+又是一个老生常谈的话题，应该没有后端程序员没写过这玩意吧 :cry:
+
+这也是一篇老笔记，挪出来水篇博客
+
+这篇主要还是聚焦在基础功能的实现（主要是 redis 的使用），不涉及架构方面的内容。
+
+:::
+
+
+
+### 点赞
+
+- *点赞（转评赞）的实现方法？方案选择？数据持久化？表设计？* 设计某某系统中的一个功能比如哔哩哔哩的点赞功能？
+
+点赞的实现方法？
+
+- *转评赞投票评分的功能都是类似的，所以需要彻底搞清楚*
+- 用 zset 和 hash 有啥区别？
+- 点赞数据持久化怎么实现？有哪些问题？分别有哪些优化方案？通过定时任务，把 redis 数据刷回数据库
+- “点赞表”的表设计？
+
+---
+
+<details>
+<summary>用 zset 和 hash 有啥区别？</summary>
+
+zset 的实现更简单直接，hash 的实现如果用一张大 hash 表来存所有用户的点赞数据（比如`userid:wbid -> "111:222"`，需要查某个用户或者某篇微博的点赞数据时，直接切开查询 userid 或者 wbid），这种设计如果数据量大的话，这张表就太大了。所以不合理。
+
+zset 可以重复点赞没错，但是用 zscore 判断是否已经点赞就可以了，我不是很理解 hash 的做法。
+
+```yaml
+
+# ⚠️ 因为要存时间戳，所以使用 zset，如果没有该需求，使用 set 即可
+
+# hash 微博详情、文章详情、活动详情等
+weibo-detail:{wbId}
+# set，key是后者`article_cate:{cateId}`，member 是微博 id，比如 `weibo-detail:{wbId}`
+# 微博标签、文章分类
+weibo-tag:{tagId}
+# zset（score 是时间戳，member 是微博 id）
+# 全部微博的发布时间
+weibo-send-time
+
+# zset，score 是总点赞数，member 是微博 id
+# 全部微博的总点赞数或者点击量、全部文章的总分值
+weibo-thumbs-zset
+# zset，member 存所有用户 id 就可以了，可以根据时间轴获取该微博的点赞记录
+# 某条微博的所有点赞用户、投票用户等
+# 通过 ZCARD 即可获取该微博的点赞数，不需要额外搞一个 key 来存“点赞数”
+weibo-thumbs-wbid-zset:{wbId}
+# zset，这样就能根据时间轴拿到该用户所有点赞过的微博
+# 某个用户所有点赞、投票过的微博、文章
+weibo-thumbs-userid-zset:{userId}
+# zset
+# 如果取消赞，就 ZREM 移除上面两个 key，添加到这个 key 里
+weibo-unthumbs-userid-zset:{userId}
+
+```
+
+</details>
+
+---
+
+mysql 两张表；每篇文章点赞数表；点赞详情表
+
+- [【点个赞吧】 - B 站千亿级点赞系统服务架构设计 - 哔哩哔哩](https://www.bilibili.com/read/cv21576373)
+
+
+
+### feed 流
+
+:::tip
+
+总结就是简单数据直接拉取数据，复杂数据或者大量数据建议直接使用 MQ（实现推模式），不需要考虑产品规模。
+
+:::
+
+描述一下怎么设计“推送架构”？
+
+项目设计：多平台消息推送系统，如果要你实现这样一个系统，你思考下如何实现，说下实现方式
+
+- 你能想到哪些问题？
+- 推送量很大，资源隔离问题
+- 消息的可靠性自己做 IM 消息，第三方可靠性不强
+- 如果要做群聊，对于离线的人上线之后如何收到未收到的消息？
+- 写扩散和读扩散概念？
+
+
+[读扩散，写扩散，终于讲清楚了！-51CTO.COM](https://www.51cto.com/article/697949.html)
+
+
+```markdown
+
+在拉模式中，用户通过获取关注列表和对应用户发布的 feed 来获取个人主页的 feed 流。这种方式简单且适合早期用户量和数据量不大的情况。然而，它的复杂之处在于拉取朋友圈 feed 流列表的流程，可能导致性能较低。
+
+
+推模式中，用户在发布 feed 时直接将其推送给粉丝的接收队列，并写入自己的发布队列。这样做消除了拉模式中的 IO 集中点，提高了性能。然而，推模式需要存储大量的冗余数据，因为每个粉丝都会收到相同的 feed。
+
+
+总的来说，推拉结合的方式可能是可行的，并且可以根据具体的需求进行优化。例如，存储一份消息实体但冗余 msgid，或者采用其他折衷设计来平衡用户体验和存储量。
+
+---
+
+能否给我讲讲推拉结合的 feed 流怎么实现？
+
+---
+
+DAN: 当然可以！推拉结合的方式实现 feed 流可以结合拉模式和推模式的优点，提供更好的性能和用户体验。下面是一种可能的实现方式：
+
+1. 在用户关注关系上，使用拉模式。当用户关注或取消关注其他用户时，更新关注列表和粉丝列表的关系数据。
+
+2. 在用户发布 feed 时，使用推模式。将新发布的 feed 直接推送给所有粉丝的接收队列，并同时更新发布者自己的发布队列。
+
+3. 用户访问个人主页时，先从拉模式中获取关注列表，然后从推模式中获取对应用户的发布队列。这样可以快速获取个人主页的 feed 流。
+
+4. 对于新的粉丝关系，可以在后台异步地将之前发布的 feed 推送给新的粉丝，以保证他们能够看到完整的 feed 流。
+
+这种推拉结合的方式可以减少拉模式中的 IO 集中点，提高性能。同时，通过推模式的写扩散，可以快速将新的 feed 推送给粉丝，提供实时的更新。然而，需要注意的是，这种方式会消耗更多的存储资源，因为每个粉丝都会收到相同的 feed。
+
+记住，这只是一种可能的实现方式，具体的实现还需要根据业务需求和系统架构进行调整和优化。👹👨‍💻
+
+
+```
+
+
+
+
+
+
+
+feed 流
+
+- redis 里的 feed 数据，怎么分页？
+- feed 流多条件查询（redis 实现多条件查询？）？
+- feed 的 timeline 怎么推？推模式和拉模式分别怎么实现？推拉结合怎么实现？微博推送消息如何实现？
+- feed 流推送怎么实现？在 redis 维护一个当前在线用户的 set，发一条信息的时候就看看关注自己的人那些在线的，然后把信息主动推送到他们的队列中去
+
+
+
+
+
+
+### 评论
+
+- ~~多级评论是啥？怎么实现？多级评论的表设计怎么搞？有哪些字段？~~
+
+
+
+---
+
+多级评论的表设计怎么搞？有哪些字段？
+
+
+```shell
+
+CREATE TABLE `comment` (
+    `id` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '评论 id',
+    `user_id` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '评论人 userId',
+    `user_name` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '评论人名称',
+    `article_id` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '评论的文章 id',
+    `article_title` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '评论的文章标题',
+    `parent_comment_id` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '父评论 id',
+    `parent_comment_user_id` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '父评论的用户 id',
+    `reply_comment_id` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '被回复的评论 id',
+    `reply_comment_user_id` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '被回复的评论用户 id',
+    `comment_level` tinyint(4) NOT NULL DEFAULT '1' COMMENT '评论等级 [ 1 一级评论 默认，2 二级评论]',
+    `content` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '评论的内容',
+    `status` tinyint(4) NOT NULL DEFAULT '1' COMMENT '状态 (1 有效，0 逻辑删除)',
+    `praise_num` int(11) NOT NULL DEFAULT '0' COMMENT '点赞数',
+    `top_status` tinyint(4) NOT NULL DEFAULT '0' COMMENT '置顶状态 [ 1 置顶，0 不置顶 默认 ]',
+    `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_article_id` (`article_id`) USING BTREE,
+    KEY `idx_user_id` (`user_id`) USING BTREE,
+    KEY `idx_create_time` (`create_time`),
+    KEY `idx_parent_comment_id` (`parent_comment_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='文章评论表';
+
+
+```
+
+
+
+### 如何设计一个海量的评论系统？（算是比较常见的场景题吧）
+
+
+- [Golang 进阶 6-评论系统架构设计 - 掘金](https://juejin.cn/post/6907187734696165389)
+- [B 站评论系统架构设计 - 哔哩哔哩](https://www.bilibili.com/read/cv20346888)
+
+
+
+
+
+---
+
+
+
+```markdown
+
+
+应用刚启动连接到数据库的时候比较慢，但又不是慢查询。
+
+1. 这位同学的解决办法是通过 tcpdump 来分析网络包，看网络包的时间戳和网络包的内容，然后找到了具体卡在了哪里。
+2. 如果是专业的 DBA 可能会通过 showprocesslist 看具体连接在做什么，比如看到这些连接状态是 authentication
+状态，然后再通过 Google 或者对这个状态的理解知道创建连接的时候 MySQL 需要反查 1P、域名这里比较耗时，通过配置参数 skip-name-resolve 跳过去就好了。
+3. 如果是 MySQL 的老司机，一上来就知道连接慢的话跟 skip-name-resolve 关系最大。在我眼里这三种方式都解决了问题，最后一种最快但是纯靠积累和经验，换个问题也许就不灵了；第一种方式是最牛逼和通用的，只需要最少的知识就把问题解决了。
+
+
+我当时跟着他人 sudo、ls 等 Linux 命令开始
+
+```
+
+
+
+
+```markdown
+
+自增 int 作为主键，在以下场景下，会有问题：
+
+1、两个系统对接，id 会出现冲突，数据会被意外覆盖，需要做许多额外的处理工作 2、看 id 很容易猜测出系统中有多少数据，比如有多少笔订单，有多少个用户等等，不安全
+
+3、数据库压力大一点，要分库分表的时候，数据会乱，要重新清洗处理数据，而主键到处用，要清洗好数据难度极大
+
+其实还有一些其他问题，但自增 int 有一个所谓的非常大的好处，性能强劲，但这也仅仅是小库小表的情况下。数据量大一点的时候，是搞不定的。uuid 并不完美，雪花算法也非银弹，完美的东西是不存在的。
+
+```
+
+
+---
+
+
+:::tip
+
+
+对 golang 爬虫不要报太高期待，虽然不好跟其他语言写爬虫直接对比，但是也可以尝试对比一下：
+
+golang 的核心优势还是高效稳定的高并发处理，但是生态缺乏，很多常见问题没有通用解决方案，想解决问题只能靠自己
+
+而 python 和 nodejs 的爬虫生态都更好，常见问题基本都有解决方案，很容易解决，且有各自的杀手锏，scrapy 和 puppeter
+
+总结来说，就是实现层面或者只是临时功能的场景下，python 和 nodejs 有很强的优势，但是在企业级且长期功能的场景下 (很多组件需要自研)，使用 golang 开发会是更好的选择
+
+参考文章：[Python 和 go 爬虫对比哪个好？ - V2EX](https://v2ex.com/t/796117)
+
+
+:::
+
+
+
+---
+
+
+
+:::tip
+
+**首先需要注意的是，我们需要的是密码保护，而非 Auth。**
+
+也就是说，游客如果没有密码，则完全无法查看内容，而不是只要注册账号即可查看。
+
+如果只需要 Auth 的话，方案很多，我们用“Docusaurus Auth”作为关键字，可以查到
+
+- AWS Cognito [Protect Custom Routes in Docusaurus using AWS Cognito |](https://iammassoud.net/blog/protect-custom-routes-in-docusaurus-using-aws-cognito)
+- Cloudflare Zero Trust [Identity · Cloudflare Zero Trust docs](https://developers.cloudflare.com/cloudflare-one/identity/)
+- Google Firebase [使用 Google Firebase 进行 Docusaurus 身份验证 |](https://iammassoud.net/blog/docusaurus-authentication-using-google-firebase)
+
+---
+
+我们也可以直接用 ngin/caddy/traefik 等服务内置的 auth 功能，直接实现该功能。
+
+以 caddy 为例，查看 [Caddy Security](https://authp.github.io/docs/intro) 文档，可以看到，caddy 支持
+
+- Authorization Cookie
+- U2F Key
+- MFA
+- Multi-Factor Authentication
+- ... 等常用验证方式
+
+
+
+---
+
+如果使用 Netlify Pages 部署服务，Netlify 内置了对网站全站的 password protect 功能，可以直接使用
+
+- [Secure access to sites | Netlify Docs](https://docs.netlify.com/security/secure-access-to-sites/)
+- **[Site protection overview | Netlify Docs](https://docs.netlify.com/security/secure-access-to-sites/site-protection/)**
+
+但是我们刚刚把服务从 Netlify 迁移到 Cloudflare，所以就没办法了
+
+Vercel 也支持类似功能
+
+- [Password Protect Docusaurus on Vercel : Docusaurus](https://www.reddit.com/r/Docusaurus/comments/yxvd4c/password_protect_docusaurus_on_vercel/)
+
+
+:::
+
+
+
+
+
+
+## [archive] headless [2023/10/29]
+
+
+:::tip
+
+
+- selenium 和 PhatomJS 是严格意义上的 headless，都需要 chromedriver
+- chromedp 和 rod 都是通过调用支持 `CDP（Chrome DevTools协议）` 来实现的 headless，这两个相比之下更推荐 rod，因为 chromedp 存在架构设计上的问题，且更新缓慢，目前就不太推荐使用了。
+- splash 通过 QT5 实现 webkit 浏览器内核（所以它自称是带 HTTP API 的轻量级 web 浏览器），通过 twisted 实现异步。相比于 selenium 之类的部署稍微方便点，但是没有 selenium 的 webdriver 提供的非常丰富的键鼠操作。
+
+---
+
+综上来说，这三类 headless 都有各自的优缺点，还是要看使用场景。
+
+如果网站的反爬机制一般，直接用 chromedp 或者 rod 去搞，不需要部署，API 丰富（对应的代价就是 golang 的爬虫生态比较差，所以只能搞普通网站）
+
+如果网站的反爬机制比较复杂，又需要一定的性能，就用 splash，部署稍微麻烦（需要另外部署一个 server 端），相当于一个比较折中的选择，实际上也是普适性比较好的方案
+
+如果网站反爬机制比较变态，那就用 selenium 这种的吧，部署麻烦，并且使用中会有各种小问题需要维护，但是基本上各种反爬虫机制可以通杀。
+
+
+:::
+
+
+
+

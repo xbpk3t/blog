@@ -30,3 +30,57 @@ date: 2024-09-16
   url: https://github.com/Flow-Launcher/Flow.Launcher
   des: fl只支持Windows，写plugin只支持C#, F#, Python, js和ts
 ```
+
+
+
+## [xxx] 再探 Raycast [2023.10.31]
+
+
+
+
+raycast
+
+Easydict 不错，所以又对 raycast 产生了一点兴趣
+
+- [Raycast 该怎么用？我们帮你准备了一份实用指南 - 少数派](https://sspai.com/post/79769)
+
+查了几篇文档，没啥好说的，都是一些我之前就知道的功能
+
+- raycast store 很好用，相对应的 alfred gallery 则太原始了
+- 之前的一个主打功能，Magnet 窗口调节功能，这点 alfred Automation 之后，用户可以很简单地自己添加该功能。（但是确实不如直接内置）
+- 除此之外 raycast 还内置了外币汇率换算、自然语义计算以及时区转换功能
+
+一些之前不知道的点：
+
+- raycast 的 PRO 会员支持配置同步了，还多了一个“无限制剪切板”功能（否则只有 50 条）和 GPT 功能，但是 PRO 很贵，$8/month。**相当于和 alfred 打了个错位**，alfred 是核心的 workflow 功能收费，raycast 对应的插件功能免费，但是其他一些功能收费，并且还不便宜，让人感觉不太值。
+- *raycast 新加了卸载应用的功能，并且也支持检索关联文件。（在 raycast 搜索到想卸载的 APP，直接 CMD+K，点选卸载操作）*
+
+所以，我们抽取对两个应用的总体印象，总结如下：
+
+
+:::tip
+
+**raycast 的窗口更类似一个 APP，支持后退、下拉选择等功能，alfred 则完全是一个简单而强大的启动器，更 geek 一些**。这点区别就导致，raycast 往往功能更多，但是绝大部分人常用的功能就那些，提供太多功能反而会很干扰。像我们这种喜欢自己开发 workflow 的人，则更适合自己搞 alfred。
+
+raycast 的窗口有着更好看、更现代化的 UI 和交互。alfred 则很克制，很极简。
+
+**raycast 相当于把一些常用插件的功能直接内置了。**
+
+- 另外，alfred 的生态仍然比 raycast 要好很多，这点从二者的 topic 相关的 repo 数可以得到。~~但是 raycast 社区给人的感觉要活跃和开放，相比之下，alfred 在 gh 没有官方社区，这个 org [Alfred](https://github.com/alfredapp) 只有一些官方 workflow，当然 AlfredForum 还是非常活跃的。~~
+- alfred workflow 的开发也比 raycast 要好很多，raycast 只支持 js/ts，alfred 则任何语言都可以开发 workflow，这点要好很多。 [Raycast – Build your own extensions](https://www.raycast.com/developer-program)
+
+另外，还有一些细节
+
+- raycast 不支持自定义 universal actions，要知道，这个才是我每天最高频使用的。直接划词操作，非常爽。
+- raycast 的插件不支持保存 keyword（raycast 中称为 alias），每次安装的新插件，都需要再手动设置 keyword，就很麻烦（这点存疑，不确定）
+
+**上面写了一堆，实际上逐条来看，结论都是 alfred 更好用**。应该说，alfred 和 raycast 的区别是很大的，就像上面说的，alfred 是个启动器，raycast 更像 APP，使用 raycast 时，点选操作明显更多，而不是 alfred 那样的纯键盘操作，比如说你甚至可以用 raycast 的面板
+
+- ~~[Raycast Store: Raycast Arcade](https://www.raycast.com/EvanZhouDev/raycast-arcade) 用面板玩游戏，但是手感很差~~
+- ~~[Raycast Store: CleanShot X](https://www.raycast.com/Aayush9029/cleanshotx/commands) 这个是 CleanShot 的快捷操作，我还以为甚至支持滚动截屏~~
+- ~~[Raycast Store: Shell](https://www.raycast.com/asubbotin/shell) 直接在面板跑 shell，但是只能执行一条，无法交互，并且很卡~~
+
+但是试用一下，就知道，体验都很差。给我的感觉和 Obsidian 比较类似，功能很多，但是都不好用。~~但是再反过来说，很多功能和交互也是可以借鉴和参考的。~~
+
+:::
+

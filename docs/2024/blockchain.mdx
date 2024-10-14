@@ -1,0 +1,84 @@
+---
+title: blockchain
+date:  2024-10-14
+unlisted: true
+---
+
+
+
+:::danger
+没意义，archive掉
+
+:::
+
+- 学学用 solidity 在 ethereum 上开发智能合约
+- hyperledger fabric
+- 区块链的协议，运行机制，加密技术，底层实现和共识算法等，参与涉及安全协议和架构
+- 搭建区块链底层基础设施，实现联盟链，私有链的逻辑，提供应用层的调用
+- substrate 框架 bitcoin 和 freecash
+
+---
+
+有哪些区块链的常用术语？
+
+- active nomination 活跃提名。
+- alexander 亚历山大。
+- attestation 证明
+- authority
+- BABE
+- Block 区块
+- Block explorer 区块浏览器
+- BLS
+- Bonding 绑定
+- Bridge 转接桥
+- 拜占庭容错
+- collator 收集人
+- consensus 共识
+- Dapps 去中心化应用
+- DOT
+- Duty Roster 值勤表
+- Epoch
+- Era。等于一个数量的 session，就重新计算验证人集，并支付奖励的时间段
+- Equivocation 重复签名
+- Extrinsic 外部信息
+- Finality 终结，Finality Gadget 终结工具
+- Fisherman 钓鱼人
+- FRAME
+- Genesis 创世区块
+- Hard Fork 硬分叉
+- Hard Spoon 硬汤匙
+- KSM。kusama 网络代币的缩写，就是 polka 的金丝雀网络，是 polka 的早期网络
+- nominator 提名人
+
+
+<details>
+<summary>以太坊</summary>
+
+- 以太坊中有哪些树（交易树、收据树、状态树）
+- 为什么需要收据树（将交易执行过程中的一些特定信息编码为交易收据，方便对交易进行零知识证明、索引和搜索）
+- 以太坊里的状态是什么，状态树怎么存的状态（账户状态包括 balance、nonce、codeHash、storageRoot，使用 Merkle Patricia Trie 即 MPT 存的账户状态）
+- 以太坊的合约数据的储存形式（还是 MPT。合约账户中的 storage root，对应账户的 storage trie）比特币里的交易是怎么存的（Merkle Tree，MT）
+- 介绍 Merkle Tree 的性质、优点，为什么用 Merkle Tree 存（实现 SPV、Merkle Proof）
+- 为什么以太坊要将 MT 改成 MPT（这个问题比较复杂，建议读者去 B 站北大肖臻老师的区块链课中寻找答案）
+- 介绍比特币的 UTXO
+- 比特币查询余额只能从头开始遍历整条链吗，有没有高效方法（创建 UTXOSet 缓存）
+- 比特币地址是怎么生成的（助记词＜-＞seed→＞私钥-＞公钥-＞PubKeyHash＜-＞address，其中＜- ＞表可双向转换，→表单向转换，最后的 PubKeyHash 转换为 address 的时候用的是 base58 编码，base58 编码的原理即辗转相除法）
+
+
+</details>
+
+
+
+Solidity
+Ethers
+Hardhat
+Truffle
+WAGMI
+Alchemy
+Infura
+IPFS
+ChainLink
+Arweave
+
+
+

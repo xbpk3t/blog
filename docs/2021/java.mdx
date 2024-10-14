@@ -1,0 +1,291 @@
+---
+title: java相关存档
+date:  2023-02-14
+tags: [archive]
+unlisted: true
+---
+
+
+## java
+
+
+- 基本类型和包装类型都有哪些？java 有 9 种基础类型 (4 个整数型；2 个浮点型；字符串型；布尔型；void)
+- java 拼接字符串的几种方法？
+- java 里定义常量的几种方法
+- java 里的 Enum 是否能被继承？enum 类不能被继承
+- java 字符串转对象？用 gson
+- 判断两个字符串是否相等？java 里不要用==来判断两个字符串是否相等，用==比较两个对象时，比较的是两个对象的内存地址，所以一定是不等的，用 str1.equals(str2) 进行比较
+- list 的 append 操作？
+- 二维 HashMap 怎么初始化？
+- List 怎么初始化？
+- HashMap 怎么判断 key 是否存在？
+- hutool 的文件读取？
+- java 有哪些包管理工具？maven gradle ant
+- List 怎么去重？
+- 怎么往 List 里追加数据？
+- int 和 BigDecimal 转换 `BigDecimal.valueof(int)`int 转 BigDecimal
+- Object 转 List？
+- 获取 json 的所有 key？
+- map 的 forEach 循环？
+
+---
+
+
+java 的泛型是什么？
+
+*泛型的本质是参数化类型，也就是说所操作的数据类型被指定为一个参数* 使用泛型，我们可以写一个泛型方法来对一个对象数组进行排序；然后，调用该泛型方法来对整型数组，浮点型数组，字符串数组进行排序
+
+
+java 的泛型都有哪些？
+
+- ？；表示不确定的 java 类型
+- T；表示具体的一个 java 类型
+- K 和 V；分别表示 java 的 key 和 value
+- E；表示 element
+
+---
+
+
+java 的泛型 super t 和 extends t 的区别？
+
+- super 向上限定；泛型可以是 E 及其父类。参考 map 集合构造传入一个 comparator 比较器，父类 map 重写了比较器方法的话，子类可以直接使用，不需要再定义一个比较器。
+- extends 向下限定；可以是 E 及其子类。⻅于集合 addAll 方法传的参数，把 a 集合添加到 b 个集合的时候，a 里面的元素必须是 b 或者 b 的子类。
+
+
+
+## springboot
+
+- springboot 的参数校验？
+- @Valid 和@Validated 有什么区别？使用@Valid 和@Min 限制入参
+- @Validate 和@Validated 的区别？
+- 在 request 层，怎么判断数据在表中唯一 unique，或者在表中已经存在 exists 呢？目前只有 jpa/hibernate 才能通过注解实现这个需求`@Table(uniqueConstraints=@UniqueConstraint(columnNames="A,B"))`
+- spring boot 怎么自定参数验证的返回？springboot 用@Valid 验证参数失败，如何自定义返回给前端的 json 啊
+- 怎么自己实现一个注解？怎么通过自定义注解，进行参数验证？
+- 怎么验证时间参数？
+- springboot 怎么实现统一的异常捕获？
+- springboot 里使用计划任务？直接在 Application 类上使用注解@EnableScheduling 开启定时任务，会自动扫描
+- 怎么使用 springboot 的拦截器？
+- 怎么写 springboot 的单元测试？
+- 怎么在 springboot 里使用 swagger？
+
+
+
+
+
+## mybatis
+
+mapper.xml 的常⻅写法（重要）
+
+- foreach
+- concat() 模糊查询；
+- choose(when, otherwise) 标签；
+- selectKey
+- if
+- if+where
+- if+set
+- if+trim 代替 where/set
+
+---
+
+- mybatis 传入参数为 list, array, map 的情况下，mapper.xml 的写法？（重要）
+- mybatis 的 mapper.xml 里 jdbc 类型和 java 的数据类型不一致，导致错误，怎么解决？ *比较常用的有：java 的 long 对应 jdbc 的 bigint；Mybatis 使用时因 jdbcType 类型大小写书写不规范导致的异常*
+- mybatis 怎么实现多对多？直接在 mapper 里写原生的多对多语句就可以了
+- mybatis 中的#{}和${}区别？ `#{}`可以防止 SQL 注入
+- mybatis 怎么判断数据是否存在？
+- mybatis 怎么实现分⻚？
+- 添加成功后怎么返回主键 id？以及怎么判断是否添加成功？翻了几个帖子比如 MyBatis + MySQL 返回插入成功后的主键 id，都需要自己实现 mapper 来实现这个功能，但是实际上，如果 save 成功，直接从 user 对象里取 id 就可以拿到主键 id
+- mybatis 的 Tag name expected 的问题 需要对比较运算符进行转义，才能在 mybatis 里使用
+- mybatis-plus 怎么实现软删除？
+
+
+
+
+```shell title="app.sh"
+#!/bin/bash
+APP_NAME=你的jar包名称
+
+usage() {
+    echo "Usage: sh robotcenter.sh [start|stop|restart|status|restartAndBackup]"
+    exit 1
+}
+
+is_exist(){
+  pid=`ps -ef|grep $APP_NAME|grep -v grep|awk '{print $2}'`
+  if [ -z "${pid}" ]; then
+    return 1
+  else
+ return 0
+  fi
+}
+
+start(){
+  is_exist
+  if [ $? -eq 0 ]; then
+    echo "${APP_NAME} is already running. pid=${pid}"
+  else
+    nohup java -jar ${APP_NAME}  >./output.out 2>&1 &
+  fi
+}
+
+stop(){
+  is_exist
+  if [ $? -eq "0" ]; then
+    kill -9 $pid
+  else
+    echo "${APP_NAME} is not running"
+  fi
+}
+
+status(){
+  is_exist
+  if [ $? -eq "0" ]; then
+    echo "${APP_NAME} is running. Pid is ${pid}"
+  else
+    echo "${APP_NAME} is NOT running."
+  fi
+}
+
+restart(){
+  stop
+  sleep 5
+  start
+}
+
+
+
+case "$1" in
+  "start")
+    start
+    ;;
+  "stop")
+    stop
+    ;;
+  "status")
+    status
+    ;;
+  "restart")
+    restart
+    ;;
+  *)
+    usage
+    ;;
+esac
+
+```
+
+
+```shell title="springboot.sh"
+#!/bin/bash
+ ## blog:www.cnbuilder.cn
+ ## create 2019-04-30
+ version="5.2.1";
+
+ appName=$2
+ if [ -z $appName ];then
+  appName=`ls -t |grep .jar$ |head -n1`
+ fi
+
+ ## 后台启动项目 自动生成 catalina.log日志文件
+ function start()
+ {
+  count=`ps -ef |grep java|grep $appName|wc -l`
+  if [ $count != 0 ];then
+   echo "Maybe $appName is running, please check it..."
+  else
+   echo "The $appName is starting..."
+   nohup java -jar ./$appName -XX:+UseG1GC -XX:+HeapDumpOnOutOfMemoryError -Xms512M -Xmx4G > catalina.log 2>&1 &
+  fi
+ }
+ ## 停止项目
+ function stop()
+ {
+  appId=`ps -ef |grep java|grep $appName|awk '{print $2}'`
+  if [ -z $appId ];then
+   echo "Maybe $appName not running, please check it..."
+  else
+   echo "The $appName is stopping..."
+   kill $appId
+  fi
+ }
+ ##重启项目(平滑启动)
+ function restart()
+ {
+  # get release version
+  releaseApp=`ls -t |grep .jar$ |head -n1`
+
+  # get last version
+  lastVersionApp=`ls -t |grep .jar$ |head -n2 |tail -n1`
+
+  appName=$lastVersionApp
+  stop
+  for i in {5..1}
+  do
+   echo -n "$i "
+   sleep 1
+  done
+  echo 0
+
+  backup
+
+  appName=$releaseApp
+  start
+ }
+
+ function backup()
+ {
+  # get backup version
+  backupApp=`ls |grep -wv $releaseApp$ |grep .jar$`
+
+  # create backup dir
+  if [ ! -d "backup" ];then
+   mkdir backup
+  fi
+
+  # backup
+  for i in ${backupApp[@]}
+  do
+   echo "backup" $i
+   mv $i backup
+  done
+ }
+
+ ## 查看项目当前状态
+ function status()
+ {
+  appId=`ps -ef |grep java|grep $appName|awk '{print $2}'`
+  if [ -z $appId ]
+  then
+   echo -e "\033[31m Not running \033[0m"
+  else
+   echo -e "\033[32m Running [$appId] \033[0m"
+  fi
+ }
+
+
+ function usage()
+ {
+  echo "Usage: $0 {start|stop|restart|status|stop -f}"
+  echo "Example: $0 start"
+  exit 1
+ }
+
+ case $1 in
+  start)
+  start;;
+
+  stop)
+  stop;;
+
+  restart)
+  restart;;
+
+  status)
+  status;;
+
+  *)
+  usage;;
+ esac
+
+```
+
+
