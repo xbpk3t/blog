@@ -264,6 +264,10 @@ date:  2024-09-14
 
 
 
+---
+
+[TOP 20 Go 最佳实践](https://colobu.com/2023/11/17/golang-quick-reference-top-20-best-coding-practices/) 都是一些老调重弹，没啥干货，但是确实有几条一直没做到。比如说少用全局变量和 init()。包括多用 interface 进行抽象。
+
 
 
 
