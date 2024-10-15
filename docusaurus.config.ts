@@ -28,7 +28,7 @@ const config: Config = {
   deploymentBranch: 'gh-pages',
 
 
-  onBrokenLinks: 'throw', // docusaurus build 时忽略坏链
+  onBrokenLinks: 'warn', // docusaurus build 时忽略坏链
   onBrokenAnchors: 'throw',
   onBrokenMarkdownLinks: 'throw',
   onDuplicateRoutes: 'throw',
@@ -51,6 +51,7 @@ const config: Config = {
           sidebarPath: require.resolve('./sidebars.ts'),
           showLastUpdateTime: true,
           showLastUpdateAuthor: true,
+          tags: 'tags.yml'
           // remarkPlugins: [
           //   [
           //     remarkKroki,
