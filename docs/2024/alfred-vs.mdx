@@ -33,6 +33,156 @@ date: 2024-09-16
 
 
 
+
+
+
+
+
+
+## alfred 基本认知
+
+:::tip alfred 在工具链中起到哪些作用？
+
+在我的工具链中，重要性排序如下，mac 应用 > alfred > web 工具
+
+使用频率也是同样排序
+
+alfred 的操作大部分都是高频 action 类操作，用来快捷操作
+
+alfred 的关键词是：
+
+- 对高频操作的快捷操作
+- 全局
+
+除此之外的低频操作（如数据处理、查文档等等），则直接部署到 web 端即可
+
+其优势在于：
+
+- 可供筛选的工具很多，自己实现也很方便。
+- 全平台：web 支持全平台，alfred 操作的迁移性则相对较差。
+
+***所以，高频操作优先使用 alfred，低频操作则更好用 web 页面完成。***
+
+:::
+
+
+
+
+## 技术选型
+
+alfred 的生态和成熟度比
+
+- [Hammerspoon](https://www.hammerspoon.org/)
+- LaunchBar
+- Hazel
+- Raycast 远远不如 alfred 好用
+- Keyboard Maestro
+- [ospfranco/sol: MacOS launcher & command palette](https://github.com/ospfranco/sol)
+- ...
+
+之类的自动化工具强太多了，毫无疑问用 alfred。免费的工具自有其代价。
+
+---
+
+Hammerspoon
+
+[MacOS 效率提升神器之 Hammerspoon](https://www.xiaojun.im/posts/2023-06-20-hammerspoon)
+
+alfred 确实没有事件触发器
+
+“连上公司 wifi 后自动静音”这样的自动化操作确实省心
+
+如果 mac 的 shortcut 支持自动化的话，也可以实现类似功能
+
+---
+
+Raycast
+
+```markdown
+
+Raycast 窗口调节集成了 20 种窗口排列模式，和 Magnet 对比，甚至还多了一些调节方式，比如最大化高度、最大化宽度、半屏居中等等，不过也缺少了 Magnet 中「窗口还原」，而对比之下开源的 Rectangle 才是集大成者，包含前面两个所有的调节方式，甚至还有 1/6 分屏，略显变态，大概也只有超宽屏上才用得到吧。
+
+```
+
+[Raycast 该怎么用？我们帮你准备了一份实用指南 - 少数派](https://sspai.com/post/79769)
+
+相比于 alfred，raycast 最好的功能是提供了很多官方 workflow（也就是 `Raycast Store`），另外内置支持查询 chrome 书签
+
+---
+
+Keyboard Maestro
+
+[Keyboard Maestro 11 更新，这些功能值得关注 - 少数派](https://sspai.com/post/83932)
+
+Prompt For Snippet 很不错，alfred 目前提供的模板还是不够灵活
+
+但是，还是 n 年前第一次用 Maestro 的想法，menubar 下拉列表显示 Macro Group 非常蠢
+
+
+
+
+
+
+
+## ***常用功能***
+
+其他：
+
+- 其他功能（chrome 书签快查、字典、联系人、音乐、放大镜和预览）都没啥用
+- 多端同步：alfred 内置的配置文件同步，包括 workflow 和主题都会被同步。
+
+---
+
+
+Actions
+
+Actions 已经内置如下操作：
+
+- `copy-path` 复制当前 finder 的路径，可以简化操作。
+- `TerminalFinder` Finder 路径快速打开切换到终端，类似 `openinterminal-lite` ，不直观，这么简单的操作反而增加了心智负担。其实没啥用。
+
+---
+
+SYSTEM 功能
+
+alfred 支持的系统命令：
+
+- **Empty Trash（清空回收站）**
+- Trash（查看回收站）
+- Restart（重启）
+- Shut Down（关机）
+- Lock（锁屏）
+- Sleep（睡眠模式）
+- Sleep Displays（关闭屏幕显示）
+- ~~Screen Saver（屏保模式）Log Out（登出当前用户）~~
+
+以下都有快捷键操作，比 alfred 更方便，所以不需要：
+
+- ~~Volume Up（增加音量）Volume Down（减少音量）Toggle Mute（静音）~~
+- ~~应用程序相关操作：Hide（隐藏）Quit（退出程序）Force Quit（强制退出）Quit All（退出所有程序）~~
+- ~~硬盘相关操作：Eject 是弹出磁盘、存储卡或者虚拟磁盘镜像，如 .dmg 挂载后的磁盘。Eject All 是全部弹出~~
+
+以上的操作，都是可以自定义关键字，另外有一些后面带 Confirm 的，表示是一些危险的操作，可以勾选，在操作时会先弹窗提示操作的风险。
+
+
+
+---
+
+搜索文件
+
+- 空格 + 文件名，进行文件搜索
+- *alfred 搜索文件，CMD+Enter，并在 finder 中打开*
+- 空格 + 文件名：按文件名搜索，支持拼音。
+- in + 字符串：按文件内容搜索。
+
+---
+
+- in、find、open 命令，in 可以在文件中查找内容 find 查找文件所在目录，open 打开文件
+- 设置模糊搜索 Fuzzy Search，建议打开使用方向键切换文件层次，非常方便
+
+
+
+
 ## [xxx] 再探 Raycast [2023.10.31]
 
 

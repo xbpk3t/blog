@@ -906,3 +906,251 @@ pipeline 和消息队列都是 redis 的异步操作，有什么区别呢？
 
 
 
+
+
+
+
+
+## Redis 数据类型
+
+
+### 拓展数据类型
+
+:::tip
+
+**其实所有这些 redis 数据类型，本质上就是一些抽象类型，想真正玩明白，还是得去读 redis 源码。**
+
+所以，下面的内容都仅作记录
+
+把 bitmap/hyperloglog/GEO 都删掉了
+
+:::
+
+
+
+<details>
+<summary>自动过期</summary>
+
+- TTL 以秒为单位返回 key 的剩余过期时间
+- PERSIST。移除给定 key 的过期时间，使得 key 不过期。
+- 设置 key 过期时间 (expire/expireat/pexpire 都会转换成 pexpireat 来执行)
+	- EXPIRE，以秒为单位
+	- EXPIREAT，秒+unix 时间戳
+	- PEXPIRE，以毫秒为单位
+	- PEXPIREAT，毫秒+unix 时间戳
+- PTTL。以毫秒为单位返回 key 的剩余过期时间
+- 过期回调通知？redis 默认不开启 `过期回调通知`
+
+</details>
+
+### bitmap
+
+Bitmaps 的最大优势之一在存储信息时极其节约空间。例如，在一个以增量用户 ID 来标识不同用户的系统中，记录用户的四十亿的一个单独 bit 信息（例如，要知道用户是否想要接收最新的来信）仅仅使用 512M 内存。
+
+bitmap 本质上也是字符串类型
+
+
+
+<details>
+<summary>用户相关</summary>
+
+- 用户签到
+- 统计用户的日活、月活和留存率
+- 统计用户在线状态
+- 统计用户上线次数
+
+
+100 亿用户签到统计问题？
+
+- 存储 100 亿用户 30 天内的签到数据
+- 能够快速知道某天有多少人签到了
+- 能够快速知道某日到某日中多少人签到了
+- 能够快速知道用户 A 在某天是否签到
+
+---
+
+```shell
+
+#[hi/UserCheckInCache.php at master · Coolnz/hi](https://github.com/Coolnz/hi/blob/master/app/Repo/V1/Cache/UserCheckInCache.php)
+
+setbit key offset value
+# 判断是否已签到
+getbit key offset
+
+# 查看某个用户的签到记录
+BITFIELD key [GET type offset] [SET type offset value] [INCRBY type offset increment] [OVERFLOW WRAP|SAT|FAIL]
+
+# 统计
+BITCOUNT key [start] [end]
+
+```
+
+</details>
+
+
+
+
+### hyperloglog
+
+:::tip
+
+hyperloglog 的核心在于他的数据结构，而不在于使用，因为使用 hyperloglog 做一些日活、月活的统计之类的功能是很简单的
+
+最低内存占用的去重统计方案
+
+**hyperloglog 和布隆过滤器的底层实现几乎相同，这也是为什么它们都能节约内存，误差率也都在 1% 左右，也都可以通过调整 bitmap 大小来调整误差率还是更节约内存**
+
+本质来说是一个字符串类型：kv 形式
+
+
+:::
+
+
+为什么 redis 的 hyperloglog 能节约内存？
+
+- [HyperLogLog 算法的原理讲解以及 Redis 是如何应用它的 - 掘金](https://juejin.im/post/5c7900bf518825407c7eafd0)
+- [走近源码：神奇的 HyperLogLog - 掘金](https://juejin.im/post/6844903791590916109)
+- [Redis 源码中 hyperloglog 结构的实现原理是什么？ - 知乎](https://www.zhihu.com/question/53416615)
+
+
+---
+
+
+```markdown
+
+按照我的理解，导致 hyperloglog 的误差率的原因和布隆过滤器类似，是吗？
+
+---
+
+是的，你的理解基本上是正确的。HyperLogLog 和布隆过滤器都是概率性数据结构，用于处理大规模数据集合的基数估计和元素存在性判断。
+
+HyperLogLog 的误差率主要受两个因素影响：
+
+1. 虚拟位的数量：HyperLogLog 使用一组虚拟位来估计集合的基数。位数越多，可以提供更低的误差率。但是，更多的位数也意味着占用更多的内存。
+
+2. 哈希函数：HyperLogLog 使用哈希函数将元素映射到虚拟位上。哈希函数的选择对误差率有一定的影响。较好的哈希函数可以更均匀地分布元素，从而提供更准确的估计。
+
+布隆过滤器也是基于哈希函数的概率性数据结构，用于判断一个元素是否可能存在于一个集合中。与 HyperLogLog 类似，布隆过滤器也具有一定的误判率。布隆过滤器的误判率取决于位数组的大小和哈希函数的数量。
+
+尽管 HyperLogLog 和布隆过滤器在应用场景和具体算法上有所不同，但它们都使用了一些类似的概念和技术，如哈希函数和位数组。这些因素都会对它们的误差率产生影响。
+
+总之，HyperLogLog 和布隆过滤器都是用于处理大规模数据集合的概率性数据结构，它们的误差率受到虚拟位数量和哈希函数的选择等因素的影响。
+
+---
+
+
+这样啊，难怪两个都是 1% 左右的误差率，也都可以通过调整 bitmap 来调整误差率
+
+---
+
+是的，调整 HyperLogLog 和布隆过滤器的位数组大小可以对误差率进行控制。
+
+对于 HyperLogLog，增加位数组的大小可以降低误差率，但会增加内存消耗。一般来说，HyperLogLog 使用约 12 个位来估计基数，可以提供约 0.81% 的误差率。如果需要更低的误差率，可以增加位数组的大小，例如使用 15 位可以将误差率降至约 0.23%。
+
+对于布隆过滤器，增加位数组的大小可以降低误判率，但同样会增加内存消耗。布隆过滤器的误判率与位数组大小和哈希函数的数量有关。较大的位数组和更多的哈希函数可以提供更低的误判率，但也会占用更多的内存。
+
+因此，在使用 HyperLogLog 和布隆过滤器时，你可以根据具体需求和资源限制来平衡误差率和内存消耗。选择适当的位数组大小和哈希函数数量，可以根据应用场景的要求来达到合理的误差率和性能。
+
+
+
+
+
+```
+
+
+
+
+
+
+
+### GEO
+
+:::tip
+
+本质来说 redisGeo 的数据类型还是有序集合
+
+:::
+
+```shell
+
+# GEOADD
+GEOADD key [long lat member] ...
+# 返回所有坐标的经纬度
+GEOPOS
+# 返回两个坐标之间的距离
+GEODIST
+# 用来实现“附近的人”这种动态坐标 GEORADIUS
+GEORADIUS Sicily 15 37 200 km withcoord withdist
+# 与 GEORADIUS 的区别在于，用来查找“附近的店”这种位置固定的东西，直接传 member 作为参数
+GEORADIUSBYMEMBER
+# 返回一个或者多个位置的 GEOHASH 值
+GEOHASH
+
+```
+
+### stream
+
+:::tip
+
+redis5 加进来的数据结构，简易版 kafka
+
+相较于 pub/sub，还支持消息持久化，即使宕机，消息也不会被丢弃，还借鉴了 kafka 的很多设计，比如 consumer group，组内消费者共享所有信息，但是一条信息只能一个消费可以消费到，相当于一个轻量级 kafka，很实用
+
+:::
+
+
+[【译】Redis 喜提新数据结构：Redis Streams](https://mp.weixin.qq.com/s/PiUku0rlnGavskCAOU9xeQ)
+
+
+```shell
+
+# 添加数据
+# 需要指定 name
+# id :一般不需要手动指定，默认是 milliseconds-sequenceNumber。如果遇到 milliseconds 重复，则 sequencenumber 自动加 1.。所以也被称为是自增 ID
+XADD name id key value
+
+# 获取长度
+XLEN
+# 获取列表
+# 符号： -代表最小值 +代表最大值
+xrange name id最小值  id最大值 count
+# 获取全部
+xrange name - +
+
+XREAD [COUNT count] [BLOCK milliseconds] STREAMS key [key ...] ID [ID ...]
+# 消费者读取
+xreadgroup group sendmail shenyi count 1 streams newusers >
+# XACK: ack 机制
+xack newusers sendmail 1540619056458-0
+
+```
+
+---
+
+能否提供一个生产者和消费者同时使用的 golang 代码示例？
+
+
+
+### pub/sub
+
+在 redis 中，我们可以对某一个 key 进行消息发布和消息订阅；
+当一个 key 值上进行了消息发布后，所有订阅它的客户端都会收到相应的消息，这一功能最简单的用法就是用作“实时消息系统”，比如普通的即时聊天，群聊等功能；
+
+---
+
+一旦一个 client 发出了 subscribe 命令，它就处于监听模式，此时除了 subscribe, psubscribe, unsubscribe, punsubscribe 这四条命令之外，所有其他命令都不能使用
+
+- PUBLISH；将 message 发送到指定的频道 channel；
+- SUBSCRIBE；订阅给定的一个或者多个频道的信息；
+- PSUBSCRIBE；订阅一个或多个符合给定模式的频道。
+- UNSUBSCRIBE；指示客户端退订给定的频道。
+- PUNSUBSCRIBE；指示客户端退订所有给定模式。
+- PUBSUB；一个查看订阅与发布系统状态的内省命令，它由数个不同格式的子命令组成，以下将分别对这些子命令进行介绍。
+
+
+
+### lua
+
+- eval 和 evalsha 有什么区别？为什么推荐使用 evalsha？
+- *redis 的 lua 脚本？用哪些命令管理 lua 脚本？redis 里使用 lua 脚本的流程？怎么在 redis 里调试 lua 脚本？lua 脚本超时时间？超时后怎么处理？*
+

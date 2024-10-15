@@ -4032,6 +4032,461 @@ Standard protocols for live streaming include:
 
 
 
+
+## [2023/12/7]《Go 并发编程实战课》
+
+第二次看这个课程了，比起第一次看这个课程，这次就很快，只用了一个晚上就全部过了一遍。
+
+一些感想：
+
+这本书更像是作者对自己博客的整理，实话说，不太系统。但是每部分内容大概都分成概念、基础使用、使用场景、常见错误使用和源码解析这几部分，有的再加上一些常用服务中对该方法的错误使用。
+
+**学并发编程，最重要的是找到抓手。抓手就是使用场景，知道什么场景下使用什么方法，然后就去使用**。这样就解决了使用相关的所有问题。光是整理什么使用场景、使用方法很蠢。
+
+至于实现和工作机制，直接看源码就可以了，也没必要做笔记。**我们可以把实现的关键字提取出来。**
+
+这么说的话，其实都没啥好做笔记的。
+
+---
+
+
+mutex 不是可重入锁
+
+因为 mutex 的实现本身就是没有记录哪个协程持有锁，所以当然是不可重入的。
+
+所以想实现可重入锁，核心就是记录持有锁的协程。方法无非是两种，获取 goid，或者直接使用 uuid 进行标识。
+
+goid 可以用 [petermattis/goid](https://github.com/petermattis/goid) 获得
+
+```go
+// RecursiveMutex 包装一个 Mutex，实现可重入
+type RecursiveMutex struct {
+    sync.Mutex
+    owner     int64 // 当前持有锁的 goroutine id
+    recursion int32 // 这个 goroutine 重入的次数
+}
+
+func (m *RecursiveMutex) Lock() {
+    gid := goid.Get()
+    // 如果当前持有锁的 goroutine 就是这次调用的 goroutine，说明是重入
+    if atomic.LoadInt64(&m.owner) == gid {
+        m.recursion++
+        return
+    }
+    m.Mutex.Lock()
+    // 获得锁的 goroutine 第一次调用，记录下它的 goroutine id，调用次数加 1
+    atomic.StoreInt64(&m.owner, gid)
+    m.recursion = 1
+}
+
+func (m *RecursiveMutex) Unlock() {
+    gid := goid.Get()
+    // 非持有锁的 goroutine 尝试释放锁，错误的使用
+    if atomic.LoadInt64(&m.owner) != gid {
+        panic(fmt.Sprintf("wrong the owner(%d): %d!", m.owner, gid))
+    }
+    // 调用次数减 1
+    m.recursion--
+    if m.recursion != 0 { // 如果这个 goroutine 还没有完全释放，则直接返回
+        return
+    }
+    // 此 goroutine 最后一次调用，需要释放锁
+    atomic.StoreInt64(&m.owner, -1)
+    m.Mutex.Unlock()
+}
+```
+
+[Go 语言如何实现可重入锁？](https://mp.weixin.qq.com/s?__biz=MzkyNzI1NzM5NQ==&mid=2247484797&idx=1&sn=ae62189e0118057dc1569b8123bc194e&source=41#wechat_redirect)
+
+
+```markdown
+
+为啥 golang 的 mutex 不可重入呢？
+
+---
+
+在 Go 语言中，`sync.Mutex` 是一种互斥锁，用于保护临界区的访问。它确保同一时间只有一个 goroutine 可以进入临界区。
+
+`sync.Mutex` 不支持重入是为了避免潜在的死锁问题。重入（也称为递归锁）是指在持有锁的情况下再次请求同一个锁。如果互斥锁是可重入的，那么同一个 goroutine 在持有锁的情况下再次请求锁时，就不会被阻塞，而是继续执行。
+
+然而，Go 语言的设计哲学是鼓励使用更简单、更直观的并发模型，避免复杂性。因此，Go 标准库中的 `sync.Mutex` 不支持重入。
+
+这样的设计决策可以避免潜在的死锁问题，因为重入锁的正确使用需要非常小心，以确保在释放锁之前所有锁的请求都已经完成。如果出现错误的重入，可能导致死锁或其他不可预测的行为。
+
+如果需要支持重入锁，可以使用 `sync.RWMutex`，它支持读写锁，允许多个 goroutine 同时读取共享资源，但只允许一个 goroutine 写入资源。`sync.RWMutex` 是可重入的，但仍然需要小心地确保正确地获取和释放锁。
+
+```
+
+
+---
+
+还有关于“mutex 的拓展使用”
+
+*其实就是提取 state 字段的中数据*
+
+```markdown
+`Mutex` 结构体的 `state` 字段是一个 `int32` 类型，用于表示互斥锁的状态。这个字段是私有的，不能直接访问，但是你可以通过 `Mutex` 的公开方法（如 `Lock`、`Unlock` 和 `TryLock`）来间接地查看和修改它的状态。
+
+`state` 字段的各个位表示了不同的状态：
+
+- `mutexLocked`（第 0 位）：表示互斥锁是否被锁定。如果这一位被设置，那么互斥锁就是锁定的。
+- `mutexWoken`（第 1 位）：表示是否有等待的 goroutine 被唤醒。如果这一位被设置，那么表示有一个等待的 goroutine 被唤醒并准备获取锁。
+- `mutexStarving`（第 2 位）：表示互斥锁是否处于饥饿模式。在饥饿模式下，锁的所有权会直接从解锁的 goroutine 传递给等待队列中的下一个 goroutine，新来的 goroutine 不会尝试去获取锁，即使锁看起来是无锁的状态。
+- `mutexWaiterShift`（第 3 位开始）：表示等待获取锁的 goroutine 的数量。
+
+这些状态位提供了 `Mutex` 的基本行为和性能特性，包括锁的公平性和饥饿模式。
+```
+
+
+
+
+
+---
+
+
+
+```go
+   // CAS 操作，当时还没有抽象出 atomic 包
+    func cas(val *int32, old, new int32) bool
+    func semacquire(*int32)
+    func semrelease(*int32)
+    // 互斥锁的结构，包含两个字段
+    type Mutex struct {
+        key  int32 // 锁是否被持有的标识
+        sema int32 // 信号量专用，用以阻塞/唤醒 goroutine
+    }
+
+    // 保证成功在 val 上增加 delta 的值
+    func xadd(val *int32, delta int32) (new int32) {
+        for {
+            v := *val
+            if cas(val, v, v+delta) {
+                return v + delta
+            }
+        }
+        panic("unreached")
+    }
+
+    // 请求锁
+    func (m *Mutex) Lock() {
+        if xadd(&m.key, 1) == 1 { //标识加 1，如果等于 1，成功获取到锁
+            return
+        }
+        semacquire(&m.sema) // 否则阻塞等待
+    }
+
+    func (m *Mutex) Unlock() {
+        if xadd(&m.key, -1) == 0 { // 将标识减去 1，如果等于 0，则没有其它等待者
+            return
+        }
+        semrelease(&m.sema) // 唤醒其它阻塞的 goroutine
+    }
+```
+
+```markdown
+初版的 Mutex 实现之后，Go 开发组又对 Mutex 做了一些微调，比如把字段类型变成了 uint32 类型；调用 Unlock 方法会做检查；使用 atomic 包的同步原语执行原子操作等等，这些小的改动，都不是核心功能，你简单知道就行了，我就不详细介绍了。
+
+但是，初版的 Mutex 实现有一个问题：请求锁的 goroutine 会排队等待获取互斥锁。虽然这貌似很公平，但是从性能上来看，却不是最优的。因为如果我们能够把锁交给正在占用 CPU 时间片的 goroutine 的话，那就不需要做上下文的切换，在高并发的情况下，可能会有更好的性能。
+```
+
+
+---
+
+
+```markdown
+
+- 产生死锁的原因？产生死锁的必要条件？
+
+根据产生死锁的四个必要条件，只要其中之一不能成立，死锁就不会出现
+
+- `互斥条件`(相互排斥)，一个资源每次只能被一个进程使用
+- `请求与保持条件`(等待条件)，当进程因为请求资源而阻塞时，对已经获得的资源保持不放
+- `不剥夺条件`(没有抢占)，进程已获得的资源，在未使用完之前，不能强行剥夺，只能在使用完成后自己释放
+- `环路等待`(循环等待)，多个进程之间形成一种头尾相接的循环等待资源关系，每个进程都在等待下个进程所占用的资源
+
+```
+
+```markdown
+死锁产生的四种条件，有哪些形象的类比？
+---
+
+按我的理解，死锁就是你想去占有的资源，已经被别人占有了，我理解的对吗？
+
+---
+
+部分正确，但是不完善。死锁是由于多个进程或线程之间相互等待彼此占有的资源而无法继续执行的一种状态。具体来说，死锁发生时，每个进程或线程都在等待获取其他进程或线程占有的资源，而同时又不释放自己已经占有的资源，导致所有进程或线程都无法继续执行。
+
+所以，死锁的产生确实涉及到资源的占有和等待的问题。当每个进程或线程都在等待其他进程或线程释放资源时，如果没有适当的资源分配和释放策略，就会导致死锁的发生。
+
+需要注意的是，死锁并不仅仅是资源被占有的问题，还包括了其他条件，如互斥条件、请求与保持条件、不可剥夺条件和循环等待条件，这些条件的共同作用才会导致死锁的发生。
+
+因此，虽然资源的占有和等待是死锁的一部分，但死锁的产生还需要考虑其他条件的影响。
+
+---
+
+我说说我的理解哈，有 x 和 y 两个人，同时有 x 和 y 两个门，本来 x 拿着 x 钥匙进入 x 门，y 同样进入 y 门就可以了。那么死锁是怎么回事呢？x 和 y 都想进入 x 门，这就是互斥（x 门只能让 x 或者 y 其中一个人进入）。两个人都各自有一把钥匙了，但是又想要对方的那把钥匙（这个就是请求保持条件）。只能这两个人自己主动释放，没有其他人出来协调资源（这个就是不可剥夺）。两个人都在等对方主动让出钥匙（这个就是循环等待条件）。其实想想，不就是生活中大部分吵架打架不就是这么来的吗？这个就是死锁
+
+---
+
+非常棒的比喻和理解！您的描述很准确，对死锁的四个条件有了很好的把握。
+
+在您的例子中，x 和 y 分别持有 x 门和 y 门的钥匙，但它们都想要对方的钥匙来进入另一个门。这种情况下，互斥条件就是每个门只能让一个人进入，所以只能有一个人进入 x 门，另一个人只能等待。
+
+同时，x 和 y 都持有自己的钥匙，但又想要对方的钥匙，这就是请求保持条件。只有当两者都释放了自己的钥匙，才能满足对方的请求。
+
+此外，没有其他人出来协调资源，也就是没有第三者来帮助解决这个问题，这符合不可剥夺条件。
+
+最后，x 在等待 y 释放 y 门的钥匙，而 y 在等待 x 释放 x 门的钥匙，形成了循环等待条件。
+
+这样的情况下，x 和 y 陷入了相互等待的状态，无法继续执行，这就是死锁。
+
+您的观察非常有趣，死锁的概念确实可以用来解释生活中一些争吵和冲突的情况。感谢您的分享和理解！
+
+
+```
+
+
+---
+
+
+
+```markdown
+readers-writers 问题一般有三类，基于对读和写操作的优先级，读写锁的设计和实现也分成三类。
+
+Read-preferring：读优先的设计可以提供很高的并发性，但是，在竞争激烈的情况下可能会导致写饥饿。这是因为，如果有大量的读，这种设计会导致只有所有的读都释放了锁之后，写才可能获取到锁。
+Write-preferring：写优先的设计意味着，如果已经有一个 writer 在等待请求锁的话，它会阻止新来的请求锁的 reader 获取到锁，所以优先保障 writer。当然，如果有一些 reader 已经请求了锁的话，新请求的 writer 也会等待已经存在的 reader 都释放锁之后才能获取。所以，写优先级设计中的优先权是针对新来的请求而言的。这种设计主要避免了 writer 的饥饿问题。
+不指定优先级：这种设计比较简单，不区分 reader 和 writer 优先级，某些场景下这种不指定优先级的设计反而更有效，因为第一类优先级会导致写饥饿，第二类优先级可能会导致读饥饿，这种不指定优先级的访问不再区分读写，大家都是同一个优先级，解决了饥饿的问题。
+Go 标准库中的 RWMutex 设计是 Write-preferring 方案。一个正在阻塞的 Lock 调用会排除新的 reader 请求到锁。
+```
+
+提取一下 RWMutex 实现的关键字，把相关笔记的源码都删掉
+
+读写锁的坑和互斥锁一样，都是不能复制（否则死锁）、不能重入、Lock/Unlock 没有成对使用，因为本身读写锁就是基于互斥锁实现的嘛，所以不提了。
+
+
+---
+
+map 哈希冲突再看看，整理一下
+
+---
+
+wg 的实现
+
+```go
+type WaitGroup struct {
+    // 避免复制使用的一个技巧，可以告诉 vet 工具违反了复制使用的规则
+    noCopy noCopy
+    // 64bit(8bytes) 的值分成两段，高 32bit 是计数值，低 32bit 是 waiter 的计数
+    // 另外 32bit 是用作信号量的
+    // 因为 64bit 值的原子操作需要 64bit 对齐，但是 32bit 编译器不支持，所以数组中的元素在不同的架构中不一样，具体处理看下面的方法
+    // 总之，会找到对齐的那 64bit 作为 state，其余的 32bit 做信号量
+    state1 [3]uint32
+}
+
+
+// 得到 state 的地址和信号量的地址
+func (wg *WaitGroup) state() (statep *uint64, semap *uint32) {
+    if uintptr(unsafe.Pointer(&wg.state1))%8 == 0 {
+        // 如果地址是 64bit 对齐的，数组前两个元素做 state，后一个元素做信号量
+        return (*uint64)(unsafe.Pointer(&wg.state1)), &wg.state1[2]
+    } else {
+        // 如果地址是 32bit 对齐的，数组后两个元素用来做 state，它可以用来做 64bit 的原子操作，第一个元素 32bit 用来做信号量
+        return (*uint64)(unsafe.Pointer(&wg.state1[1])), &wg.state1[0]
+    }
+}
+```
+
+
+
+
+
+
+
+
+---
+
+noCopy
+
+[Go 的 noCopy 是什么机制？](https://mp.weixin.qq.com/s?__biz=MzUxMDI4MDc1NA==&mid=2247496238&idx=2&sn=8b3e22ea66bff6e7e86b37a78efba267)
+
+mutex cond pool wg 这些都是基于 noCopy 实现的
+
+
+```markdown
+为什么 golang 的 waitgroup 需要使用 noCopy 呢？
+
+---
+
+在 Go 语言中，`sync.WaitGroup`类型默认是不能被复制的，这是因为`sync.WaitGroup`内部包含一个互斥锁和一个条件变量，用来实现等待/通知机制。而互斥锁和条件变量是不能被复制的，因为它们是线程安全的对象，复制会导致不可预料的行为。
+
+为了防止`sync.WaitGroup`被误用，Go 语言在其定义中使用了`noCopy`结构体，通过嵌入`noCopy`来禁止对`sync.WaitGroup`进行复制操作。`noCopy`结构体是一个空结构体，它没有任何字段，但是实现了`sync`包中的`noCopy`接口。这样一来，如果尝试对`sync.WaitGroup`进行复制操作，编译器会报告一个错误。
+
+这个设计决策是为了强制程序员遵循正确的使用方式，避免在并发场景中出现潜在的竞态条件和其他问题。通过禁止对`sync.WaitGroup`进行复制，可以确保每个`sync.WaitGroup`对象只在单个 goroutine 中使用，从而避免了共享状态的问题。
+
+```
+
+---
+
+cond 真的很少使用，通常都直接使用 channel
+
+<details>
+<summary></summary>
+
+
+```markdown
+## sync.Cond
+
+:::tip
+
+从开发实践上，我们真正使用 Cond 的场景比较少
+
+因为一旦遇到需要使用 Cond 的场景，我们更多地会使用 chan 的方式去实现 wait/notify 机制，因为那才是更地道的 golang 的写法。对于简单的 wait/notify 场景，比如等待一组 goroutine 完成之后继续执行余下代码，我们会使用 waitgroup 实现，使用简单还不容易出错。
+
+
+---
+
+这里不说 sync.Cond 的具体实现，请看源码：
+
+
+- [go/src/sync/cond.go at master · golang/go](https://github.com/golang/go/blob/master/src/sync/cond.go)
+- [go/src/runtime/sema.go at master · golang/go](https://github.com/golang/go/blob/master/src/runtime/sema.go)
+- [go/src/sync/runtime.go at master · golang/go](https://github.com/golang/go/blob/master/src/sync/runtime.go)
+
+---
+
+- cond 的 broadcast 和 signal 有啥区别？
+
+:::
+
+
+### 有哪些场景是无法被代替的？
+
+- 使用场景？开发中实际使用？
+  - *一个 goroutine 的集合点，等待或者发布一个 event*
+  - 用来协调想要访问共享资源的那些 goroutine，当共享资源的状态发生改变的时候，他可以用来通知被互斥锁阻塞的 goroutine
+  - 等待/通知场景下的并发问题提供支持。Cond 通常应用于等待某个条件的一组 goroutine，等条件变为 true 的时候，其中一个 goroutine 或者所有的 goroutine 都会被唤醒执行。
+  - 实现一个限定容量的队列（queue），当队列满或者空的时候，利用 `等待/通知机制` 实现阻塞或者唤醒
+- *sync.Cond 有哪些场景是无法被代替的？*
+  - Cond 和一个 Locker 关联，可以利用这个 Locker 对相关的依赖条件更改提供保护
+  - Cond 可以同时支持 Signal 和 Broadcast 方法，而 channel 值能同时支持其中一种
+  - Cond 的 Broadcast 方法可以被重复调用，等待条件再次变成不满足的状态后，我们又可以调用 Broadcast 再次唤醒等待的 goroutine。这也是 channel 不支持的，channel 被 close 掉之后不能再打开
+
+
+
+### 使用中常见错误
+
+sync.Cond 的使用
+
+
+- `NewCond` 创建实例
+- `Broadcast` 广播唤醒所有等待该 `条件变量` 的 goroutine
+- `Signal` 唤醒某个 goroutine
+- `Wait` 会把调用者 Caller 放入 Cond 的等待队列中并阻塞，知道被 Signal 或者 Broadcast 的方法从等待队列中移除并唤醒
+
+---
+
+
+- *调用 cond.Wait 方法之前一定要加锁*
+- 另一个常见错误是，*waiter goroutine 被唤醒不等于等待条件被满足*(只调用了一次 Wait，没有检查等待条件是否满足，结果条件没满足，程序就继续执行了)。出现这个问题的原因在于，误以为 Cond 的使用，就像 WaitGroup 那样调用一下 Wait 方法等待那么简单。
+
+
+```
+
+</details>
+
+
+---
+
+
+```markdown
+除此之外，还有保证只调用一次 copyenv 的 envOnce，strings 包下的 Replacer，time 包中的测试，Go 拉取库时的 proxy，net.pipe，crc64，Regexp，……，数不胜数。我给你重点介绍一下很值得我们学习的 math/big/sqrt.go中实现的一个数据结构，它通过Once封装了一个只初始化一次的值：
+```
+
+
+---
+
+
+```markdown
+Go 内建的 map 类型不是线程安全的，所以 Go 1.9 中增加了一个线程安全的 map，也就是 sync.Map。但是，我们一定要记住，这个 sync.Map 并不是用来替换内建的 map 类型的，它只能被应用在一些特殊的场景里。
+
+那这些特殊的场景是啥呢？官方的文档中指出，在以下两个场景中使用 sync.Map，会比使用 map+RWMutex 的方式，性能要好得多：
+
+- 只会增长的缓存系统中，一个 key 只写入一次而被读很多次；
+- 多个 goroutine 为不相交的键集读、写和重写键值对。
+
+这两个场景说得都比较笼统，而且，这些场景中还包含了一些特殊的情况。所以，官方建议你针对自己的场景做性能评测，如果确实能够显著提高性能，再使用 sync.Map。
+
+这么来看，我们能用到 sync.Map 的场景确实不多。即使是 sync.Map 的作者 Bryan C. Mills，也很少使用 sync.Map，即便是在使用 sync.Map 的时候，也是需要临时查询它的 API，才能清楚记住它的功能。所以，我们可以把 sync.Map 看成一个生产环境中很少使用的同步原语。
+```
+
+sync.Map 是用来解决 map 线程不安全问题的，但是 sync.Map 并不能用来代替内建的 map，只能被应用在一些特殊场景。sync.Map 本身也不常用。
+
+
+---
+
+pool
+
+```markdown
+但是，如果你想使用 Go 开发一个高性能的应用程序的话，就必须考虑垃圾回收给性能带来的影响，毕竟，Go 的自动垃圾回收机制还是有一个 STW（stop-the-world，程序暂停）的时间，而且，大量地创建在堆上的对象，也会影响垃圾回收标记的时间。
+
+所以，一般我们做性能优化的时候，会采用对象池的方式，把不用的对象回收起来，避免被垃圾回收掉，这样使用的时候就不必在堆上重新创建了。
+
+不止如此，像数据库连接、TCP 的长连接，这些连接在创建的时候是一个非常耗时的操作。如果每次都创建一个新的连接对象，耗时较长，很可能整个业务的大部分耗时都花在了创建连接上。
+
+所以，如果我们能把这些连接保存下来，避免每次使用的时候都重新创建，不仅可以大大减少业务的耗时，还能提高应用程序的整体性能。
+
+Go 标准库中提供了一个通用的 Pool 数据结构，也就是 sync.Pool，我们使用它可以创建池化的对象。这节课我会详细给你介绍一下 sync.Pool 的使用方法、实现原理以及常见的坑，帮助你全方位地掌握标准库的 Pool。
+
+不过，这个类型也有一些使用起来不太方便的地方，就是它池化的对象可能会被垃圾回收掉，这对于数据库长连接等场景是不合适的。所以在这一讲中，我会专门介绍其它的一些 Pool，包括 TCP 连接池、数据库连接池等等。
+
+除此之外，我还会专门介绍一个池的应用场景：Worker Pool，或者叫做 goroutine pool，这也是常用的一种并发模式，可以使用有限的 goroutine 资源去处理大量的业务数据。
+```
+
+---
+
+
+```markdown
+尽管有很多的争议，但是，在很多场景下，使用 Context 其实会很方便，所以现在它已经在 Go 生态圈中传播开来了，包括很多的 Web 应用框架，都切换成了标准库的 Context。标准库中的 database/sql、os/exec、net、net/http 等包中都使用到了 Context。而且，如果我们遇到了下面的一些场景，也可以考虑使用 Context：
+
+- 上下文信息传递（request-scoped），比如处理 http 请求、在请求处理链路上传递信息；
+- 控制子 goroutine 的运行；
+- 超时控制的方法调用；
+- 可以取消的方法调用。
+
+所以，我们需要掌握 Context 的具体用法，这样才能在不影响主要业务流程实现的时候，实现一些通用的信息传递，或者是能够和其它 goroutine 协同工作，提供 timeout、cancel 等机制。
+```
+
+```markdown
+在使用 Context 的时候，有一些约定俗成的规则。
+
+- 一般函数使用 Context 的时候，会把这个参数放在第一个参数的位置。
+- 从来不把 nil 当做 Context 类型的参数值，可以使用 context.Background() 创建一个空的上下文对象，也不要使用 nil。
+- Context 只用来临时做函数之间的上下文透传，不能持久化 Context 或者把 Context 长久保存。把 Context 持久化到数据库、本地文件或者全局变量、缓存中都是错误的用法。
+- key 的类型不应该是字符串类型或者其它内建类型，否则容易在包之间使用 Context 时候产生冲突。使用 WithValue 时，key 的类型应该是自己定义的类型。
+- 常常使用 struct{}作为底层类型定义 key 的类型。对于 exported key 的静态类型，常常是接口或者指针。这样可以尽量减少内存分配。
+
+其实官方的文档也是比较搞笑的，文档中强调 key 的类型不要使用 string，结果接下来的例子中就是用 string 类型作为 key 的类型。你自己把握住这个要点就好，如果你能保证别人使用你的 Context 时不会和你定义的 key 冲突，那么 key 的类型就比较随意，因为你自己保证了不同包的 key 不会冲突，否则建议你尽量采用保守的 unexported 的类型。
+```
+
+---
+
+
+```markdown
+综合起来，我把 Channel 的应用场景分为五种类型。这里你先有个印象，这样你可以有目的地去学习 Channel 的基本原理。下节课我会借助具体的例子，来带你掌握这几种类型。
+
+- 数据交流：当作并发的 buffer 或者 queue，解决生产者 - 消费者问题。多个 goroutine 可以并发当作生产者（Producer）和消费者（Consumer）。
+- 数据传递：一个 goroutine 将数据交给另一个 goroutine，相当于把数据的拥有权 (引用) 托付出去。
+- 信号通知：一个 goroutine 可以将信号 (closing、closed、data ready 等) 传递给另一个或者另一组 goroutine。
+- 任务编排：可以让一组 goroutine 按照一定的顺序并发或者串行的执行，这就是编排的功能。
+- 锁：利用 Channel 也可以实现互斥锁的机制。
+
+```
+
+
+
+
+
+
 ## ~~《互联网消费金融高并发领域设计》~~
 
 [互联网消费金融高并发领域设计](https://learn.lianglianglee.com/%E4%B8%93%E6%A0%8F/%E4%BA%92%E8%81%94%E7%BD%91%E6%B6%88%E8%B4%B9%E9%87%91%E8%9E%8D%E9%AB%98%E5%B9%B6%E5%8F%91%E9%A2%86%E5%9F%9F%E8%AE%BE%E8%AE%A1)
