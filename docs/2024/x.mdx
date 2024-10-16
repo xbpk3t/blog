@@ -1,9 +1,807 @@
 ---
-title: 存档log-xxx中精华内容
+title: 【存档】log-xxx中精华内容
 slug: /2024/x
 date:  2024-10-14
+tags: [archive]
 unlisted: true
 ---
+
+
+
+
+## GMP
+
+### 进程、线程、用户态线程
+
+```markdown
+
+### 协程是什么？为什么协程会被称为“用户态线程”？
+
+- 协程就是用户态线程，本质就是用户态自己切换 CPU，在协程这一层次，线程=CPU。
+- *线程分为内核态线程和用户态线程，用户态线程指的就是协程 (所以，狭义上，我们只把内核态线程称为线程)*，用户态线程需要绑定内核态线程，CPU 只能感知到内核态线程，感知不到用户态线程。
+- 线程的调度是 OS 实现的，对开发者不可见，而协程是在用户态实现的，对开发者可见。这就是为什么协程会被称为“用户态线程”。我们自己可以控制协程的调度。
+- 因为协程会在函数被暂停执行时，保存函数的运行状态，并且可以从保存的状态中恢复并继续运行。这不就是 OS 对线程的调度吗？线程也可以被暂停，操作系统保存线程运行状态，然后去调度其他线程。此后，该线程再次被分配 CPU 时还可以继续运行，就像没有被暂停过一样。
+
+
+### 协程的使用场景？
+
+*协程的使用场景，主要是 IO 密集型*。IO 密集型程序，CPU 利用率很低，使用协程，可以让用户按照实际情况调度，充分利用 CPU，在当前多核 CPU 的架构中非常重要。
+
+
+### 协程和线程有哪几种映射关系？
+
+- *用户线程和内核线程`1:1`*，一个用户线程映射一个内核线程，所以用户空间的切换就涉及到内核线程的切换，1 个协程绑定 1 个线程，这种最容易实现。协程的调度都由 CPU 完成了，不存在 N:1 缺点，但有一个缺点是协程的创建、删除和切换的代价都由 CPU 完成，有点略显昂贵了
+- *用户线程和内核线程`N:1`*，`1:1 模型`的性能开销较大，而且受限于线程数量的限制，而`N:1`的模型在用户空间完成线程间的同步、销毁、切换，对于内核来说是完全透明的，不涉及线程的切换。N 个协程绑定 1 个线程，优点就是协程在用户态线程即完成切换，不会陷入到内核态，这种切换非常的轻量快速。但也有很大的缺点，1 个进程的所有协程都绑定在 1 个线程上，一是某个程序用不了硬件的多核加速能力，二是一旦某协程阻塞，造成线程阻塞，本进程的其他协程都无法执行了，根本就没有并发的能力了
+- *用户线程和内核线程`M:N`*，`N:1`的缺点是 OS 无法感知到用户态的线程，所以可能造成一个线程被阻塞，导致整个进程被阻塞挂掉，`M:N 模型`就解决了这个问题，也是实现原生协程的关键。M 个协程绑定 N 个线程，是 N:1 和 1:1 类型的结合，克服了以上 2 种模型的缺点，但实现起来最为复杂
+
+
+两大思想
+
+- 复用线程：协程本身就是运行在一组线程之上，不需要频繁的创建、销毁线程，而是对线程的复用。在调度器中复用线程还有 2 个体现：
+  1）work stealing，当本线程无可运行的 G 时，尝试从其他线程绑定的 P 偷取 G，而不是销毁线程。
+  2）hand off，当本线程因为 G 进行系统调用阻塞时，线程释放绑定的 P，把 P 转移给其他空闲的线程执行。
+- 利用并行：GOMAXPROCS 设置 P 的数量，当 GOMAXPROCS 大于 1 时，就最多有 GOMAXPROCS 个线程处于运行状态，这些线程可能分布在多个 CPU 核上同时运行，使得并发利用并行。另外，GOMAXPROCS 也限制了并发的程度，比如 GOMAXPROCS = 核数/2，则最多利用了一半的 CPU 核进行并行。
+
+
+```
+
+
+
+### GMP 调度器
+
+
+:::tip
+
+*GMP 调度策略（不如说是 goroutine 的“生老病死”更合适，几个方面都概括到了）？*
+
+*GMP 是 golang 实现 CSP 并发模型的一种方案*
+
+- `G代表协程`，每次 go 调用的时候，都会创建一个协程对象
+- `M代表内核线程Machine`，每次创建一个 M 的时候，都会有一个底层线程创建；所有的 G 任务，最终还是在 M 上执行
+- `P代表调度器Processor`，每个运行的 M 都必须绑定一个 P，就像线程必须在一个 CPU 核上执行一样
+
+线程由 CPU 调度是抢占式的，而协程由用户态调度是协作式的 (一个协程让出 CPU 之后，才执行下一个协程)
+
+:::
+
+
+
+
+
+- GMP 模型里，G 和 M 直接绑定就可以了，为什么要有 P？(抢占式调度器相较于之前调度器的优势？) 能不能不要 P？为什么不在 M 上直接实现本地队列和工作窃取，而是用 P 实现？
+
+
+
+
+
+~~可以把 GMP 类比成生产线，G 就是流水线上的小工，M 就是流水线~~
+
+
+
+
+
+```markdown
+scheduler 底层原理 #
+实际上在操作系统看来，所有的程序都是在执行多线程。将 goroutines 调度到线程上执行，仅仅是 runtime 层面的一个概念，在操作系统之上的层面。
+
+有三个基础的结构体来实现 goroutines 的调度。g，m，p。
+
+g 代表一个 goroutine，它包含：表示 goroutine 栈的一些字段，指示当前 goroutine 的状态，指示当前运行到的指令地址，也就是 PC 值。
+
+m 表示内核线程，包含正在运行的 goroutine 等字段。
+
+p 代表一个虚拟的 Processor，它维护一个处于 Runnable 状态的 g 队列，m 需要获得 p 才能运行 g。
+
+当然还有一个核心的结构体：sched，它总览全局。
+
+Runtime 起始时会启动一些 G：垃圾回收的 G，执行调度的 G，运行用户代码的 G；并且会创建一个 M 用来开始 G 的运行。随着时间的推移，更多的 G 会被创建出来，更多的 M 也会被创建出来。
+
+当然，在 Go 的早期版本，并没有 p 这个结构体，m 必须从一个全局的队列里获取要运行的 g，因此需要获取一个全局的锁，当并发量大的时候，锁就成了瓶颈。后来在大神 Dmitry Vyokov 的实现里，加上了 p 结构体。每个 p 自己维护一个处于 Runnable 状态的 g 的队列，解决了原来的全局锁问题。
+```
+
+```markdown
+Go scheduler 的核心思想是：
+
+reuse threads；
+限制同时运行（不包含阻塞）的线程数为 N，N 等于 CPU 的核心数目；
+线程私有的 runqueues，并且可以从其他线程 stealing goroutine 来运行，线程阻塞后，可以将 runqueues 传递给其他线程。
+```
+
+
+### GMP changelog
+
+```markdown
+
+今天的 Go 语言调度器有着优异的性能，但是如果我们回头看 Go 语言的 0.x 版本的调度器会发现最初的调度器不仅实现非常简陋，也无法支撑高并发的服务。调度器经过几个大版本的迭代才有今天的优异性能，历史上几个不同版本的调度器引入了不同的改进，也存在着不同的缺陷：
+
+单线程调度器 · 0.x
+ 只包含 40 多行代码；
+ 程序中只能存在一个活跃线程，由 G-M 模型组成；
+
+多线程调度器 · 1.0
+ 允许运行多线程的程序；
+ 全局锁导致竞争严重；
+
+任务窃取调度器 · 1.1
+ 引入了处理器 P，构成了目前的 G-M-P 模型；
+ 在处理器 P 的基础上实现了基于工作窃取的调度器；
+ 在某些情况下，Goroutine 不会让出线程，进而造成饥饿问题；
+ 时间过长的垃圾回收（Stop-the-world，STW）会导致程序长时间无法工作；
+
+抢占式调度器 · 1.2 ~ 至今
+ 基于协作的抢占式调度器 - 1.2 ~ 1.13
+  通过编译器在函数调用时插入抢占检查指令，在函数调用时检查当前 Goroutine 是否发起了抢占请求，实现基于协作的抢占式调度；
+  Goroutine 可能会因为垃圾回收和循环长时间占用资源导致程序暂停；
+
+ 基于信号的抢占式调度器 - 1.14 ~ 至今
+  实现基于信号的真抢占式调度；
+  垃圾回收在扫描栈时会触发抢占调度；
+  抢占的时间点不够多，还不能覆盖全部的边缘情况；
+
+非均匀存储访问调度器 · 提案
+ 对运行时的各种资源进行分区；
+ 实现非常复杂，到今天还没有提上日程；
+
+
+除了多线程、任务窃取和抢占式调度器之外，Go 语言社区目前还有一个非均匀存储访问（Non-uniform memory access，NUMA）调度器的提案。在这一节中，我们将依次介绍不同版本调度器的实现原理以及未来可能会实现的调度器提案。
+
+```
+
+```markdown
+运行时 G-M-P 模型中引入的处理器 P 是线程和 Goroutine 的中间层，我们从它的结构体中就能看到处理器与 M 和 G 的关系：
+
+处理器持有一个由可运行的 Goroutine 组成的环形的运行队列 runq，还反向持有一个线程。调度器在调度时会从处理器的队列中选择队列头的 Goroutine 放到线程 M 上执行。如下所示的图片展示了 Go 语言中的线程 M、处理器 P 和 Goroutine 的关系。
+
+基于工作窃取的多线程调度器将每一个线程绑定到了独立的 CPU 上，这些线程会被不同处理器管理，不同的处理器通过工作窃取对任务进行再分配实现任务的平衡，也能提升调度器和 Go 语言程序的整体性能，今天所有的 Go 语言服务都受益于这一改动。
+```
+
+```markdown
+Go 语言的调度器在最初的几个版本中迅速迭代，但是从 1.2 版本之后调度器就没有太多的变化，直到 1.14 版本引入了真正的抢占式调度才解决了自 1.2 以来一直存在的问题。在可预见的未来，Go 语言的调度器还会进一步演进，增加触发抢占式调度的时间点以减少存在的边缘情况。
+```
+
+
+
+
+### *GMP 运行机制/调度流程：golang 目前异步抢占的整体流程？*
+
+```markdown
+给正在运行的两个线程命名为 M1 和 M2
+M1 发送中断信号 (`signalM(mp, sigPreempt)`)
+M2 收到信号，操作系统中断其执行代码，并切换到信号处理函数 (`sighandler(signum, info, ctxt, gp)`)
+M2 修改执行的上下文，并恢复到修改后的位置 (`asyncPreempt`)
+重新进入调度循环，而调度其他协程 (`preemptPark`和`gopreempt_m`)
+
+```
+
+
+```markdown
+
+### CHANGELOG
+
+- 老调度器只有 M 和 G(全局协程队列)，存在很多问题。
+- 新调度器引入了`Processor`包含了运行协程的资源，如果线程想运行协程，需要先获取 P，P 中还包含了可运行的 G 队列
+- `工作窃取 work stealing`是用来解决 process 的问题的，当 M 绑定的 P 没有可以运行的 G 时，可以从其他运行的 M，偷取 G
+
+*协作式的抢占式调度，基于信号的抢占式调度器*
+
+```
+
+
+
+## map
+
+
+:::tip
+
+本文可以看作是对 [hashmap | Go 程序员面试笔试宝典](https://golang.design/go-questions/map/) 的整理和总结
+
+:::
+
+
+### golang map的实现原理
+
+在开始介绍golang map的实现原理之前，先用几个问题热热身，调动一下我们对于map的基本认知
+
+- map有哪几种实现方法？hashtable和search-tree有啥区别？为啥目前大部分语言都用hashmap而非search-tree?
+- 实现hashtable的keypoints?
+
+
+***keypoints 无非是 hash func, load factor, hash-collision, 双桶, 渐进式rehash***
+
+
+```go
+type hmap struct {
+ count     int
+ flags     uint8
+ B         uint8
+ noverflow uint16
+ hash0     uint32
+ buckets    unsafe.Pointer
+ oldbuckets unsafe.Pointer
+ nevacuate  uintptr
+ extra *mapextra // optional fields
+}
+```
+
+参照golang map源码就可以看到
+
+- hash0 就是 hash func
+- buckets, oldbuckets 就是双桶
+- B 就是 load factor
+
+除此之外，就是 count, flags, noverflow, nevacuate
+
+[map.png]
+
+[bmap-ds.png]
+
+可以看到bmap的kv不是 k/v/k/v/... 这种格式，而是 k/k/v/v/... 这种格式，是为了节省内存。因为k/v这种格式的话，每组之间都需要padding，如果 k/k/v/v 的话，则每个bucket共享一个padding即可
+
+
+
+```markdown
+每个 bucket 设计成最多只能放 8 个 key-value 对，如果有第 9 个 key-value 落入当前的 bucket，那就需要再构建一个 bucket ，通过 overflow 指针连接起来。
+```
+
+```markdown
+哈希表的每个桶都只能存储 8 个键值对，一旦当前哈希的某个桶超出 8 个，新的键值对就会存储到哈希的溢出桶中。随着键值对数量的增加，溢出桶的数量和哈希的装载因子也会逐渐升高，超过一定范围就会触发扩容，扩容会将桶的数量翻倍，元素再分配的过程也是在调用写操作时增量进行的，不会造成性能的瞬时巨大抖动。
+```
+
+每个bucket(也就是bmap)只存储8个kv，超出就放到新bucket
+
+
+
+
+
+#### 遍历过程
+
+
+### 扩容机制
+
+
+```markdown
+查看 hashGrow() 以及 渐进式扩容 growWork().
+
+当 map 的负载因子超过预设的阈值（通常是 6.5）或者溢出桶（overflow buckets）数量过多时，Go 会触发 map 的扩容机制。
+
+- *为什么需要扩容？* 随着 map 中元素的增加，发生哈希冲突的概率会增加，Map 的读写性能也会下降，所以我们需要更多的桶和更大的内存来保证 Map 的读写性能。
+- *具体怎么扩容？有哪些扩容策略？* 在实际应用中，当装载因子超过某个阈值时，会动态地增加 Map 长度，实现自动扩容。map 长度变化，所有 key 在 map 中对应的索引都需要重新计算；但是一次性完成扩容的性能太差，所以需要渐进式扩容；
+
+
+
+- `装载因子`和`溢出桶的数量`是决定哈希表是否进行扩容的关键指标；
+- 扩容实际上是以空间换时间的手段，在 map 将要添加、修改或者删除 key 时，都会检查是否需要扩容；
+- 扩容分为增量扩容和等量扩容；增量扩容，会直接把桶的个数增加一倍，把原来一个桶的 key 重新分配到两个桶中；等量扩容，不会更改桶的个数，只会把桶中的数据变得紧凑；
+- 扩容过程是渐进式的，主要是防止一次扩容需要搬迁太多 key，引发性能问题；
+- 触发扩容的时机是增加了新元素，桶搬迁的时机则发生在赋值、删除期间，每次最多搬迁两个桶。*查找、赋值、删除的一个很核心的内容是如何定位到 key 所在的位置，需要重点理解。*
+```
+
+
+### 缩容机制
+
+```markdown
+伪缩容，因为map 的扩缩容的主要区别在于 hmap.B 的容量大小改变，而缩容由于 hmap.B 压根没变，内存空间的占用也是没有变化的（具体来说就是，在删除元素时，并不会释放内存），所以一定不要往 golang 的 map 中塞入太多数据。
+
+若是扩容，则 bigger 为 1，也就是 B+1。代表 hash 表容量扩大 1 倍。不满足就是缩容，也就是 hash 表容量不变。可以得出结论：map 的扩缩容的主要区别在于 hmap.B 的容量大小改变。而缩容由于 hmap.B 压根没变，内存空间的占用也是没有变化的。
+```
+
+
+
+
+
+
+### SwissMapType
+
+[[go] all: split old and swiss map abi and compiler integration](https://groups.google.com/g/golang-checkins/c/YkzdsibwrPg?pli=1)
+
+[all: split old and swiss map abi and compiler integration (580779) · Gerrit Code Review](https://go-review.googlesource.com/c/go/+/580779)
+
+[SwissMap(Go外部哈希表)](http://pekue.top/2023/03/14/tool_swissmap/)
+
+把之前的 src/runtime/hashmap.go 拆成了 src/runtime/map_noswiss.go 和 src/runtime/map_swiss.go 两个，为了更好的compiler编译
+
+
+
+
+
+### sync.Map
+
+
+### sync.Map
+
+优点：
+
+- *通过读写分离，降低锁时间来提高效率，尤其适合读多写少的场景*
+- 空间换时间。通过冗余的两个数据结构 (read、dirty)，实现加锁对性能的影响
+- 使用只读数据 (read)，避免读写冲突。
+- 动态调整，miss 次数多了之后，将 dirty 数据提升为 read。
+- double-checking。
+- 延迟删除。删除一个 kv 只是打标记，只有在提升 dirty 的时候才清理删除的数据。
+- 优先从 read 读取、更新、删除，因为对 read 的读取不需要锁。
+
+缺点：
+
+*sync.Map 不适于大量写的场景（读操作性能好）*，这样会导致 read map 时读不到数据而进一步加锁读取，而 dirty map 也会一直晋升为 read map，整体性能较差
+
+
+
+---
+
+
+
+```markdown
+
+### 实现
+
+实际上 sync.Map 有两个 map 构成，一个用于读（dirty），一个用于写（read）。用于写的叫 dirty，采用互斥锁进行加锁，对于只读的数据会先读提供读的 map，然后才会去读 dirty。
+
+为了优化 sync.Map 的性能，还提供了一个 missed 计数，用于来决策何时将 dirty 中的元素变成只读的 map 元素等操作。
+
+---
+
+- read 和 dirty 是共享内存的，尽量减少冗余内存的开销。
+- read 是原子性的，可以并发读，写需要加锁。
+- 读的时候先 read 中取，如果没有则会尝试去 dirty 中读取（需要有标记位 readOnly.amended 配合）
+- dirty 就是原生 Map 类型，需要配合各类锁读写。
+- 当 read 中 miss 次数等于 dirty 长度时，dirty 会提升为 read，并且清理已经删除的 k-v（延迟更新，具体如何清理需要 enrty 中的 p 标记位配合）
+- 双检查（在加锁后会再次对值检查一遍是否依然符合条件）
+- sync.Map 适用于读多写少的场景。
+- sync.Map 没有提供获取长度 size 的方法，需要通过遍历来计算。
+
+
+```
+
+
+---
+
+
+```markdown
+### 对比
+
+- map 不支持并发是因为当赋值和删除时，是置写操作位。当置了之后有别的协程用任何操作进行时都会报错。如果想要 map 线程安全，解决方案是用 sync.map，或者互斥锁/读写锁+map
+- sync.map 使用了读写分离来去保证线程安全的，sync.map 的数据结构分为读 map、写 map、还有互斥锁以及一个记录穿透次数的值。具体实现是每个协程来读取时，都会先读取读部分的 kv，没有则去读写部分的 kv(操作写部分时都会上锁)。当穿透到写部分的次数大于写部分的长度时，就会将写部分同步到读部分，并且把写部分清空。所以多协程下一般都会先打到无锁的读部分，这能保证读取性能。
+
+
+主要是基于性能考虑，如果只是为少数程序增加安全性，导致 map 所有的操作都要处理 mutex，将会降低大多数程序的性能。
+
+```
+
+
+### ref
+
+- [map| Go 语言设计与实现](https://draveness.me/golang/docs/part2-foundation/ch03-datastructure/golang-hashmap/)
+
+[Redis和Go中map的异同_go的map 和 redis的map实现有啥共同点吗-CSDN博客](https://blog.csdn.net/tptpppp/article/details/103510214)
+
+[redis渐进式rehash机制 - 割肉机 - 博客园](https://www.cnblogs.com/williamjie/p/11205593.html)
+
+
+[iface 和 eface 的区别是什么 | Go 程序员面试笔试宝典](https://golang.design/go-questions/interface/iface-eface/)
+
+[Go 语言切片的实现原理 | Go 语言设计与实现](https://draveness.me/golang/docs/part2-foundation/ch03-datastructure/golang-array-and-slice/)
+
+[cch123/golang-notes: Go source code analysis(zh-cn)](https://github.com/cch123/golang-notes?tab=readme-ov-file)
+
+[golang-notes/map.md at master · cch123/golang-notes](https://github.com/cch123/golang-notes/blob/master/map.md#%E5%88%A0%E9%99%A4)
+
+
+
+
+
+## 互斥锁 Mutex
+
+```markdown
+
+### mutex 有哪两种模式？
+
+- `正常模式` 阻塞等待的 goroutine 保存在 FIFO 队列中，唤醒的 goroutine 不直接拥有锁，需要与新来的 goroutine 竞争获取锁。因为新来的 goroutine 很多已经占有了 CPU，所以唤醒的 goroutine 在竞争中很容易输；但如果一个 goroutine 获取锁失败超过 1ms，则会将 Mutex 切换为饥饿模式。
+- `饥饿模式` 直接将`等待队列中队头的 goroutine`直接解锁，新来的 goroutine 也不会尝试获得锁，而是直接插入到`等待队列的队尾`。
+
+
+### *mutex 的实现机制？*
+
+临界区
+
+两个并发进程尝试访问相同的内存资源，他们访问内存的方式不是原子的，就会出现竞争;
+用 mutex 在临界区加锁，来保证内存访问不出错;
+
+- 为了避免线程安全问题，把一部分程序保护起来，这部分程序就称为“临界区”。临界区就是一个被共享的资源，或者说是一个整体的一组共享资源。（比如对数据库的访问、对某一个共享数据结构的操作、对一个 I/O 设备的使用、对一个连接池中的连接的调用）
+- *使用互斥锁，限定临界区只能同时由一个线程持有*
+
+*mutex 底层使用 atomic 包中的 CAS 操作来保证加锁时的原子性，CAS 底层就是通过 LOCK+CMPXCHGL 汇编指令实现的*
+
+[每行代码都带注释，带你看懂 Go 互斥锁的源码](https://mp.weixin.qq.com/s?__biz=MzUzNTY5MzU2MA==&mid=2247495599&idx=1&sn=688a32a841c08ab02d453cfcee77c95a)
+
+```
+
+
+
+## 读写锁 RWMutex
+
+```markdown
+
+- 用读写锁解决在读多写少场景下，互斥锁的性能问题，也就是`readers-writers 问题`（同时有多个读或者多个写，但是只要有一个线程在执行写操作，其他线程都不能执行读写操作）
+- 使用场景：可以明确区分 reader 和 writer goroutine 的场景，且有大量的并发读、少量的并发写，并且有强烈的性能需求，你就可以考虑使用读写锁替换互斥锁。
+
+
+### RWMutex 的设计方案
+
+- *RWMutex 使用`写优先`方案，一个正在阻塞的 Lock 调用会排除新的 reader 请求到锁*
+- `读优先 read-preferring`读优先的设计可以提供很高的并发性。但是，在竞争激烈的情况下可能会导致写饥饿。因为，如果有大量的读，这种设计会导致只有所有的读都释放了锁之后，写才可能获取到锁。
+- `写优先 write-preferring`写优先的设计，如果已经有一个 writer 在等待请求锁的话，他会阻止新来的请求锁的 reader 获取到锁，所以优先保障 writer。当然，如果有一些 reader 已经请求了锁，新请求的 writer 也会等待已经存在的 reader 都释放锁之后才能获取。所以，写优先级设计中的优先权，是针对新来的请求而言的。这种设计主要为了避免 writer 的饥饿问题。
+- `不指定优先级`这种设计比较简单，不区分 reader 和 writer 的优先级。*某些场景下这种不指定优先级的设计反而更有效，因为读优先会导致写饥饿，写优先会导致读饥饿。这种不指定优先级的访问，解决了饥饿的问题。*
+
+```
+
+
+## sync.WaitGroup
+
+```markdown
+
+- WaitGroup 是 sync 包用来做任务编排的并发原语。他解决的是`并发 - 等待`的问题。比如：我们要完成一个大的任务，需要使用并行的 goroutine 执行三个小任务，只有这三个小任务都完成，我们才能去执行后面的任务
+- WaitGroup 阻塞等待的 goroutine，等三个小任务都完成了，再唤醒他们
+
+---
+
+- 要看懂 WaitGroup 的源码实现，我们需要有一些前置知识，例如`信号量`、`内存对齐`、`原子操作`、`移位运算`和`指针转换`等
+- 但其实 WaitGroup 的实现思路还是蛮简单的，
+
+通过结构体字段`state1`维护了两个计数器和一个信号量，计数器分别是通过`Add()`添加的子 goroutine 的计数值 counter，通过`Wait()`陷入阻塞的 waiter 数，信号量用于阻塞与唤醒 Waiter。
+
+当执行`Add(positive n)`时，counter +=n，表明新增 n 个子 goroutine 执行任务。
+
+每个子 goroutine 完成任务之后，需要调用`Done()`函数将 counter 值减 1，当最后一个子 goroutine 完成时，counter 值会是 0，此时就需要唤醒阻塞在`Wait()`调用中的 Waiter
+
+```
+
+
+```markdown
+### wg 常见错误用法？
+
+
+- *不要在循环里调用 wg.Wait()，否则会阻塞，导致无法执行后面的循环*
+- 通过 Add() 函数添加的 counter 数一定要与后续通过 Done() 减去的数值一致。如果前者大，那么阻塞在 Wait() 调用处的 goroutine 将永远得不到唤醒；如果后者大，将会引发 panic
+- Add() 的增量函数应该最先得到执行。
+- 不要对 WaitGroup 对象进行复制使用。如果要复用 WaitGroup，则必须在所有先前的 Wait() 调用返回之后再进行新的 Add() 调用
+- 计数器设置为负值
+- 不期望的 Add 时机
+- 前一个 wait 还没结束就重用 WaitGroup
+
+wg.Done 一定要写在 gofunc 里，一定要加 defer，确保在该区块内最后执行
+
+
+```
+
+
+
+
+
+
+
+## golang 内存管理
+
+
+### **golang 的内存管理？**
+
+内存管理有哪些组件？golang 的内存管理组件？
+
+:::tip
+
+内存管理=分配 + 回收
+
+*狭义上来说，内存管理只针对堆内存而言。栈内存由编译器自动分配和回收（比如说栈上的函数参数、局部变量、调用函数栈），这些都自动随着函数创建而分配，随着函数执行完成而销毁。*
+
+- 栈内存管理（由编译器管理）
+	- 堆内存管理（由开发者和编译器共同管理）
+	- 内存分配（申请内存，内存分配器 Allocator）
+	- 内存回收 GC
+
+:::
+
+- *`内存管理器 TCMalloc`+`逃逸分析`+`垃圾回收`*
+- golang 的内存管理借鉴了 TCMalloc，但是随着 golang 的迭代，内存管理与 TCMalloc 不同的地方越来越多，但是*其主要思想、原理和概念都和 TCMalloc 一致*
+
+---
+
+- `mutator`用户程序
+- `allocator`分配器
+- `collector`收集器
+- *当 mutator 申请内存时，会通过 allocator 申请新内存，而 allocator 会负责从堆中初始化相应的内存区域*
+
+---
+
+
+
+内存管理组件
+
+- `mspan`*内存管理的基础单元，直接存储数据的地方*，就是方便根据对象大小来分配使用的内存块，一共有 67 种类型，用来解决内存碎片问题，提高内存使用率
+- `mcache`*线程缓存，为每个逻辑处理器 P 提供一个本地 span 缓存*，每个运行期的协程都会绑定的一个 mcache(具体来讲是绑定的 GMP 并发模型中的 P，所以可以无锁分配 mspan)，mcache 会分配协程运行中所需要的内存空间 (mspan)
+- `mcentral`*中心缓存，被所有的逻辑处理器 P 共享*，mcentral 为所有 mcache 切分好后备的 mspan
+- `mheap`*页堆，可以认为是 golang 程序持有的整个堆空间，mheap 全局唯一*，还会管理闲置的 span，需要时向 OS 申请新内存
+
+
+
+
+
+
+### TCMalloc 是什么？TCMalloc 怎么进行内存分配？
+
+TCMalloc(Thread Caching Malloc)
+
+*TCMalloc 的核心思想是，切分内存多级管理降低锁粒度*(把内存切成几块，通过多级管理降低锁的粒度)；将可用的堆内存采用二级分配的方式进行管理：每个线程都会维护一个独立的内存池，进行内存分配时优先从该内存池中分配，当内存池不足时，才会向全局内存池申请，以避免不同线程对全局内存池的频繁竞争；
+
+TCMalloc 把内存分成若干大小的 class 块，这种算法由于需要将对象的内存映射到最接近的 class，因此会有内存浪费的问题。但是分成的若干级别可以 free-lock 进行访问，这在多线程程序中，性能会大大提升。
+
+*使用多级缓存将对象大小分类，并按照类别使用不同的分配策略*
+
+
+
+---
+
+*为每个线程预先分配一块缓存，线程申请小内存时，可以从缓存分配内存*，这样有 3 个好处：
+
+- *引入虚拟内存后，让内存的并发访问问题的粒度从多进程级别，降低到多线程级别*，这是快速分配内存的第一个层次
+- 为线程预分配缓存需要进行一次系统调用，后续线程申请小内存时，从缓存分配，都是在用户态执行，没有系统调用，*缩短了内存总体的分配和释放时间*，这是快速分配内存的第二个层次
+- 多个线程同时申请小内存时，从各自的缓存分配，访问的是不同的地址空间，无需加锁，*把内存并发访问的粒度进一步降低了*，这是快速分配内存的第三个层次
+
+
+
+---
+
+- `对小于16B的微对象`(`tiny allocations`)，通过 mcache 分配，分配的对象都是不包含指针的，例如一些小的字符串和不包含指针的独立的逃逸变量等。
+- `对大于32K的大对象`(`large allocations`)，通过 mheap 分配
+- `对大于16B，小于32K的小对象`(`small allocations`)，从 mcache 到 mcentral 到 mheap 依次判断是否有可用块，如果有就分配，没有就向下一级申请。如果 mheap 依然没有，就向 OS 申请一系列新页，如果 mheap 有了，就根据 BestFit 算法找到最合适的 mspan，如果申请到的 mspan 超出申请大小，将会根据需求切分以返回所需页数，剩余页数构成一个新的 mspan，放回 mheap 的空闲列表
+
+---
+
+TCMalloc 内存管理
+
+- 线程内存
+- 页堆
+
+---
+
+
+```markdown
+TCMalloc may operate in one of two fashions:
+
+- (default) per-CPU caching, where TCMalloc maintains memory caches local to individual logical cores. Per-CPU caching is enabled when running TCMalloc on any Linux kernel that utilizes restartable sequences (RSEQ). Support for RSEQ was merged in Linux 4.18.
+- per-thread caching, where TCMalloc maintains memory caches local to each application thread. If RSEQ is unavailable, TCMalloc reverts to using this legacy behavior.
+
+NOTE: the “TC” in TCMalloc refers to Thread Caching, which was originally a distinguishing feature of TCMalloc; the name remains as a legacy.
+
+In both cases, these cache implementations allows TCMalloc to avoid requiring locks for most memory allocations and deallocations.
+```
+
+所以现在TCMalloc应该改名为CCMalloc(CPU Caching Malloc)
+
+
+
+### 内存可见性和 happens-before
+
+
+前面操作的结果对后续操作是可见的，对逻辑顺序的保证，是 golang 给出的保证，只要遵守这 5 点准则，就能保证内存可见性，解决`协程并发安全问题`
+
+- `go 初始化`，优先执行 init() 函数
+- `协程创建和销毁`保证创建顺序，不保证销毁顺序
+- `channel 的收发`，一共 4 条规则，不多说
+- `locks`
+- `once`
+
+[Happens before 原则在 Go 内存模型中的应用举例](https://mp.weixin.qq.com/s?__biz=MzUzNTY5MzU2MA==&mid=2247496821&idx=1&sn=0bf417c024cfc3bb0467ebf34a0c22b1)
+
+
+### golang 内存结构
+
+:::tip
+基于 TCMalloc
+:::
+
+
+Go 在程序启动时 先向操作系统申请一块内存，并将其分配到三个区域：
+
+- arena 区域 (512GB，64 位操作系统)，即堆区，Go 动态分配的内存都在该区域，其将内存分割成 8KB 大小的页，一些页组合起来称为 mspan
+- bitmap 区域 (16GB)，标识 arena 区域哪些地址保存了对象，并用 4bit 标志位表示对象是否包含指针、GC 标记信息。bitmap 中一个 byte 大小的内存对应 arena 区域中 4 个指针大小（指针大小为 8B）的内存，所以 bitmap 区域的大小是 512GB/(4*8B)=16GB
+- spans 区域 (512MB)：存放 mspan（arena 分割的页组合起来的内存管理基本单元）的指针，每个指针对应一页，所以 spans 区域的大小就是 512GB/8KB*8B=512MB。(除以 8KB 是计算 arena 区域的页数，而最后乘以 8 是计算 spans 区域所有指针的大小。创建 mspan 的时候，按页填充对应的 spans 区域，在回收 object 时，根据地址很容易就能找到它所属的 mspan)
+
+mspan 是 Go 内存管理的基本单元，mspan 是由一片连续的 8KB 的页组成的大块内存。这里的页和操作系统本身的页不是一回事，它一般是操作系统页大小的几倍。即 mspan 是一个包含起始地址、mspan 规格、页的数量等内容的双端链表
+
+
+
+
+
+## golang others
+
+
+### golang CHANGELOG
+
+```markdown
+
+> golang1.14
+
+- interface 的菱形组合
+
+> golang1.16
+
+- `go:embed`支持静态资源嵌入
+- 在 Linux 下的默认内存管理策略会从`MADV_FREE`改回`MADV_DONTNEED`策略
+- 模块版本回撤`mod edit -retract=xxx`
+- 废弃 io/ioutil
+- 新增 io/fs
+- 调整 slice 的扩容策略
+
+> golang1.17
+
+- 编译器性能提升 5%，*从基于`Plan9 ABI`的`堆栈调用约定`改为`调用惯例`，也就是，从原有的基于堆栈的函数参数和结果传递的方式改为基于寄存器的函数参数和结果传递*，在性能上，现在直接存储和计算都在寄存器上，和以前基于堆栈存储，再计算相比，现在这种模式势必是性能更优的。
+- gomod 的直接依赖和间接依赖分开，以及延时模块加载 (间接依赖模块在真正需要时才加载)
+- 切片转指针
+
+> golang1.18
+
+- 泛型
+- 给互斥锁加了 TryLock 方法
+- fuzz test
+
+> golang1.19
+
+- 内存模型：（这个没看懂，再看看）
+- 引入 Soft memory limit，来优化 GOGC
+
+---
+
+- [万字长文告诉你 Go 1.19 中值得关注的几个变化](https://mp.weixin.qq.com/s?__biz=MzAxMTA4Njc0OQ==&mid=2651453407&idx=1&sn=97785ac0e80ad80b9c42f6021669656e)
+
+> golang1.20
+
+golang1.20 是 golang1.18 之后最大的语法变化，其中最大的 feat 就是“允许切片直接转换为数组”和编译器优化技术 PGO
+
+- *slice 转数组（byte slice 和 string 的转换优化）*
+- 添加 interface 作为 Comparable 类型，之后就可以直接比较 interface 了（之前版本会编译报错，因为*golang 泛型里 comparable 这个类型约束有个坑，就是和 golang 里定义的可比较类型不一致*）
+- *unsafe 包添加了 Slice() SliceData() String() StringData() 函数，用来构造和解构 slice 和 string*
+- ~~值比较~~
+- context 包添加 context.WithCancelCause() 支持自定义取消 [Go1.20 新特性：context 支持自定义取消原因](https://mp.weixin.qq.com/s?__biz=MzAxMTA4Njc0OQ==&mid=2651453958&idx=1&sn=a063f923ee4ebb53da951e18faee9628)
+- 拓展测试覆盖率 coverage 到应用整体
+- time 包加了三个时间 layout 格式常量，以后直接用`DateTime`/`DateOnly`/`TimeOnly`即可
+- 支持 wrapping 多个 errors
+
+---
+
+除此之外还有：
+
+- 编译器优化技术 PGO
+- arean 手动管理内存
+
+
+```
+
+
+
+
+
+
+
+### zzz
+
+
+
+```markdown
+
+谈到 goroutine，绕不开的一个话题是：它和 thread 有什么区别？
+
+参考资料【How Goroutines Work】告诉我们可以从三个角度区别：内存消耗、创建与销毀、切换。
+
+
+内存占用
+创建一个 goroutine 的栈内存消耗为 2 KB，实际运行过程中，如果栈空间不够用，会自动进行扩容。创建一个 thread 则需要消耗 1 MB 栈内存，而且还需要一个被称为“a guard page”的区域用于和其他 thread 的栈空间进行隔离。
+
+对于一个用 Go 构建的 HTTP Server 而言，对到来的每个请求，创建一个 goroutine 用来处理是非常轻松的一件事。而如果用一个使用线程作为并发原语的语言构建的服务，例如 Java 来说，每个请求对应一个线程则太浪费资源了，很快就会出 OOM 错误（OutOfMemoryError）。
+
+创建和销毀
+Thread 创建和销毀都会有巨大的消耗，因为要和操作系统打交道，是内核级的，通常解决的办法就是线程池。而 goroutine 因为是由 Go runtime 负责管理的，创建和销毁的消耗非常小，是用户级。
+
+切换
+当 threads 切换时，需要保存各种寄存器，以便将来恢复：
+
+16 general purpose registers, PC (Program Counter), SP (Stack Pointer), segment registers, 16 XMM registers, FP coprocessor state, 16 AVX registers, all MSRs etc.
+
+而 goroutines 切换只需保存三个寄存器：Program Counter, Stack Pointer and BP。
+
+一般而言，线程切换会消耗 1000-1500 纳秒，一个纳秒平均可以执行 12-18 条指令。所以由于线程切换，执行指令的条数会减少 12000-18000。
+
+Goroutine 的切换约为 200 ns，相当于 2400-3600 条指令。
+
+因此，goroutines 切换成本比 threads 要小得多。
+
+```
+
+基本上和我们上面总结的没啥区别，主要还是上下文切换、创建和销毁的开销更小。也就是更灵活。
+
+但是他说的寄存器不是很清楚
+
+
+
+
+
+:::tip
+
+
+总结一下：
+
+我们还是拿进程比做公司项目，线程和协程比做大项目下的子项目和某个功能的开发。
+
+进程调度和线程调度从调度算法、上下文切换、调度机制等方面其实都没啥区别。比如说，调度算法都是 FIFO、SJPF、CFS、MLFQ、轮询之类的（本质上来说是 CPU 调度算法，而不是什么进程或者线程的调度算法），上下文切换也是类似的，调度机制也是类似，都是主动调度和被动调度两种。
+
+但是一定需要注意的是，两者最本质的区别就是，进程是抢夺 CPU，线程则是抢夺进程（最终抢夺 CPU）。
+
+项目之所以要分成多个子项目组，不也是为了能够并发执行吗？同样的，如果子项目一旦阻塞（没完成任务），那你整个项目（进程）就阻塞了。那么用户态线程就类似外包项目组，更灵活，随时可以创建、销毁，开销很低，并且即使阻塞，也不会导致整个进程阻塞。
+
+
+:::
+
+
+### *使用 golang 时，可能导致内存泄漏的场景？*
+
+一些可能会导致内存泄漏的场景？
+
+- 切分字符串/切片导致暂时内存泄漏
+- 未重置丢失的切片元素中的指针，导致暂时内存泄漏
+- 协程被阻塞导致内存泄漏 (如果被临时阻塞就是临时内存泄漏，如果被永久阻塞就永久内存泄漏)
+- defer 调用函数导致暂时内存泄漏
+- 没有停止不再使用的`time.Ticker`导致永久内存泄漏
+- 不正确地使用`析构函数 finalizer`导致永久内存泄漏
+
+
+
+
+
+### **Common Misuses of chan?**
+
+
+```json
+[
+    {
+        "操作": "close",
+        "nil chan": "panic",
+        "closed chan": "panic",
+        "not nil, not closed chan": "正常关闭"
+    },
+    {
+        "操作": "`读 <- ch`",
+        "nil chan": "阻塞",
+        "closed chan": "读到对应类型的零值",
+        "not nil, not closed chan": "阻塞或正常读取数据。缓冲型 chan 为空或非缓冲型 channel 没有等待发送者时会阻塞"
+    },
+    {
+        "操作": "`写 ch <-`",
+        "nil chan": "阻塞",
+        "closed chan": "panic",
+        "not nil, not closed chan": "阻塞或正常写入数据。非缓冲型 channel 没有等待接收者或缓冲型 channel buf 满时会被阻塞"
+    }
+]
+```
+
+
+
+---
+
+`不要通过chan阻塞主协程`，主程序在*读取一个没有生产者的 channel 时会被判断为死锁*，如果是在新开的协程中是没有问题的，同理，主程序在*往没有消费者的协程中写入数据时也会发生死锁*
+
+- 已关闭的 chan，读取时会返回 nil，不会被阻塞，所以在 seletc 中需要判断返回值是否不为 nil。
+- `chan<-`(只写的 chan) 可以被关闭，也就是说关闭 chan，应该是写入者的责任。多个写入者时，需要在外面使用一个 wg，等所有写入者完成之后再关闭。
+- time.After() 返回一个只读的 chan，不需要自己关闭。
+- 两个协程使用两个无缓冲的 chan，互为读写来交换信息时，可能会死锁。解决方法是使用有缓冲的 chan，或者使用 context 来交互。(后者更好)
+
+---
+
+- chan 的哪些操作会引发 panic？三种
+
+---
+
+- 主程序在读取一个没有生产者的 channel 时会被判断为死锁，如果是在新开的协程中是没有问题的，同理主程序在往没有消费者的协程中写入数据时也会发生死锁
+- 当通道被两个协程操作时，如果一方因为阻塞导致另一放阻塞则会发生死锁，如下代码创建两个通道，开启两个协程 (主协程和子协程)，主协程从 c2 读取数据，子协程往 c1，c2 写入数据，因为 c1，c2 都是无缓冲通道，所以往 c1 写时会阻塞，从 c2 读取时也会会阻塞，从而发生死锁
+- 并发执行多个不依赖的服务
+- select 监听 pipeline，合并多个 pipeline 的值到一个
+
 
 
 
@@ -7795,70 +8593,6 @@ tput el; tput cnorm                             # 退出时清理终端,恢复�
 
 ---
 
-
-[[Linux] shell exec 命令 - piaohua's blog](https://piaohua.github.io/post/linux/20210830-linux-shell-exec/)
-
-```markdown
-exec命令有啥用？直接执行不就行了吗？
-
----
-
-exec 命令在 shell 脚本中用于替换当前进程，将当前进程替换为指定的命令或脚本。它的作用是直接在当前进程中执行指定的命令，而不创建新的子进程。
-
-
-虽然你可以直接执行命令，但是使用 exec 命令具有以下优势：
-
-节省系统资源：执行命令时，通常会创建一个新的子进程来运行该命令。而使用 exec 命令，可以避免创建新的子进程，从而节省系统资源。
-
-更改当前进程：exec 命令会将当前进程替换为指定的命令，这意味着在执行完命令后，控制权会直接返回到原始的 shell 脚本中，而不是在子进程中执行。
-
-用于脚本执行：exec 命令通常在脚本中使用，用于在执行脚本时替换当前进程为指定的命令，以便在脚本执行过程中切换到不同的命令或程序。
-
----
-
-exec是syscall吗？
-
----
-
-是的，`exec` 是一个系统调用（syscall）而不是普通的命令。在大多数操作系统中，`exec` 系统调用用于加载并执行新的程序，用新程序替换当前进程的内容。
-
-当你在 shell 中执行 `exec` 命令时，实际上是在调用相应的系统调用，以便将当前进程替换为指定的命令或脚本。
-
-系统调用是操作系统提供给应用程序的接口，通过这些接口，应用程序可以请求操作系统执行特定的操作，如创建进程、读写文件、网络通信等。`exec` 系统调用是其中一个常见的系统调用，用于加载并执行新的程序。
-
-需要注意的是，`exec` 命令在不同的编程语言或操作系统中可能有细微差异，但基本的概念和功能是相似的。
-
-如果你有任何其他问题，请随时提问。
-
----
-
-那能不能给我讲讲直接执行和用exec执行有啥区别？我认为这个问题是exec相关最关键的问题
-
----
-
-当你在 shell 中直接执行一个命令时，比如 `ls -l`，它会创建一个新的子进程来执行该命令。这个子进程会继承父进程的环境变量、文件描述符等，并在执行完命令后返回结果。
-
-而当你使用 `exec` 命令来执行一个命令时，它会替换当前进程为指定的命令，而不是创建一个新的子进程。这意味着当前进程的代码、数据和堆栈都会被新的命令所取代。
-
-下面是直接执行和使用 `exec` 执行的一些区别：
-
-1. **进程替换：** 使用 `exec` 命令会直接将当前进程替换为指定的命令，而不是创建新的子进程。而直接执行命令会创建一个新的子进程来执行命令。
-
-2. **系统资源：** 使用 `exec` 命令可以节省系统资源，因为它不需要创建新的子进程。而直接执行命令会创建一个新的子进程，需要额外的资源。
-
-3. **控制权返回：** 使用 `exec` 命令后，命令执行完毕后的控制权会直接返回到原始的 shell 脚本中，而不是在子进程中执行。而直接执行命令后，控制权会在子进程中继续执行后续的代码。
-
-4. **环境变量和文件描述符：** 使用 `exec` 命令时，新的命令会继承原始进程的环境变量和文件描述符。而在直接执行命令时，子进程也会继承父进程的环境变量和文件描述符。
-
-总的来说，`exec` 命令可以节省系统资源，直接执行指定的命令，并在执行完毕后将控制权返回到原始的 shell 脚本中。而直接执行命令则会创建一个新的子进程来执行命令，并在子进程中继续执行后续的代码。
-
-希望这个解释能够帮助你理解直接执行和使用 `exec` 执行的区别。如果你还有其他问题，请随时提问。
-
-
-```
-
-
-
 [[Linux] dig 命令使用 - piaohua's blog](https://piaohua.github.io/post/linux/20210710-linux-dig/)
 
 
@@ -7900,10 +8634,6 @@ SQLite 中的 VACUUM 命令是用于优化数据库文件大小和性能的工�
 
 
 ---
-
-
-
-mysql, explain, and other optimizations
 
 
 ```shell
@@ -8785,7 +9515,7 @@ Redis 在没抢占到锁的情况下一般会去自旋获取锁，比较浪费�
 
 
 
-#### RedLock
+### RedLock
 
 *可以看见 RedLock 基本原理是利用多个 Redis 集群，用多数的集群加锁成功，减少 Redis 某个集群出故障，造成分布式锁出现问题的概率。*
 
