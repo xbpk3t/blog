@@ -1056,3 +1056,30 @@ wbBufFlush
 [golang 混合写屏障原理深入剖析，这篇文章给你梳理的明明白白！！！](https://mp.weixin.qq.com/s?__biz=MzkyOTU5MTc3NQ==&mid=2247499015&idx=1&sn=fea1f3ab54334c8e653af3eb5e9724be&source=41#wechat_redirect)
 
 
+
+
+
+---
+
+
+
+---
+
+**Go 语言中 GC 的流程**
+
+```markdown
+G01.14 版本以 STW 为界限，可以将 GC 划分为五个阶段：
+GCMark 标记准备阶段，为并发标记做淮备工作，启动写屏障
+STWGCMark 扫描标记阶段，与赋值器并发执行，写屏障开启并发
+GCMarkTermination 标记终止阶段，保证一个周期内标记任务完成，停止写屏障
+GCoff 内存清扫阶段，将需要回收的内存归还到堆中，写屏障关闭
+GCoff 内存归还阶段，将过多的内存归还给操作系统，写屏障关闭。
+```
+
+---
+
+GC 触发时机？主动触发 runtime.GC，周期被动触发，Pacing 算法（其核心思想是控制内存增长的比例。如 Go 的 GC 是一种比例 GC, 下一次 GC 结束时的堆大小和上一次 GC 存活堆大小成比例.）
+
+
+
+
