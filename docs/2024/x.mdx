@@ -1,5 +1,6 @@
 ---
 title: 存档log-xxx中精华内容
+slug: /2024/x
 date:  2024-10-14
 unlisted: true
 ---
@@ -5031,6 +5032,21 @@ LINUX内核级SLUB分配器
 
 
 
+---
+
+
+
+[「Go框架」深入理解iris框架的路由底层结构](https://mp.weixin.qq.com/s?__biz=MzAxMTA4Njc0OQ==&mid=2651453986&idx=1&sn=4ef797a87fc303e578a771c44bd256b2)
+
+
+
+
+[通过分析gin、beego源码，读懂web框架对http请求处理流程的本质](https://mp.weixin.qq.com/s?__biz=MzAxMTA4Njc0OQ==&mid=2651453917&idx=1&sn=334020f003deec68f268d1c36143ddca)
+
+[Go BIO/NIO探讨(1)：Gin框架中如何处理HTTP请求](https://mp.weixin.qq.com/s?__biz=MzAxMTA4Njc0OQ==&mid=2651453950&idx=1&sn=1cb70938803a6c23bdfc957a0e5ff385)
+
+[Go BIO/NIO探讨(2)：net库对socket/bind/listen/accept的封装](https://mp.weixin.qq.com/s?__biz=MzAxMTA4Njc0OQ==&mid=2651453975&idx=1&sn=7471cbf3a5510be90815dfffa28ac86a)
+
 
 
 ### ~~数据分析~~
@@ -5100,6 +5116,10 @@ LINUX内核级SLUB分配器
 ### **IO 流并发**
 
 [分享一个 Go 的 IO 流并发的小技巧](https://mp.weixin.qq.com/s?__biz=MzUzNTY5MzU2MA==&mid=2247497706&idx=1&sn=cc6e9fc5e951b88c3428c371dea19fac#rd)
+
+
+[从头再读取 io.Reader: 覆水难收？](https://colobu.com/2023/09/24/reread-the-io-Reader/)
+
 
 
 ```markdown
@@ -8182,3 +8202,84 @@ MongoDB 一开始就是用 mmap 作为存储引擎
 
 这部分内容可以和 MongoDB SE 结合来看。
 
+
+
+
+
+
+### CMD 和 ENTRYPOINT
+
+:::tip
+*总的来说，使用 RUN 指令安装应用和软件包，构建镜像。如果 Docker 镜像的用途是运行应用程序或服务，比如运行一个 MySQL，应该优先使用 Exec 格式的 ENTRYPOINT 指令。CMD 可为 ENTRYPOINT 提供额外的默认参数，同时可利用 docker run 命令行替换默认参数。如果想为容器设置默认的启动命令，可使用 CMD 指令。用户可在 docker run 命令行中替换此默认命令。*
+:::
+
+- CMD 指令允许用户指定容器的默认执行的命令。此命令会在容器启动且 docker run 没有指定其他命令时运行
+- ENTRYPOINT 的 Exec 格式用于设置容器启动时要执行的命令及其参数，同时可通过 CMD 命令或者命令行参数提供额外的参数。ENTRYPOINT 中的参数始终会被使用，这是与 CMD 命令不同的一点。
+
+
+
+```markdown
+好的，我来进一步简化解释：
+
+1. **CMD 指令**：
+   - 它定义了容器启动时默认执行的命令。
+   - 用户在运行容器时可以通过命令行替换这个默认命令。
+
+2. **ENTRYPOINT 指令**：
+   - 它定义了容器启动时必须执行的主命令。
+   - 用户在运行容器时可以通过命令行向这个主命令添加参数，但不能替换主命令本身。
+
+**区别**：
+- `CMD` 可以被用户完全替换，包括命令和参数。
+- `ENTRYPOINT` 只能接受用户添加的参数，不能被替换。
+
+**例子**：
+假设我们有一个 Dockerfile，里面定义了如下指令：
+
+# 使用 CMD 指令
+CMD ["echo", "Hello World"]
+
+# 使用 ENTRYPOINT 指令
+ENTRYPOINT ["echo"]
+CMD ["Hello World"]
+
+- 对于使用 `CMD` 的容器，用户可以通过命令行完全替换默认命令：
+  docker run myimage ls -l
+  这里，`echo "Hello World"` 被 `ls -l` 替换了。
+
+- 对于使用 `ENTRYPOINT` 的容器，用户只能添加参数，不能替换 `echo`：
+  docker run myimage "Hello Kimi"
+  这里，`echo` 后面添加了参数 `"Hello Kimi"`，但 `echo` 命令本身没有被替换。
+
+希望这次解释更清晰了！如果还有疑问，随时问我。
+
+```
+
+
+
+### lotabout
+
+
+[分布式系统常见同步机制 | 三点水](https://lotabout.me/2019/Data-Synchronization-in-Distributed-System/)
+
+[加权随机采样 (Weighted Random Sampling) | 三点水](https://lotabout.me/2018/Weighted-Random-Sampling/)
+
+[事务隔离级别备忘 | 三点水](https://lotabout.me/2020/QQA-Isolation-Level-of-Database/)
+
+[背压(Back Pressure)与流量控制 | 三点水](https://lotabout.me/2020/Back-Pressure/)
+
+[MESI 协议学习笔记 | 三点水](https://lotabout.me/2022/MESI-Protocol-Introduction/)
+
+[伪共享（False Sharing）简介 | 三点水](https://lotabout.me/2022/False-Sharing-Introduction/)
+
+[跳表──没听过但很犀利的数据结构 | 三点水](https://lotabout.me/2018/skip-list/)
+
+
+
+
+
+### btree, bptree
+
+[B树、B+树索引算法原理（上） - codedump的网络日志](https://www.codedump.info/post/20200609-btree-1/#%E6%83%85%E5%86%B53-b%E4%B8%8E%E5%85%84%E5%BC%9F%E8%8A%82%E7%82%B9%E5%90%88%E5%B9%B6%E6%95%B0%E6%8D%AE)
+
+[B树、B+树索引算法原理（下） - codedump的网络日志](https://www.codedump.info/post/20200615-btree-2/)
