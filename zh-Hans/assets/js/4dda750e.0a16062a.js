@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkblog=self.webpackChunkblog||[]).push([[6715],{9859:e=>{e.exports=JSON.parse('{"tags":[{"label":"Archive","permalink":"/zh-Hans/tags/archive","count":2}]}')}}]);
