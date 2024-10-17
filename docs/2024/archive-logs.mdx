@@ -1,9 +1,8 @@
 ---
-title: 【存档】log-xxx中精华内容
-slug: /2024/x
+title: 【存档】log-xxx
+slug: /2024/archive-logs
 date:  2024-10-14
 tags: [archive]
-unlisted: true
 ---
 
 
@@ -481,6 +480,20 @@ wg.Done 一定要写在 gofunc 里，一定要加 defer，确保在该区块内�
 ## golang 内存管理
 
 
+
+[紧急下班：修炼内功---内存模型和垃圾回收，不焦虑打工指南](https://mp.weixin.qq.com/s/qF5eiWYkcwTnZ2tFwpzx2Q)
+
+[万字长文图解 Go 内存管理分析：工具、分配和回收原理](https://mp.weixin.qq.com/s?__biz=MzAxMTA4Njc0OQ==&mid=2651440710&idx=2&sn=3847c6a275fa09f9051fcab250c8b817#tocbar--1dhark4)
+
+[图解Golang的内存分配 [ 菜刚RyuGou的博客 ]](https://i6448038.github.io/2019/05/18/golang-mem/)
+
+[看了这篇你会发现，你是懂Go内存分配的](https://mp.weixin.qq.com/s?__biz=MzUzNTY5MzU2MA==&mid=2247497180&idx=1&sn=e4f5e0a92f6ddfeed65cb33efb1db977)
+
+[超干货！彻底搞懂Golang内存管理和垃圾回收](https://mp.weixin.qq.com/s?__biz=MzAxMTA4Njc0OQ==&mid=2651453471&idx=1&sn=b30294daeee5bfaa9c5508be698dcd4d)
+
+[一文彻底理解Go语言栈内存/堆内存](https://mp.weixin.qq.com/s?__biz=MzAxMTA4Njc0OQ==&mid=2651453875&idx=1&sn=883e1b4ac26d62e2d15f96b426885cb0)
+
+
 ### **golang 的内存管理？**
 
 内存管理有哪些组件？golang 的内存管理组件？
@@ -680,7 +693,7 @@ golang1.20 是 golang1.18 之后最大的语法变化，其中最大的 feat 就
 
 
 
-### zzz
+### ***process, thread, goroutine 区别***
 
 
 
@@ -4108,6 +4121,288 @@ func main() {
 
 
 
+## ***爬虫通用问题（反爬&对抗反爬）***
+
+- *怎么在爬虫中使用布隆过滤器？爬虫的哪些场景需要使用布隆过滤器？* 对已经爬过的 url 去重（幂等性入库），以及作为`failed url容器`进行重试操作
+
+
+:::tip
+
+对爬虫有哪些心得、总结？
+
+- *爬虫开发实际上是黑盒的，且实时性很强*
+- 黑盒体现在，无法得到明确反馈，只能根据经验自行判断。
+- 实时性强体现在，很可能一周前还 work 的爬虫，现在就不 work 了，取决于很多因素，比如浏览器和 CDP 升级、或者网站反爬策略升级，甚至对方服务下线了。
+- 因为这两点特性，我们可以得出爬虫开发的一条经验：*纠结于爬虫是否 work 毫无意义，也没必要自己花大量时间去对抗大型网站的反爬，因为大概率失败。我们只需要把常用反爬和对抗反爬的套路都足够熟练，把这些方案都工具化，以最快时间秒掉 99% 的网站*，毕竟不是专业的爬虫工程师，剩下的 1% 的网站是留给他们的。
+- 如果某个网站、APP 爬不下来，可以找找提供类似功能的网站。比如想爬取电影票数据，美团电影的 yoda 反爬很强，可以试试淘票票。
+- **反爬的核心在于`抓爬虫`，查到爬虫后，再进行`返回错误`、`随机返回假数据`等可有可无操作。如果反爬被打穿了之后，就需要限流系统来兜底了**
+
+:::
+
+
+
+作为爬取方，怎么确定爬虫方案？需要使用哪些技能？在爬取速度和稳定性之间怎么找到平衡点？
+
+查看网站是否动态渲染？是否有接口？接口是否反爬？
+
+
+
+
+
+```plantuml
+
+@startuml
+title 爬虫思路流程图
+
+start
+
+if (是否动态渲染？) is (yes) then
+  :找到对应接口，带着原参数用curl再请求一次;
+else (no)
+  :直接用网页解析工具抓取;
+  stop
+endif
+
+if (是否请求成功？) is (no) then
+  :确定有反爬;
+
+else (yes)
+  :说明该网站未处理cookie和重放，直接抓取;
+  stop
+endif
+
+if (是否对爬虫性能有要求？) is (no) then
+  :浏览器渲染;
+  :自检stealth.js等;
+  stop
+else (yes)
+  :想办法搞定js加密;
+  stop
+endif
+
+@enduml
+
+```
+
+数据采集、清洗、分析、可视化、挖掘
+
+
+
+```markdown
+### 基于身份识别
+
+#### header 参数
+
+- IP 代理池 [一日一技：为什么网站知道我的爬虫使用了代理？](https://mp.weixin.qq.com/s?__biz=MzI2MzEwNTY3OQ==&mid=2648985933&idx=1&sn=45a383d97f72a7454e9c0b27afe311ff)
+- user-agent user-agent 池
+- 通过 cookie 检查用户是否具有权限
+- referer 判断请求发起的源头
+
+---
+
+- 怎么使用 IP 代理池？怎么查看当前请求使用的 IP？怎样检测配置的 IP 代理是否生效？怎么维护一个高匿 IP 代理池？
+- **不要自己维护 IP 代理池，直接买第三方服务**（比如芝麻 HTTP 之类的付费代理 IP 服务，或者直接使用 crawlera 等提供代理 IP 服务的第三方爬虫平台），免费的根本就是浪费时间，90% 以上都不能用。
+- 模拟 UA 的时候，也要记得模拟 header 里的其他参数。另外，现在的反爬虫策略，为了降低误伤率，检查爬虫的时候，会对请求的可疑性打分，出现可疑行为后，就加上几分，某些行为分数高，某些行为分数低。当你总积分达到一定程度时，再调用封禁的流程。
+- 每次打开新页面，cookie 都会变化，而 cookie 使用 x-zse-86 进行加密而重点就在于对 x-zse-86 进行解密
+- 可以解决 99% 的爬虫，借用了目前主流爬虫库基本都不支持 HTTP2，而浏览器对 HTTP2 都已良好支持的现状
+
+
+
+#### 验证码
+
+##### 滑动验证码
+
+[增强版！如何深度学习识别滑动验证码缺口](https://mp.weixin.qq.com/s?__biz=MzI2MzEwNTY3OQ==&mid=2648983962&idx=1&sn=479843a4f3a672e8520a5ac22c540a18)
+
+##### 滑块验证码
+
+##### 点触验证码（ReCaptcha）
+
+使用`YesCaptcha`解决
+
+- [我又找到了一个破解谷歌验证码的新方案！](https://mp.weixin.qq.com/s?__biz=MzI2MzEwNTY3OQ==&mid=2648981206&idx=1&sn=67d7bfcec1300a35ac5554680e0c2e22)
+- [谷歌验证码 ReCAPTCHA 的模拟点击破解方案来了！](https://mp.weixin.qq.com/s?__biz=MzI2MzEwNTY3OQ==&mid=2648986784&idx=1&sn=eff9d14cb4ea8dabff24920bf5b99d34)
+
+#### 浏览器指纹（JA3 指纹）
+
+- 什么是`JA3指纹`？什么原理？
+- 怎么构建`JA3指纹`？
+- 怎么解决`JA3指纹`？ `ja3transport`和`CycleTLS`
+- 解决 ja3 指纹的原理？ja3transport 库会在三次握手后，即将发起 client hello 数据包时，*拦截该包并用自定义 ja3 替换掉原有的*
+- ja3s 相比于 ja3 有什么优化？
+- 有哪些靠谱的 ja3 黑名单/已收录指纹？
+
+[用 Go 构建你专属的 JA3 指纹](https://mp.weixin.qq.com/s?__biz=MzkyMDAzNjQxMg==&mid=2247484550&idx=1&sn=cfa881e5609ee19236ddc599f3b2ab5e)
+
+#### webdriver 特征
+
+
+#### 随机数
+
+通过 js 生成请求参数，或者通过预请求获取随机值，作为请求参数
+
+用 otto 获取 js 的执行结果，或者用 webdirvier
+
+#### PathMarker
+
+通过检测网页和请求之间的关系来检测分布式爬虫。具体原理是，通过向 URL 添加 tag 来跟踪该 URL 之前的页面，并识别访问该 URL 的用户。根据 URL 访问路径和访问时间的不同模式，使用 SVM 模型来区分恶意网络爬虫和普通用户。
+
+### 基于数据加密
+
+#### 使用`自定义字体文件`反爬
+
+- 尝试通过抓包获取字体文件，找规律
+
+> 对抗`字体反爬`？
+
+- 把一部分文字用图片替代，这个是最常见的反爬手段，比如链家以及很多小说网站都是这么实现的。字体文件的存储方案大概有三种，`存储像素点`，`存储轮廓`，`存储笔画`
+- *通常使用`存储轮廓`的方案，用`贝塞尔曲线`来描述字体的轮廓，展示的时候，计算成像素点，输出到设备上。其他两种方式都不太合适*
+
+
+#### css 偏移反爬
+
+需要通过 css 位移才能产生真实数据
+
+- 计算 css 的偏移
+
+[一日一技：CSS 偏移反爬虫的原理和破解方法](https://mp.weixin.qq.com/s?__biz=MzI2MzEwNTY3OQ==&mid=2648985411&idx=1&sn=b69634959c5b32196cf515a2fd57d7ec)
+
+
+
+#### 通过数据图片化反爬
+
+分为存储像素点、轮廓、笔画三种
+
+- 图片直接替换文字，用 OCR 识别
+
+
+
+
+##### OCR
+
+OCR 通常作为兜底方案
+
+- easyocr
+- tesseract
+- kerasocr
+
+#### js 反爬
+
+##### js 混淆加密 (sojson)
+
+
+
+> 怎么破解 js 反爬？
+
+- 使用`playwright`通过浏览器来模拟逆向流程，来确定 js 代码依赖的拓展包
+- [Python 爬虫进阶必备 | 某游戏网站密码加密逻辑分析 webpack 的 js 加密代码怎么扣 -思路分析](https://mp.weixin.qq.com/s?__biz=MzI2MzEwNTY3OQ==&mid=2648980951&idx=1&sn=f7bdd431e78dba7d9bc034768f5b535e)
+- [简单方便的 JavaScript 逆向辅助模拟方法](https://mp.weixin.qq.com/s?__biz=MzI2MzEwNTY3OQ==&mid=2648980941&idx=1&sn=9b93cc295de8c2428cddfabd2a240148)
+- [Python 爬虫进阶必备 | 某著名人均百万问答社区 header 参数加密逻辑分析](https://mp.weixin.qq.com/s?__biz=MzI2MzEwNTY3OQ==&mid=2648985875&idx=1&sn=d86418b4a75dee72b64e3bc4bca37cf1)
+- [jsvmp-某乎_x-zes-96 参数算法还原（手把手教学）](https://mp.weixin.qq.com/s?__biz=MzI2MzEwNTY3OQ==&mid=2648985946&idx=1&sn=4f039dc1289e1cb29cf618a964c68d5e)
+
+
+
+> mitmproxy 是什么？使用流程？
+
+1. 用 pip 安装 mitmproxy
+2. 去 mitm 官网下载对应系统的证书
+3. 导入 HTTPS 证书：把 pem 证书转成 crt 证书，`openssl x509 -in mitmproxy-ca-cert.pem-informPEM-outmitmproxy-ca-cert.crt`
+4. 我们可以使用`mitmproxy`,`mitmdump`,`mitmweb`命令来监听`默认的8080端口`的请求，使用`mitmdump-s httpproxy.py-p 9090`来自定义端口。
+5. 第二个进程使用`对应的端口`运行 selenium 脚本。
+
+
+
+###### 逆向
+
+
+
+
+##### js 脚本反爬
+
+- mitmproxy
+- anyproxy
+- playwright
+
+##### js 反调试
+
+###### jsrpc
+
+
+
+- [Jsrpc 学习——Cookie 变化的网站破解教程](https://mp.weixin.qq.com/s?__biz=MzI2MzEwNTY3OQ==&mid=2648985315&idx=1&sn=13b5ba7d6d9d989451ab62877085f74b)
+- [RPC 技术及其框架 Sekiro 在爬虫逆向中的应用，加密数据一把梭！](https://mp.weixin.qq.com/s?__biz=MzI2MzEwNTY3OQ==&mid=2648985365&idx=1&sn=4feb19f4b03eea8b2426cedaf423082a)
+
+### 基于爬虫行为
+
+- 基于 IP/账号等参数的请求频率和总请求数
+  - 通过 IP/账号请求之间的间隔进行反爬
+  - 通过 IP/账号每天请求总次数进行反爬
+- 鼠标滑动轨迹：把鼠标轨迹及滑动速度等作为请求参数
+  - 方案 1：生成这些参数
+  - 方案 2：通过 selenium 模拟鼠标滑动
+- 通过 js 实现页面跳转，无法在源码中获取下一页 url
+  - 方案 1：分析 url 之间的关联性
+  - 方案 2：用 otto 之类的 js 解释器直接跑 js
+- 通过蜜罐区分爬虫和正常用户
+  - 方案 1：响应里添加假数据
+  - 方案 2：阻塞爬虫的任务队列
+    - 比如生成大量垃圾 url，从而阻塞任务队列
+    - 响应里添加大文件 url
+
+#### 怎么制造爬虫蜜罐？
+
+- `<a>标签`的 href 里写一个 url，这个 url 实际上是个蜜罐，真正的 url 需要拼接获得，比如根据`<base>标签`拼接；爬虫访问进去后，就会抓到假数据，或者被立即屏蔽。
+
+### 第三方服务
+
+- 瑞数
+- cloudflare
+- distil
+
+#### 瑞数
+
+- [人均瑞数系列，瑞数 4 代 JS 逆向分析（文末送书）](https://mp.weixin.qq.com/s?__biz=MzI2MzEwNTY3OQ==&mid=2648986972&idx=1&sn=117b4e51776f09acf25a5e9bc49a93a8)
+- [人均瑞数系列，瑞数 5 代 JS 逆向分析](https://mp.weixin.qq.com/s?__biz=MzI2MzEwNTY3OQ==&mid=2648987208&idx=1&sn=e271cabb5b631e262dbbe6bd9a3d93f8)
+
+
+#### cloudflare 五秒盾
+
+- [Anorov/cloudflare-scrape](https://github.com/Anorov/cloudflare-scrape)
+- [VeNoMouS/cloudscraper](https://github.com/venomous/cloudscraper)
+
+
+
+[一日一技：【最新】再次突破 CloudFlare 五秒盾付费版](https://mp.weixin.qq.com/s?__biz=MzI2MzEwNTY3OQ==&mid=2648987371&idx=1&sn=84401455501f1fb12984a8d24f9cd6e8#rd)
+
+
+
+
+
+#### 亮数据 Bright Data
+
+[亮数据 - 网络数据一站式平台 海汇互动](https://www.bright.cn/)
+
+具体可以看 [科技爱好者周刊（第 254 期）：人生是一个长板问题 - 阮一峰的网络日志](https://www.ruanyifeng.com/blog/2023/05/weekly-issue-254.html)
+```
+
+
+crawler and anti-crawler are tow sides of the same coin.
+
+we can generally summarize that several anti-crawler methods are based on identify recognition, data encryption and crawler behavior.
+
+anti-crawler based on identify recognition is the most basic, it's just some header params like UA, cookie, referer and so on. and some params that can be used to recognize, such as JA3 fingerprint, webdriver, PathMarker(better referer params), and captcha(slide-captcha, ReCaptcha...)
+
+Except this, we can also anti-crawler by encrypt data, use static resources such as fonts, css and js to implement.
+
+From this perspective, we can actually regard these two points as the different between the server side(identify recognition) and the client side(data encryption).
+
+
+
+
+
+
+
+
 ## [doc] 处理OneTab中的网页
 
 大概是几部分：
@@ -4156,558 +4451,6 @@ func main() {
 
 
 [你的新进程是如何被内核调度执行到的？](https://mp.weixin.qq.com/s?__biz=MjM5Njg5NDgwNA==&mid=2247490622&idx=1&sn=cc98b3eb0c2802199a3d0a9bb50a0c50)
-
-
-
-
-
-
-### ***How does docker works?***
-
-
-[Cameron Lonsdale - Automating security and making it more accessible](https://cameronlonsdale.com/2019/03/25/how-does-docker-work/)
-
-
-[Docker Architecture – Engine, Containerd, runc – Studytrails](https://www.studytrails.com/2018/12/04/docker-architecture-engine-containerd-runc/)
-
-
-
-
-runc
-
-docker server (persistent storage, containerd, networking)
-
-- namespace
-- cgroups
-- LSM(Linux Security Modules)
-- overlay2
-- CNM
-
-
-```markdown
-从 Docker 的拆分来看，容器运行时根据功能的不同分成了两类：只关注如 namespace、cgroups、镜像拆包等基础的容器运行时实现被称为低层运行时（low-level container runtime）， 目前应用最广泛的低层运行时是 runc；支持更多高级功能，例如镜像管理、CRI 实现的运行时被称为高层运行时（high-level container runtime），目前应用最广泛高层运行时是 containerd。这两类运行时按照各自的分工，共同协作完成容器整个生命周期的管理工作。
-```
-
-runc = run container
-
-
----
-
-
-```markdown
-07 Docker 安全：基于内核的弱隔离系统如何保障安全性？.md
-08 容器监控：容器监控原理及 cAdvisor 的安装与使用.md
-
-09 资源隔离：为什么构建容器需要 Namespace ？.md
-10 资源限制：如何通过 Cgroups 机制实现资源限制？.md
-
-11 组件组成：剖析 Docker 组件作用及其底层工作原理.md
-12 网络模型：剖析 Docker 网络实现及 Libnetwork 底层原理.md
-13 数据存储：剖析 Docker 卷与持久化数据存储的底层原理.md
-
-14 文件存储驱动：AUFS 文件系统原理及生产环境的最佳配置.md
-15 文件存储驱动：Devicemapper 文件系统原理及生产环境的最佳配置.md
-16 文件存储驱动：OverlayFS 文件系统原理及生产环境的最佳配置.md
-```
-
-
-
----
-
-[07 Docker 安全：基于内核的弱隔离系统如何保障安全性？](https://learn.lianglianglee.com/%e4%b8%93%e6%a0%8f/%e7%94%b1%e6%b5%85%e5%85%a5%e6%b7%b1%e5%90%83%e9%80%8f%20Docker-%e5%ae%8c/07%20%20Docker%20%e5%ae%89%e5%85%a8%ef%bc%9a%e5%9f%ba%e4%ba%8e%e5%86%85%e6%a0%b8%e7%9a%84%e5%bc%b1%e9%9a%94%e7%a6%bb%e7%b3%bb%e7%bb%9f%e5%a6%82%e4%bd%95%e4%bf%9d%e9%9a%9c%e5%ae%89%e5%85%a8%e6%80%a7%ef%bc%9f.md)
-
-
-docker弱隔离
-
-
-```markdown
-在过去容器里的 root 用户就是主机上的 root 用户，如果容器受到攻击，或者容器本身含有恶意程序，在容器内就可以直接获取到主机 root 权限。Docker 从 1.10 版本开始，使用 User Namespace 做用户隔离，实现了容器中的 root 用户映射到主机上的非 root 用户，从而大大减轻了容器被突破的风险。
-```
-
-难怪各种BP上都说image中要使用非root用户，但是实际上没有人的Dockerfile中写这个。
-
-所以说BP中关于security的内容其实都没啥用，docker本身都已经处理好了。
-
-
-
----
-
-
-[08 容器监控：容器监控原理及 cAdvisor 的安装与使用](https://learn.lianglianglee.com/%e4%b8%93%e6%a0%8f/%e7%94%b1%e6%b5%85%e5%85%a5%e6%b7%b1%e5%90%83%e9%80%8f%20Docker-%e5%ae%8c/08%20%20%e5%ae%b9%e5%99%a8%e7%9b%91%e6%8e%a7%ef%bc%9a%e5%ae%b9%e5%99%a8%e7%9b%91%e6%8e%a7%e5%8e%9f%e7%90%86%e5%8f%8a%20cAdvisor%20%e7%9a%84%e5%ae%89%e8%a3%85%e4%b8%8e%e4%bd%bf%e7%94%a8.md)
-
-
-```markdown
-总的来说，容器具有以下特性：
-
-- 容器是短期存活的，并且可以动态调度；
-- 容器的本质是进程，而不是一个完整操作系统；
-- 由于容器非常轻量，容器的创建和销毁也会比传统虚拟机更加频繁。
-
-Docker 容器的监控方案有很多，除了 Docker 自带的docker stats命令，还有很多开源的解决方案，例如 sysdig、cAdvisor、Prometheus 等，都是非常优秀的监控工具。
-```
-
-> 容器的本质是进程
-
-一针见血
-
-
-```shell
-sudo ls -l /sys/fs/cgroup/
-#dr-xr-xr-x 5 root root  0 Jul  9 19:32 blkio
-#lrwxrwxrwx 1 root root 11 Jul  9 19:32 cpu -> cpu,cpuacct
-#dr-xr-xr-x 5 root root  0 Jul  9 19:32 cpu,cpuacct
-#lrwxrwxrwx 1 root root 11 Jul  9 19:32 cpuacct -> cpu,cpuacct
-#dr-xr-xr-x 3 root root  0 Jul  9 19:32 cpuset
-#dr-xr-xr-x 5 root root  0 Jul  9 19:32 devices
-#dr-xr-xr-x 3 root root  0 Jul  9 19:32 freezer
-#dr-xr-xr-x 3 root root  0 Jul  9 19:32 hugetlb
-#dr-xr-xr-x 5 root root  0 Jul  9 19:32 memory
-#lrwxrwxrwx 1 root root 16 Jul  9 19:32 net_cls -> net_cls,net_prio
-#dr-xr-xr-x 3 root root  0 Jul  9 19:32 net_cls,net_prio
-#lrwxrwxrwx 1 root root 16 Jul  9 19:32 net_prio -> net_cls,net_prio
-#dr-xr-xr-x 3 root root  0 Jul  9 19:32 perf_event
-#dr-xr-xr-x 5 root root  0 Jul  9 19:32 pids
-#dr-xr-xr-x 5 root root  0 Jul  9 19:32 systemd
-sudo ls -l /sys/fs/cgroup/memory/docker
-```
-
-***namespace是对文件系统、进程pid、主机名、用户uid、设备、IPC以及网络的隔离，cgroup就是对CPU、内存、PID、磁盘IO等资源进行限制，这也是为啥我们说“ns是看起来隔离，cgroup是用起来隔离”。那就很简单了，ns里的那几个不就正好对应pid, uts, user, ipc, mount这些吗，cgroup则更简单了就是各种资源嘛，cpu(cpuacct, cpuset), memory, blkio, devices之类的，都是用来限制进程资源的。***
-
-cpuacct = cpu account
-
-cpuset = cpu set
-
-blkio = block io
-
-UTS = unix timesharing system (hostname and domain name)
-
-
-
-```markdown
-总结一下，容器的监控原理其实就是定时读取 Linux 主机上相关的文件并展示给用户
-```
-
----
-
-[09 资源隔离：为什么构建容器需要 Namespace ？](https://learn.lianglianglee.com/%e4%b8%93%e6%a0%8f/%e7%94%b1%e6%b5%85%e5%85%a5%e6%b7%b1%e5%90%83%e9%80%8f%20Docker-%e5%ae%8c/09%20%20%e8%b5%84%e6%ba%90%e9%9a%94%e7%a6%bb%ef%bc%9a%e4%b8%ba%e4%bb%80%e4%b9%88%e6%9e%84%e5%bb%ba%e5%ae%b9%e5%99%a8%e9%9c%80%e8%a6%81%20Namespace%20%ef%bc%9f.md) 这章分别介绍了几种ns的用法，其实就是unshare命令的使用
-
-
-
-```markdown
-Mount Namespace、PID Namespace、Net Namespace、IPC Namespace、UTS Namespace、User Namespace
-```
-
-也就是除了 cgroup ns和 time ns之外都用了
-
-monut就是文件，pid、net、user、IPC这些就不说了。我不太清楚的就是UTS，UTS是用来“隔离主机名和域名”。
-
-
-```markdown
-PID Namespace 的作用是用来隔离进程。在不同的 PID Namespace 中，进程可以拥有相同的 PID 号，利用 PID Namespace 可以实现每个容器的主进程为 1 号进程，而容器内的进程在主机上却拥有不同的PID。例如一个进程在主机上 PID 为 122，使用 PID Namespace 可以实现该进程在容器内看到的 PID 为 1。
-```
-
-```shell
-# 查看全部IPC
-ipcs
-
-# 创建通信队列
-ipcmk -Q
-
-
-```
-
-
-***换个角度来看，按照“docker容器的本质是进程”的说法，所谓的ns和cgroup提供的隔离，本质上来说就是给该进程提供了独立的各种ns和cgroup，是吗？正如cgroup原本的名字“process containers”本身所暗示的。如果我们还拿之前“开公司”来举例，普通的进程只是公司下面的一个项目组（普通进程只有用来标识进程的那些field（或者说进程本身相关的数据）是独享的（比如进程状态、fd、进程本身的内存空间），其他资源如kernel, filesystem, network, devices之类的都是共享的），docker（容器化的进程）则拥有真正独立的（体现在这部分资源不参与整个公司资源调度，是固定开支。内部也可以拥有idle进程、init进程、kthreadd进程这些一二三号位）。我的理解对吗？***
-
-
-
-
----
-
-```markdown
-cgroups（全称：control groups）是 Linux 内核的一个功能，它可以实现限制进程或者进程组的资源（如 CPU、内存、磁盘 IO 等）。
-
-在 2006 年，Google 的工程师（ Rohit Seth 和 Paul Menage 为主要发起人） 发起了这个项目，起初项目名称并不是cgroups，而被称为进程容器（process containers）。在 2007 年cgroups代码计划合入Linux 内核，但是当时在 Linux 内核中，容器（container）这个词被广泛使用，并且拥有不同的含义。为了避免命名混乱和歧义，进程容器被重名为cgroups，并在 2008 年成功合入 Linux 2.6.24 版本中。cgroups目前已经成为 systemd、Docker、Linux Containers（LXC） 等技术的基础。
-```
-
-
-```markdown
-cgroups 主要提供了如下功能。
-
-- 资源限制： 限制资源的使用量，例如我们可以通过限制某个业务的内存上限，从而保护主机其他业务的安全运行。
-- 优先级控制：不同的组可以有不同的资源（ CPU 、磁盘 IO 等）使用优先级。
-- 审计：计算控制组的资源使用情况。
-- 控制：控制进程的挂起或恢复。
-
-了解了 cgroups 可以为我们提供什么功能，下面我来看下 cgroups 是如何实现这些功能的。
-
-cgroups功能的实现依赖于三个核心概念：子系统、控制组、层级树。
-
-- 子系统（subsystem）：是一个内核的组件，一个子系统代表一类资源调度控制器。例如内存子系统可以限制内存的使用量，CPU 子系统可以限制 CPU 的使用时间。
-- 控制组（cgroup）：表示一组进程和一组带有参数的子系统的关联关系。例如，一个进程使用了 CPU 子系统来限制 CPU 的使用时间，则这个进程和 CPU 子系统的关联关系称为控制组。
-- 层级树（hierarchy）：是由一系列的控制组按照树状结构排列组成的。这种排列方式可以使得控制组拥有父子关系，子控制组默认拥有父控制组的属性，也就是子控制组会继承于父控制组。比如，系统中定义了一个控制组 c1，限制了 CPU 可以使用 1 核，然后另外一个控制组 c2 想实现既限制 CPU 使用 1 核，同时限制内存使用 2G，那么 c2 就可以直接继承 c1，无须重复定义 CPU 限制。
-
-cgroups 的三个核心概念中，子系统是最核心的概念，因为子系统是真正实现某类资源的限制的基础。
-```
-
-subsystem, cgroup, hierarchy
-
-
-
-```shell
-sudo mount -t cgroup
-```
-
-```markdown
-通过输出，可以看到当前系统已经挂载了我们常用的cgroups子系统，例如 cpu、memory、pids 等我们常用的cgroups子系统。这些子系统中，cpu 和 memory 子系统是容器环境中使用最多的子系统，下面我对这两个子系统做详细介绍。
-```
-
-
-
-cgroup是怎么限制进程的CPU使用时间的？
-
-```shell
-mkdir /sys/fs/cgroup/cpu/mydocker
-ls -l /sys/fs/cgroup/cpu/mydocker
-# total 0
-#-rw-r--r--. 1 root root 0 Sep  5 09:19 cgroup.clone_children
-#--w--w--w-. 1 root root 0 Sep  5 09:19 cgroup.event_control
-#-rw-r--r--. 1 root root 0 Sep  5 09:19 cgroup.procs
-#-rw-r--r--. 1 root root 0 Sep  5 09:19 cpu.cfs_period_us
-#-rw-r--r--. 1 root root 0 Sep  5 09:19 cpu.cfs_quota_us
-#-rw-r--r--. 1 root root 0 Sep  5 09:19 cpu.rt_period_us
-#-rw-r--r--. 1 root root 0 Sep  5 09:19 cpu.rt_runtime_us
-#-rw-r--r--. 1 root root 0 Sep  5 09:19 cpu.shares
-#-r--r--r--. 1 root root 0 Sep  5 09:19 cpu.stat
-#-r--r--r--. 1 root root 0 Sep  5 09:19 cpuacct.stat
-#-rw-r--r--. 1 root root 0 Sep  5 09:19 cpuacct.usage
-#-r--r--r--. 1 root root 0 Sep  5 09:19 cpuacct.usage_percpu
-#-rw-r--r--. 1 root root 0 Sep  5 09:19 notify_on_release
-#-rw-r--r--. 1 root root 0 Sep  5 09:19 tasks
-
-cd /sys/fs/cgroup/cpu/mydocker
-
-# set cpu cgroup
-echo 50000 > cpu.cfs_quota_us
-```
-
-memory
-
-```shell
-cd /sys/fs/cgroup/memory/mydocker
-
-echo 1073741824 > memory.limit_in_bytes
-```
-
-他分别操作来验证cgroup是怎么限制CPU和memory的，流程差不多，原理也类似。
-
-- cpu是通过cfs_quota来进行限制的
-- memory是通过limit_in_bytes进行来限制该进程的内存使用的
-
-
----
-
-
-[12 网络模型：剖析 Docker 网络实现及 Libnetwork 底层原理](https://learn.lianglianglee.com/%e4%b8%93%e6%a0%8f/%e7%94%b1%e6%b5%85%e5%85%a5%e6%b7%b1%e5%90%83%e9%80%8f%20Docker-%e5%ae%8c/12%20%20%e7%bd%91%e7%bb%9c%e6%a8%a1%e5%9e%8b%ef%bc%9a%e5%89%96%e6%9e%90%20Docker%20%e7%bd%91%e7%bb%9c%e5%ae%9e%e7%8e%b0%e5%8f%8a%20Libnetwork%20%e5%ba%95%e5%b1%82%e5%8e%9f%e7%90%86.md)
-
-```markdown
-提起 Docker 网络，我们不得不从容器战争说起。Docker 从 2013 年诞生，到后来逐渐成为了容器的代名词，然而 Docker 的野心也不止于此，它还想在更多的领域独占鳌头，比如制定容器的网络和存储标准。
-
-于是 Docker 从 1.7 版本开始，便把网络和存储从 Docker 中正式以插件的形式剥离开来，并且分别为其定义了标准，Docker 定义的网络模型标准称之为 CNM (Container Network Model) 。
-
-Docker 推出 CNM 的同时，CoreOS 推出了 CNI（Container Network Model）。起初，以 Kubernetes 为代表的容器编排阵营考虑过使用 CNM 作为容器的网络标准，但是后来由于很多技术和非技术原因（如果你对详细原因感兴趣，可以参考这篇博客），Kubernetes 决定支持 CoreOS 推出的容器网络标准 CNI。
-
-从此，容器的网络标准便分为两大阵营，一个是以 Docker 公司为代表的 CNM，另一个便是以 Google、Kubernetes、CoreOS 为代表的 CNI 网络标准。
-
-```
-
-CNM和CNI都是容器网络的spec
-
-
-```markdown
-CNM (Container Network Model) 是 Docker 发布的容器网络标准，意在规范和指定容器网络发展标准，CNM 抽象了容器的网络接口 ，使得只要满足 CNM 接口的网络方案都可以接入到 Docker 容器网络，更好地满足了用户网络模型多样化的需求。
-
-CNM 只是定义了网络标准，对于底层的具体实现并不太关心，这样便解耦了容器和网络，使得容器的网络模型更加灵活。
-
-CNM 定义的网络标准包含三个重要元素。
-
-- 沙箱（Sandbox）：沙箱代表了一系列网络堆栈的配置，其中包含路由信息、网络接口等网络资源的管理，沙箱的实现通常是 Linux 的 Net Namespace，但也可以通过其他技术来实现，比如 FreeBSD jail 等。
-- 接入点（Endpoint）：接入点将沙箱连接到网络中，代表容器的网络接口，接入点的实现通常是 Linux 的 veth 设备对。
-- 网络（Network）：网络是一组可以互相通信的接入点，它将多接入点组成一个子网，并且多个接入点之间可以相互通信。
-CNM 的三个要素基本抽象了所有网络模型，使得网络模型的开发更加规范。
-
-为了更好地构建容器网络标准，Docker 团队把网络功能从 Docker 中剥离出来，成为独立的项目 libnetwork，它通过插件的形式为 Docker 提供网络功能。Libnetwork 是开源的，使用 Golang 编写，它完全遵循 CNM 网络规范，是 CNM 的官方实现。Libnetwork 的工作流程也是完全围绕 CNM 的三个要素进行的，下面我们来详细了解一下 Libnetwork 是如何围绕 CNM 的三要素工作的。
-```
-
-sandbox, endpoint, network
-
-
-libnetwork就是CNM的具体实现
-
-后面内容是libnetwork的源码解析，这部分之后我自己会看，不需要看他的。
-
-再之后介绍了libnetwork的四种network mode，也就是bridge, host, container和null，这部分我就比较了解了，不需要看。
-
-
-所谓我想到了一个很好的问题：*能否比较一下docker和k8s的network？比如说从spec, network mode, 插件生态等方面比较*
-
-
-
-[Networking with Kubernetes. Containers are changing the landscape… | by Alok Kumar Singh | Practo Engineering | Medium](https://medium.com/practo-engineering/networking-with-kubernetes-1-3db116ad3c98)
-
----
-
-[14 文件存储驱动：AUFS 文件系统原理及生产环境的最佳配置](https://learn.lianglianglee.com/%e4%b8%93%e6%a0%8f/%e7%94%b1%e6%b5%85%e5%85%a5%e6%b7%b1%e5%90%83%e9%80%8f%20Docker-%e5%ae%8c/14%20%20%e6%96%87%e4%bb%b6%e5%ad%98%e5%82%a8%e9%a9%b1%e5%8a%a8%ef%bc%9aAUFS%20%e6%96%87%e4%bb%b6%e7%b3%bb%e7%bb%9f%e5%8e%9f%e7%90%86%e5%8f%8a%e7%94%9f%e4%ba%a7%e7%8e%af%e5%a2%83%e7%9a%84%e6%9c%80%e4%bd%b3%e9%85%8d%e7%bd%ae.md)
-
-```markdown
-说到这儿，你有没有发现，联合文件系统只是一个概念，真正实现联合文件系统才是关键，那如何实现呢？其实实现方案有很多，Docker 中最常用的联合文件系统有三种：AUFS、Devicemapper 和 OverlayFS。
-
-今天我主要讲解 Docker 中最常用的联合文件系统里的 AUFS，为什么呢？因为 AUFS 是 Docker 最早使用的文件系统驱动，多用于 Ubuntu 和 Debian 系统中。在 Docker 早期，OverlayFS 和 Devicemapper 相对不够成熟，AUFS 是最早也是最稳定的文件系统驱动。 Devicemapper 和 OverlayFS 联合文件系统，我将在第 15 和 16 课时为你详细剖析 。
-```
-
-AUFS, Devicemapper, OverlayFS
-
-这三种fs分别对应Debian/Ubuntu, RHEL(CentOS) 和 overlay2
-
-***前两种实际上已经废掉了，所以当我们说docker的fs时，指的就是overlay2***
-
-
-
-```shell
-docker info | grep Storage
-# Storage Driver: overlay2
-```
-
-```markdown
-AUFS 是如何存储文件的？
-AUFS 是联合文件系统，意味着它在主机上使用多层目录存储，每一个目录在 AUFS 中都叫作分支，而在 Docker 中则称之为层（layer），但最终呈现给用户的则是一个普通单层的文件系统，我们把多层以单一层的方式呈现出来的过程叫作联合挂载。
-```
-
-后面的具体原理就不看了，用不到。大概了解就行了。AUFS不重要。
-
-
-```markdown
-什么是 Devicemapper ？
-Devicemapper 是 Linux 内核提供的框架，从 Linux 内核 2.6.9 版本开始引入，Devicemapper 与 AUFS 不同，AUFS 是一种文件系统，而Devicemapper 是一种映射块设备的技术框架。
-
-Devicemapper 提供了一种将物理块设备映射到虚拟块设备的机制，目前 Linux 下比较流行的 LVM （Logical Volume Manager 是 Linux 下对磁盘分区进行管理的一种机制）和软件磁盘阵列（将多个较小的磁盘整合成为一个较大的磁盘设备用于扩大磁盘存储和提供数据可用性）都是基于 Devicemapper 机制实现的。
-
-那么 Devicemapper 究竟是如何实现的呢？下面我们首先来了解一下它的关键技术。
-```
-
-可以把DeviceMapper理解类似“虚拟内存之于物理内存映射”的东西，*是用来把物理storage映射为虚拟storage的机制。*
-
-```markdown
-Devicemapper 的关键技术
-
-Devicemapper 将主要的工作部分分为用户空间和内核空间。
-
-- 用户空间负责配置具体的设备映射策略与相关的内核空间控制逻辑，例如逻辑设备 dm-a 如何与物理设备 sda 相关联，怎么建立逻辑设备和物理设备的映射关系等。
-- 内核空间则负责用户空间配置的关联关系实现，例如当 IO 请求到达虚拟设备 dm-a 时，内核空间负责接管 IO 请求，然后处理和过滤这些 IO 请求并转发到具体的物理设备 sda 上。
-
-这个架构类似于 C/S （客户端/服务区）架构的工作模式，客户端负责具体的规则定义和配置下发，服务端根据客户端配置的规则来执行具体的处理任务。
-
-Devicemapper 的工作机制主要围绕三个核心概念。
-
-- 映射设备（mapped device）：即对外提供的逻辑设备，它是由 Devicemapper 模拟的一个虚拟设备，并不是真正存在于宿主机上的物理设备。
-- 目标设备（target device）：目标设备是映射设备对应的物理设备或者物理设备的某一个逻辑分段，是真正存在于物理机上的设备。
-- 映射表（map table）：映射表记录了映射设备到目标设备的映射关系，它记录了映射设备在目标设备的起始地址、范围和目标设备的类型等变量。
-
-```
-
-DeviceMapper也已经被废弃了，查看 [Use the Device Mapper storage driver (deprecated) | Docker Docs](https://docs.docker.com/storage/storagedriver/device-mapper-driver/) 可知
-
-[Device mapper - Wikipedia](https://en.wikipedia.org/wiki/Device_mapper)
-
----
-
-
-[16 文件存储驱动：OverlayFS 文件系统原理及生产环境的最佳配置](https://learn.lianglianglee.com/%e4%b8%93%e6%a0%8f/%e7%94%b1%e6%b5%85%e5%85%a5%e6%b7%b1%e5%90%83%e9%80%8f%20Docker-%e5%ae%8c/16%20%20%e6%96%87%e4%bb%b6%e5%ad%98%e5%82%a8%e9%a9%b1%e5%8a%a8%ef%bc%9aOverlayFS%20%e6%96%87%e4%bb%b6%e7%b3%bb%e7%bb%9f%e5%8e%9f%e7%90%86%e5%8f%8a%e7%94%9f%e4%ba%a7%e7%8e%af%e5%a2%83%e7%9a%84%e6%9c%80%e4%bd%b3%e9%85%8d%e7%bd%ae.md)
-
-
-```markdown
-OverlayFS 的发展分为两个阶段。2014 年，OverlayFS 第一个版本被合并到 Linux 内核 3.18 版本中，此时的 OverlayFS 在 Docker 中被称为overlay文件驱动。由于第一版的overlay文件系统存在很多弊端（例如运行一段时间后Docker 会报 “too many links problem” 的错误）， Linux 内核在 4.0 版本对overlay做了很多必要的改进，此时的 OverlayFS 被称之为overlay2。
-
-因此，在 Docker 中 OverlayFS 文件驱动被分为了两种，一种是早期的overlay，不推荐在生产环境中使用，另一种是更新和更稳定的overlay2，推荐在生产环境中使用。下面的内容我们主要围绕overlay2展开。
-```
-
-```markdown
-使用 overlay2 的先决条件
-...
-如何在 Docker 中配置 overlay2？
-...
-```
-
-前面说的pre-requirements和具体配置都没啥用，我们主要看工作机制。
-
-```markdown
-overlay2 和 AUFS 类似，它将所有目录称之为层（layer），overlay2 的目录是镜像和容器分层的基础，而把这些层统一展现到同一的目录下的过程称为联合挂载（union mount）。overlay2 把目录的下一层叫作lowerdir，上一层叫作upperdir，联合挂载后的结果叫作merged。
-
-overlay2 文件系统最多支持 128 个层数叠加，也就是说你的 Dockerfile 最多只能写 128 行，不过这在日常使用中足够了。
-```
-
-*overlay2最多支持128层*
-
-```shell
-sudo ls -l /var/lib/docker/overlay2/
-
-# 可以看到l目录是一堆软连接，把一些较短的随机串软连到镜像层的 diff 文件夹下，这样做是为了避免达到mount命令参数的长度限制。 下面我们查看任意一个镜像层下的文件内容：
-sudo ls -l /var/lib/docker/overlay2/l
-# total 8
-# drwxr-xr-x. 3 root root 17 Sep 13 08:16 diff
-# -rw-r--r--. 1 root root 26 Sep 13 08:16 link
-# -rw-r--r--. 1 root root 86 Sep 13 08:16 lower
-# drwx------. 2 root root  6 Sep 13 08:16 work
-
-# 镜像层的 link 文件内容为该镜像层的短 ID，diff 文件夹为该镜像层的改动内容，lower 文件为该层的所有父层镜像的短 ID
-
-
-```
-
-*link是该layer的短id，lower是该layer的所有父layer的短id，diff是修改*
-
-其实这部分内容就是
-
-```shell
-docker image inspect ubuntu
-#  "GraphDriver": {
-#            "Data": {
-#                "LowerDir": "/var/lib/docker/overlay2/4753c2aa5bdb20c97cddd6978ee3b1d07ef149e3cc2bbdbd4d11da60685fe9b2-init/diff:/var/lib/docker/overlay2/0849daa41598a333101f6a411755907d182a7fcef780c7f048f15d335b774deb/diff:/var/lib/docker/overlay2/9d392cf38f245d37699bdd7672daaaa76a7d702083694fa8be380087bda5e396/diff:/var/lib/docker/overlay2/94222a2fa3b2405cb00459285dd0d0ba7e6936d9b693ed18fbb0d08b93dc272f/diff:/var/lib/docker/overlay2/01946de89606800dac8530e3480b32be9d7c66b493a1cdf558df52d7a1476d4a/diff",
-#                "MergedDir": "/var/lib/docker/overlay2/4753c2aa5bdb20c97cddd6978ee3b1d07ef149e3cc2bbdbd4d11da60685fe9b2/merged",
-#                "UpperDir": "/var/lib/docker/overlay2/4753c2aa5bdb20c97cddd6978ee3b1d07ef149e3cc2bbdbd4d11da60685fe9b2/diff",
-#                "WorkDir": "/var/lib/docker/overlay2/4753c2aa5bdb20c97cddd6978ee3b1d07ef149e3cc2bbdbd4d11da60685fe9b2/work"
-#            },
-#            "Name": "overlay2"
-#        },
-```
-
-- MergedDir 后面的内容即为容器层的工作目录
-- LowerDir 为容器所依赖的镜像层目录
-
-
-这个其实很好理解，image inspect 本身就是用来查看layer的，那它和overlay2有关也就很好理解了。
-
-*可以把image inspect看作是对上面 `/var/lib/docker/overlay2/` 中各种link, lower, diff之类数据，处理后的可读数据。*
-
-
-```markdown
-link 和 lower 文件与镜像层的功能一致，**link 文件内容为该容器层的短 ID，lower 文件为该层的所有父层镜像的短 ID 。diff 目录为容器的读写层，容器内修改的文件都会在 diff 中出现，merged 目录为分层文件联合挂载后的结果，也是容器内的工作目录。**
-
-总体来说，overlay2 是这样储存文件的：overlay2将镜像层和容器层都放在单独的目录，并且有唯一 ID，每一层仅存储发生变化的文件，最终使用联合挂载技术将容器层和镜像层的所有文件统一挂载到容器中，使得容器中看到完整的系统文件。
-```
-
----
-
-overlay2 如何读取、修改文件？
-
-
-```markdown
-读取文件
-
-容器内进程读取文件分为以下三种情况。
-
-- 文件在容器层中存在：当文件存在于容器层并且不存在于镜像层时，直接从容器层读取文件；
-- 当文件在容器层中不存在：当容器中的进程需要读取某个文件时，如果容器层中不存在该文件，则从镜像层查找该文件，然后读取文件内容；
-- 文件既存在于镜像层，又存在于容器层：当我们读取的文件既存在于镜像层，又存在于容器层时，将会从容器层读取该文件。
-
-```
-
-其实就是经典的“从近到远”，先容器层后镜像层。CPU读取数据同样如此（先CPU本地的L1-L3，然后再读内存）。
-
-
-
-```markdown
-修改文件或目录
-
-overlay2 对文件的修改采用的是写时复制的工作机制，这种工作机制可以最大程度节省存储空间。具体的文件操作机制如下。
-
-第一次修改文件：当我们第一次在容器中修改某个文件时，overlay2 会触发写时复制操作，overlay2 首先从镜像层复制文件到容器层，然后在容器层执行对应的文件修改操作。
-overlay2 写时复制的操作将会复制整个文件，如果文件过大，将会大大降低文件系统的性能，因此当我们有大量文件需要被修改时，overlay2 可能会出现明显的延迟。好在，写时复制操作只在第一次修改文件时触发，对日常使用没有太大影响。
-
-删除文件或目录：当文件或目录被删除时，overlay2 并不会真正从镜像中删除它，因为镜像层是只读的，overlay2 会创建一个特殊的文件或目录，这种特殊的文件或目录会阻止容器的访问。
-```
-
-*overlay2使用COW来修改文件，主要是为了节省存储空间*
-
-需要注意的是，overlay2并不会真正删除文件，而是
-
-
-*可以看到这篇文档和官方文档 [Use the OverlayFS storage driver | Docker Docs](https://docs.docker.com/storage/storagedriver/overlayfs-driver/#how-the-overlay2-driver-works) 没啥区别*
-
-```markdown
-Deleting files and directories
-When a file is deleted within a container, a whiteout file is created in the container (upperdir). The version of the file in the image layer (lowerdir) is not deleted (because the lowerdir is read-only). However, the whiteout file prevents it from being available to the container.
-
-When a directory is deleted within a container, an opaque directory is created within the container (upperdir). This works in the same way as a whiteout file and effectively prevents the directory from being accessed, even though it still exists in the image (lowerdir).
-```
-
-[linux - OverlayFS: How Can I Delete Files, Not Hide Them - Server Fault](https://serverfault.com/questions/765441/overlayfs-how-can-i-delete-files-not-hide-them)
-
-[busybox - How can I delete changes from an overlay fs? - Unix & Linux Stack Exchange](https://unix.stackexchange.com/questions/308236/how-can-i-delete-changes-from-an-overlay-fs)
-
-*overlay not support delete files itself, we need to execute this by operations like "prune".*
-
-
-
-
----
-
-```markdown
-OverlayFS and Docker Performance
-overlay2 may perform better than btrfs. However, be aware of the following details:
-
-- Page caching
-- Copyup
-- performance best practices
-
-```
-
-
-
-
-```markdown
-how does docker container clear deleted files?
-```
-
-
-
-
----
-
-[深入浅出 Docker 技术栈实践课（完）](https://learn.lianglianglee.com/%E4%B8%93%E6%A0%8F/%E6%B7%B1%E5%85%A5%E6%B5%85%E5%87%BA%20Docker%20%E6%8A%80%E6%9C%AF%E6%A0%88%E5%AE%9E%E8%B7%B5%E8%AF%BE%EF%BC%88%E5%AE%8C%EF%BC%89)
-
-[05 容器网络机制和多主机网络实践](https://learn.lianglianglee.com/%E4%B8%93%E6%A0%8F/%E6%B7%B1%E5%85%A5%E6%B5%85%E5%87%BA%20Docker%20%E6%8A%80%E6%9C%AF%E6%A0%88%E5%AE%9E%E8%B7%B5%E8%AF%BE%EF%BC%88%E5%AE%8C%EF%BC%89/05%20%E5%AE%B9%E5%99%A8%E7%BD%91%E7%BB%9C%E6%9C%BA%E5%88%B6%E5%92%8C%E5%A4%9A%E4%B8%BB%E6%9C%BA%E7%BD%91%E7%BB%9C%E5%AE%9E%E8%B7%B5.md)
-
-
-为什么k8s的Overlay方案要用calico呢？为什么calico要用BGP而不是OSPF呢？
-
-
-```markdown
-既然k8s的Overlay方案要用calico呢？既然calico使用BGP，而k8s集群内部应该属于某个AS内部吧，既然如此岂不是应该使用OSPF，而不是BGP呢？
----
-
-对于Kubernetes集群内部的网络通信，确实可以选择不同的方案来实现路由和网络互联。Calico是一种常见的网络插件，它使用BGP协议作为路由协议。这种选择是因为Calico旨在提供高度可扩展的网络解决方案，并且适用于大规模的Kubernetes部署。
-
-关于为什么使用BGP而不是OSPF的问题，这涉及到一些设计上的考虑。BGP是一种外部路由协议，通常用于不同自治系统（AS）之间的路由选择。在Kubernetes集群内部，虽然也可以使用OSPF作为内部路由协议，但在实践中，使用BGP的优势更为明显。
-
-以下是一些使用BGP而不是OSPF的原因：
-
-1. 可扩展性：BGP在互联网中被广泛使用，具有更好的可扩展性和稳定性。它能够处理大规模的路由表，并支持复杂的网络拓扑。
-
-2. 多路径选择：BGP支持多路径选择，这对于构建高可用性和负载均衡的网络非常有用。OSPF在这方面相对较弱。
-
-3. 跨数据中心连接：如果你的Kubernetes集群分布在多个数据中心，使用BGP可以更容易地实现数据中心之间的互联。
-
-值得注意的是，对于小型Kubernetes集群或只在单个数据中心部署的情况，使用OSPF作为内部路由协议也是可行的。但如果你的集群规模较大或需要跨多个数据中心进行扩展，使用BGP可能是更好的选择。
-
-总结起来，选择Calico和BGP作为Kubernetes集群网络方案是为了实现更高的可扩展性、灵活性和跨数据中心的连接能力。
-```
-
-
-
-
-
-
 
 
 ### golang channel
@@ -9156,7 +8899,6 @@ gozero 本身提供的对 cache 的处理就比较好：
  通过 mutex 保证只有一个请求去访问数据库
 缓存雪崩：
  给缓存 key 自动设置随机过期时间，确保不会集中过期
-
 
 ```
 

@@ -7,6 +7,10 @@ date:  2024-08-30
 
 ## 概览
 
+[Admol/SystemDesign: 系统设计面试：内幕指南（System Design Interview: An Insider’s Guide）](https://github.com/Admol/SystemDesign)
+
+---
+
 这本书成书于2021年，还是比较新的，其中的系统设计题也确实是面试中比较高频的一些问题。
 
 全书共17章
