@@ -608,6 +608,10 @@
       url: https://book-refactoring2.ifmicro.com/
       author: Martin Fowler
 
+    - name: 《Go 程序员面试笔试宝典》
+      url: https://github.com/golang-design/go-questions
+      des: 欧长坤和饶全成写的那个，为了准备面试，整本书翻了n遍
+
 
 #    - name: 《大话设计模式》
 #      author: 程杰

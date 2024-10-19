@@ -1,6 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "automerge": false,
+  "automerge": true,
   "dependencyDashboard": true,
   "rebaseWhen": "conflicted",
   "ignoreDeps": [],
@@ -9,7 +9,7 @@
   "prConcurrentLimit": 30,
   "prHourlyLimit": 0,
   "schedule": "on sunday before 6:00am",
-  "timezone": "UTC",
+  "timezone": "PRC",
   "packageRules": [
     {
       "groupName": "react-component",
