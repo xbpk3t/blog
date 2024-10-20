@@ -2294,3 +2294,283 @@ PQ4R、信息流管理
 :::
 
 
+
+### [2024-10-19] 整理ws.yml
+
+
+<details>
+<summary>xxx</summary>
+
+
+:::tip
+
+- 我想明白了，其实我之前折腾的，需要的，现在在用的，就是 newsletter。而newsletter相比于各种rss-reader更能解决信息焦虑问题
+- ws.yml里的东西确实有点杂糅，且不说什么工具站、内容站，各自还能细分，比如说，都是内容站，图文还是视频？视频还分为youtube还是bz？bz视频也分为可以反复看反复咀嚼的，和看完一乐就完事的。也就是基于感官，还是基于认知的。这几种情况都要分开处理。
+
+
+:::
+
+
+```yaml
+
+#- type: translate
+#  urls:
+#    - name: 【Reverso】
+#      url: https://context.reverso.net/
+#      des: 翻译工具，会提供一些例句
+#
+##    - name: 译问 - 专注解决工作中的翻译问题
+##      url: https://www.qidulp.com/
+
+#    - url: https://github.com/yohasebe/deepl-alfred-translate-rewrite-workflow
+#      des: Deepl is easier to use than youdao, but it's too slow, It's no different from opening google-translate, and it's not as authentic as google-translate. So they were all deleted.
+##    - url: https://github.com/wensonsmith/YoudaoTranslator
+##      des: youdao-workflow is easy to use, but youdao-translate itself is hard to use. The Chinese-English translation is not very authentic, so it can only be used to translate words.
+
+
+#- type: running
+#  urls:
+#    - name: zuicool
+#  url: https://zuicool.com/events?type=run&where=jiangzhe&regtype=reg
+
+
+#- type: IDE
+#  urls:
+#    - name: Lightly
+#      url: https://lightly.teamcode.com/dashboard
+#    - name: Programiz
+#      url: https://www.programiz.com/
+#    - name: Replit
+#      url: https://replit.com/
+
+
+#    - url: https://analytics.google.com/analytics/web/
+#      name: Google Analytics
+
+#    - name: 猿人学
+#      url: https://match.yuanrenxue.cn/list
+#      des: Web 端爬虫攻防刷题平台
+
+#    - name: Pack Hacker
+#      url: https://packhacker.com/
+#      des: 这网站确实不错，非常有用。每篇帖子都是大长篇，非常系统地提供某个问题的解决方案，或者描述某个物品的各种子分类之间的区别
+#    - name: 黑猫投诉
+#      url: https://tousu.sina.com.cn/
+#      des: 相当于 1818
+#    - name: 七麦数据
+#      url: https://www.qimai.cn/
+
+#    - name: MacScripter
+#      url: https://www.macscripter.net/
+#      des: AppleScript
+
+#    - name: Web-Vitals
+#      url: https://www.experte.com/web-vitals
+#      des: 批量检查网页加载速度的工具，一次最多可以检查 500 个页面（比Pagespeed Insights好用）
+
+#    - name: 写作猫
+#      url: https://xiezuocat.com/#/
+#      des: 很难评价，确实能检查出一些，这是有效的。但是我把一些很经典的文章复制进去，也检查出语法问题，但是事实上这些反而是作者的妙手。另外，价格问题，免费版每天只有8000字。
+
+#    - name: Podwise
+#      url: https://podwise.ai/dashboard/trending
+#      des: LLM在podcast领域的应用，支持生成summary, mindmap, 文字稿, highlights. 这些功能还都挺实用的。免费用户每月只能查看4个episodes. standard会员可以查看无限个episodes，每月生成20个还没有被其他用户生成的episodes，$70/Year
+
+
+#    - name: Go Report Card
+#      url: https://goreportcard.com/
+#    - name: Website Metadata
+#      url: https://websitemetadata.com/
+#      des: 查看网页 meta 标签信息的工具。输入网址，就可以看到在各个搜索引擎和社交媒体平台上面显示的效果。还可以在线编辑生成 meta 标签。
+#    - name: 芝麻 HTTP
+#      url: https://www.zmhttp.com/
+#      des: 比较好用的代理 IP 网站，但是不便宜，用过几次还可以
+#    - name: 超级鹰
+#      url: https://www.chaojiying.com/
+#      des: 打码平台，还不错
+
+
+#    - name: 捷径库 - shortcuts
+#      url: https://jiejingku.net/
+#    - name: Investment Calculator
+#      url: https://www.calculator.net/investment-calculator.html
+
+
+---
+
+
+#    - url: https://user.guancha.cn/user/personal-homepage?uid=245057
+#      name: 【平原公子】
+#      des: 不太行，太情绪化了
+
+#    - url: https://www.qingting.fm/channels/418553
+#      name: 察话会
+
+#    - feed: https://dev.to/feed
+#      url: https://dev.to/
+#      name: 【DEV社区】
+#      des: 质量一般，刷20个帖子可能有1、2个感兴趣点开看的，平时可以刷刷，但是不适合作为feed
+
+
+#    - feed: https://rsshub-production-2ca8.up.railway.app/infoq/recommend
+#      url: https://www.infoq.cn/
+#      name: 【InfoQ】
+#      des: 感觉全是各云厂商和大厂开源项目的软广和业界新闻了，没啥意思
+
+
+#- name: 【scmp】
+#  url: https://www.scmp.com/
+#  des: South China Morning Post. 比联合早报靠谱
+
+#    - url: https://www.wired.com/
+#      name: 【Wired】
+#      des: 也就是《连线》，非常有名的科技类内容网站了，我非常喜欢阅读他们的专题内容，会用几篇文章不同角度来探讨一个话题。但受限于时间，23 年应该会取消订阅。广告太多，取消rss订阅了。
+#      rep:
+#        - name: 【The Information】
+#          des: the information 需要付费，$33/Month
+#        - name: 【ft news】
+#          des: 年费¥358，稍微有点干货的文章都要付费，看看标题得了。只订阅【hot10】，其他版块都没啥意思
+
+#    - url: https://www.caixin.com/
+#      name: 【财新】
+#      des: 看啥都得付费，财新通会员¥648/Year，有点贵
+
+#    - name: hostloc
+#      url: https://hostloc.com/
+#      des: loc没啥意思
+
+
+```
+
+
+```yaml
+
+#    - url: https://www.youtube.com/@crr0ww/videos
+#      name: 【crow】
+#      des: 停更了
+
+#    - url: https://www.youtube.com/@fasterthanlime/videos
+#      name: 【fasterthanlime】rust
+
+#    - url: https://www.youtube.com/@TravisMedia/videos
+#      name: 【TravisMedia】
+#      des: 搁这分享心灵鸡汤来了？
+
+
+#    - url: https://www.youtube.com/@t3dotgg/videos
+#      des: 【Theo】ts相关
+
+
+#    - url: https://www.youtube.com/@pixeled-yt/videos
+#      des: 【Pixeled】停更了
+
+
+
+#    - url: https://www.youtube.com/@JacobSorber/videos
+#      feed: https://www.youtube.com/feeds/videos.xml?channel_id=UCwd5VFu4KoJNjkWJZMFJGHQ
+#      des: c lang
+#    - url: https://www.youtube.com/@LowByteProductions/videos
+#      des: kernel
+
+
+#    - url: https://www.youtube.com/@Doriandotslash/videos
+#      name: 聊linux distro的频道，停更了
+
+```
+
+
+
+</details>
+
+
+---
+
+
+
+
+
+
+```yaml
+    #        - url: https://space.bilibili.com/482469389
+    #          des: 【何解毒】停更了，质量非常高。之前“分子人类学”的几期视频不错，什么姓氏溯源之类的
+    #        - url: https://space.bilibili.com/23008074
+    #          name: 【kris】
+    #          des: 曾经是我最喜欢的up主（没有之一），但是最近半年质量急剧下降。看了几次直播，也发觉并没有我预期/想象的那么“有意思”，不知道是什么问题。
+    #        - url: https://space.bilibili.com/490265189/video
+    #          name: 【荷包兔时间】
+    #          des: 之前取关过，但是现在的视频比之前更有干货了，可以看看
+
+
+    - url: https://space.bilibili.com/242209615
+      des: 【热带榕树】作为一个“观点输出类”博主，输出效率有点低，观点也不够鲜明，很墨迹。
+
+    #    - url: https://space.bilibili.com/2118238
+    #      name: 【一横zzz】
+    #      des: 搞传媒的mz，之前看美国2020年大选关注的，预测错误，也算是“反指”吧
+
+    #    - url: https://space.bilibili.com/9341526
+    #      name: 【胡风南渡】
+    #      des: 胡阁老最近两期“心学”和“明朝君主离线”的视频不错。但是更新太慢了，年更博主了属于是，跟【无聊的无桥】一样。质量高但是年更。
+
+
+    #    - url: https://space.bilibili.com/1050941634/video
+    #      name: 【刘牛牛Moo】
+    #      des: 上海自助
+    #      rep:
+    #        - url: https://space.bilibili.com/39627524/video
+    #          name: 【食贫道】
+    #          des: 其实没啥干货，做“充电视频”之后比之前更火了，但是我反而更喜欢之前的探店之类的视频，更实用吧。他“充电视频”想输出的那些东西，对我来说没有产生知识增量。
+    #        - url: https://space.bilibili.com/8263502/
+    #          name: 【橙飞】
+
+
+    #    - url: https://space.bilibili.com/414350632/video
+    #      name: 【吸奇侠】
+
+    #    - url: https://space.bilibili.com/539418077/video
+    #      name: 【车祸警示录】
+    #      des: 相较于【交通事故video】更好，后者最早12年就在优酷，16年在bz上传，毫无疑问是最早，但是这就是“社区迭代产品”的优势。真的每期都很炸裂。
+
+    #    - url: https://space.bilibili.com/97150452
+    #      name: 【跑不快的吴二】
+    #      des: 之前关注了可能至少30多个跑步博主，后来就只看看吴二了，偶尔看看宁哥。现在买鞋都买的是两三年前的、口碑本身不错的老款了，也就没必要看这些跑鞋博主了。
+
+
+
+    #    - url: https://space.bilibili.com/700380991/video
+    #      name: 【大门ZRR】
+    #      des: 内容还行，但是更新太慢了，所以清理掉，想起来看看就行了
+
+
+    - url: https://space.bilibili.com/1519547765/video
+      name: 【罗兰朵】
+      des: 真实有趣又有干货
+```
+
+
+
+---
+
+
+
+
+```yaml
+- name: 【BriefCake】
+  url: https://app.briefcake.com/
+  rep:
+    - name: 【mailchimp】
+      des: 需要付费
+    - url: https://feedbutler.app/en/feeds
+      des: 免费用户只能添加3条feed
+```
+
+自己实现了一个类似 BriefCake 的rss2newsletter服务，用不到了
+
+
+
+
+
+
+
+
+
