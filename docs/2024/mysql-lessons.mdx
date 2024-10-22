@@ -2303,16 +2303,46 @@ InnoDB 使用 MVCC 来支持高并发，并且实现了四个标准的隔离级�
 
 通过版本链的 trx_id 和 ReadView 的高低水位比较后，决定使用哪个版本
 
+```markdown
 - ReadView 的结构
-	- m_ids
-	- min_trx_id 低水位
-	- max_trx_id 高水位
-	- creator_trx_id
+ - m_ids
+ - min_trx_id 低水位
+ - max_trx_id 高水位
+ - creator_trx_id
 - undolog 版本链的结构
-	- trx_id，事务 id
-	- roll_pointer 回滚指针
+ - trx_id，事务 id
+ - roll_pointer 回滚指针
+```
 
 :::
+
+
+
+
+```markdown
+
+
+RC 和 RR 有什么区别？RC 和 RR 的 MVCC 机制为什么不同？
+
+*RC 和 RR 的区别在于 ReadView 快照生成时机不同，导致可见性不同*
+
+- RC 在每次读取数据前都生成一个 ReadView
+- RR 在第一次读取数据时生成一个 ReadView
+
+---
+
+- RR 和 RC 在锁方面的区别？
+- RR 和 RC 在复制方面的区别？
+- RR 和 RC 在一致性读方面的区别？RC 支持半一致性读，RR 不支持
+
+为什么 MySQL 把 RR 作为默认的隔离级别呢？
+
+MySQL 数据库的默认隔离级别是 RR，但是实际情况是使用 RR 和 RC 都不少，比如淘宝和网易都是使用的 RC 隔离级别
+
+
+```
+
+
 
 
 ---
@@ -2404,37 +2434,22 @@ MySQL 选择使用 B+树而不是 B 树作为其存储引擎主要基于以下�
 
 
 
+### InnoDB结构
 
----
+mysql-innodb-arch.png
 
+```markdown
+在内存结构里面，主要就是各种buffer缓冲区，这些缓冲区对于提升数据库性能上至关重要。
 
+Buffer Pool，缓冲池。缓冲池允许直接从内存中处理经常使用的数据，从而加快了处理速度。在专用服务器上，通常将多达 80％的物理内存分配给缓冲池。
+Change Buffer，更改缓冲区。这块缓冲区，是存放在Buffer Pool内部。更改缓冲区是一种特殊的数据结构，当这些页面不在Buffer Pool中时，该缓存可缓存对二级索引页的更改。可能由INSERT、UPDATE，或 DELETE操作(DML)导致的缓冲更改将在以后通过其他读取操作将页面加载到缓冲池中时合并。也就是说，其对应的数据不需要从磁盘加载到Buffer中，而是将变更存在在Change Buffer内，等待合适时机再merge 回去。
+Log Buffer，日志缓冲区。主要用来存放redo log 数据。
+在磁盘结构里面，就是各种类型的文件。所有的数据，最终都需要落到各种磁盘文件上来保证数据的持久性。核心的文件主要有：
 
-```yaml
-
-  - q: "***B+Tree SE***"
-    u: https://www.youtube.com/watch?v=9XtACKzFIRc
-    x: 这个视频相当有干货，从存储引擎为什么使用bptree说起，到各种tree的比较，再到写操作时bptree会执行哪些操作，再到这几种使用bptree的存储引擎分别是怎么保证ACID的，再到innodb和boltdb使用bptree的具体细节。
-
-
+表和索引文件。
+double write buffer文件。
+undo log 文件。
+redo log 文件。
+表空间、表、索引这些文件，是真正数据文件。double write buffer 是由于linux页大小4K，MySQL页大小16K，直接将MySQL页写到磁盘，可能导致部分成功、部分失败导致后期数据恢复存在问题，因为增加了double write buffer做数据恢复的时候使用。undo log事务回滚和MVCC时需要找到历史快照数据。redo log 则是保证数据的持久和原子性而存在的。
 ```
-
-
-```yaml
-- q: "***监控 MySQL 需要采集哪些指标？怎么监控 MySQL 的流量？***"
-  x: |
-    - `主从复制`，比如复制线程运行状态、延迟时间
-    - `查询吞吐量`，比如 Questions 计数器
-    - `慢查询`
-    - `连接数`，比如最大连接数、当前连接数、活跃连接数、累计连接数
-    - `innoDB 缓冲池`，比如缓冲池的总页数、空闲页数、利用率等参数
-  qs:
-    - q: 怎么用prom监控和analyze redis的big-keys, hot-keys?
-    - q: redis metrics
-
-```
-
-
-
-
-
 

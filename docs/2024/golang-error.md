@@ -70,11 +70,32 @@ date:  2024-08-17
 
 golang 没有 exception，只有error和panic
 
+
+```markdown
+异常是指在不该出现问题的地方出现问题，是预料之外的，比如空指针引用，下标越界，向空 map 添加键值等。
+
+- 人为制造被自动触发的异常，比如：数组越界，向空 map 添加键值对等。
+- 手工触发异常并终止异常，比如：连接数据库失败主动 panic。
+```
+
+```markdown
+go 源代码很多地方写 panic, 但是工程实践业务代码不要主动写 panic，理论上 panic 只存在于 server 启动阶段，比如 config 文件解析失败，端口监听失败等等，所有业务逻辑禁止主动 panic，所有异步的 goroutine 都要用 recover 去兜底处理。
+```
+
+
 ***业务代码中不应该出现panic***，并且如果存在panic，应该主动recover处理（通常都是实现一个recover中间件，来catch所有的panic，不需要手动逐个处理）
 
 golang 处理 error 则直接参考 [crunchy/errors.go at master · muesli/crunchy](https://github.com/muesli/crunchy/blob/master/errors.go)
 
-相比于普通的pkg中的错误处理，***golang项目有了分层，所以唯一需要注意的就是在各层用 `errors.Wrap()` 对err进行包装（追加stack以及相应的错误提示），而非直接 `return err`***，以便形成 error tree，及时发现问题。正如 [Don’t return err in Go — akavel's digital garden](https://akavel.com/go-errors) 中提到的，也就是 ***“错误处理的原则就是：错误只在逻辑的最外层处理一次，底层只返回错误。底层除了返回错误外，要对原始错误进行包装，增加错误信息、调用栈等这些有利于排查的上下文信息。”***
+相比于普通的pkg中的错误处理，***golang项目有了分层，所以唯一需要注意的就是在各层用 `errors.Wrap()` 对err进行包装（追加stack以及相应的错误提示），而非直接 `return err`***，以便形成 error tree，及时发现问题。正如 [Don’t return err in Go — akavel's digital garden](https://akavel.com/go-errors) 中提到的，也就是 ***错误处理的原则就是：***
+
+```markdown
+总结一下，错误处理的原则就是：
+
+- 错误只在逻辑的最外层处理一次，底层只返回错误。
+- 底层除了返回错误外，要对原始错误进行包装，增加错误信息、调用栈等这些有利于排查的上下文信息。
+```
+
 
 
 
