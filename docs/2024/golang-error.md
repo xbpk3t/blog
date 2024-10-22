@@ -118,6 +118,8 @@ golang 处理 error 则直接参考 [crunchy/errors.go at master · muesli/crunc
 
 [errors: add support for wrapping multiple errors · Issue #53435 · golang/go](https://github.com/golang/go/issues/53435) "We replace the term "error chain" with "error tree"." 所以应该是“错误树”而不是“错误链”，*因为golang1.20之后支持一次包装多个错误，于是错误之间可以建立 tree关系，而非之前的线性关系了*
 
+[这个好：Go 1.20 将支持 Wrapping 多个 errors](https://mp.weixin.qq.com/s?__biz=MzAxMTA4Njc0OQ==&mid=2651453836&idx=1&sn=d3bb60ca5efbdac920eef9fde88efbbb)
+
 
 ```yaml
 - type: Golang-Error-Handle
