@@ -124,10 +124,10 @@ golang 处理 error 则直接参考 [crunchy/errors.go at master · muesli/crunc
 ```yaml
 - type: Golang-Error-Handle
   repo:
- - url: https://github.com/hashicorp/go-multierror
-   des: 用来将多个error添加到MultiError中，并在需要时一起处理。可以避免传统handle error时的繁琐代码。
- - url: https://github.com/samber/oops
-   des: Error handling library with context, assertion, stack trace and source fragments
+  - url: https://github.com/hashicorp/go-multierror
+    des: 用来将多个error添加到MultiError中，并在需要时一起处理。可以避免传统handle error时的繁琐代码。
+  - url: https://github.com/samber/oops
+    des: Error handling library with context, assertion, stack trace and source fragments
 
 ```
 

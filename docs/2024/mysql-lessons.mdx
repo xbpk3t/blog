@@ -438,16 +438,6 @@ B+树中每层节点都是按照索引列值从小到大的顺序排序而组成
 	直接扫描整个索引
 ```
 
-![index-type.png](img/mysql-lessons/index-type.png)
-
-
-
-- const 主键索引、唯一索引等只有一条记录的
-- ref 普通索引
-- ref_or_null 普通索引，类似ref但是还要查找null
-- range 范围查询
-- index 全索引扫描
-- all 全表扫描
 
 
 
@@ -1129,7 +1119,7 @@ undolog page 链表是哪来的 干啥的
 
 
 
-
+## 《...》专题式讲解
 
 
 
@@ -1162,6 +1152,56 @@ undolog page 链表是哪来的 干啥的
 
 
 
+### 30、设计MySQL的大叔为何偏爱ref
+
+[30、专题式讲解 —— 设计MySQL的大叔为何偏爱ref - 《MySQL 是怎样运行的：从根儿上理解 MySQL》 · IT书架](https://itshujia.com/read/mysql/107.html)
+
+---
+
+```markdown
+
+MySQL的内部实现
+MySQL优化器在计算回表的成本时，在使用二级索引执行查询并且需要回表的情境下，对于ref和range是很明显的区别对待的：
+
+对于range来说，需要扫描多少条二级索引记录，就相当于需要访问多少个页面。每访问一个页面，回表的I/O成本就加1。
+
+比方对于查询2来说，需要回表的记录数是2310，因为回表操作而计算的I/O成本就是2310。
+
+对于ref来说，回表开销带来的I/O成本存在天花板，也就是定义了一个上限值：
+
+double    worst_seeks;
+
+这个上限值的取值是从下边两个值中取较小的那个：
+*   全表记录数的十分之一（此处的全表记录数属于统计数据，是一个估计值）
+*   聚簇索引所占页面的3倍
+    比方对于查询1来说，回表的记录数是2310，按理说计算因回表操作带来的I/O成本也应该是2310。但是由于对于ref访问方法，计算回表操作时带来的I/O成本时存在天花板，会从全表记录的十分之一（也就是9912/10=991，9912为估计值）以及聚簇索引所占页面的3倍（本例中聚簇索引占用的页面数就是97，乘以3就是291）选择更小的那个，本例中也就是291。
+```
+
+```markdown
+小贴士：
+
+在成本分析的代码中，range和index、all是被分到一类里的，ref是亲儿子，单独分析了一波。不过我们也可以看到，设计MySQL的大叔在计算range访问方法的代价时，直接认为每次回表都需要进行一次页面I/O，这是十分粗暴的，何况我们的实际聚簇索引总共才97个页面，它却将回表成本计算为2310，这也是很不精确的。当然，由于目前的算法无法预测哪些页面在内存中，哪些不在，所以也就将就将就用吧～
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### 31、专题式讲解 —— MySQL中NULL值引起的小锅
+
+
+
+
 
 
 ### 32、MySQL使用索引执行IN子句
@@ -1171,11 +1211,21 @@ undolog page 链表是哪来的 干啥的
 
 ---
 
+
+
+
+
+
 ### 33、MySQL的COUNT语句是怎么执行的
 
 [33、MySQL的COUNT语句是怎么执行的 - 《MySQL 是怎样运行的：从根儿上理解 MySQL》 · IT书架](https://itshujia.com/read/mysql/110.html)
 
 ---
+
+
+
+
+
 
 
 
@@ -1576,59 +1626,6 @@ redolog其实就是WAL，通过先记录日志再写入数据的方式，确保�
 
 
 [08 事务到底是隔离的还是不隔离的？](https://learn.lianglianglee.com/%e4%b8%93%e6%a0%8f/MySQL%e5%ae%9e%e6%88%9845%e8%ae%b2/08%20%20%e4%ba%8b%e5%8a%a1%e5%88%b0%e5%ba%95%e6%98%af%e9%9a%94%e7%a6%bb%e7%9a%84%e8%bf%98%e6%98%af%e4%b8%8d%e9%9a%94%e7%a6%bb%e7%9a%84%ef%bc%9f.md) 这章就是MVCC相关了
-
-
-
-
-
-
-
-
-
-
-
-## catkang
-
-[数据库故障恢复机制的前世今生 | CatKang的博客](https://catkang.github.io/2019/01/16/crash-recovery.html)
-
-
-```markdown
-ARIES，一统江湖
-
-1992年，IBM的研究员们发表了《ARIES: a transaction recovery method supporting fine-granularity locking and partial rollbacks using write-ahead logging》[2]，其中提出的ARIES逐步成为磁盘数据库实现故障恢复的标配，ARIES本质是一种Redo-Undo的WAL实现。 Normal过程：修改数据之前先追加Log记录，Log内容同时包括Redo和Undo信息，每个日志记录产生一个标记其在日志中位置的递增LSN（Log Sequence Number）；数据Page中记录最后修改的日志项LSN，以此来判断Page中的内容的新旧程度，实现幂等。故障恢复阶段需要通过Log中的内容恢复数据库状态，为了减少恢复时需要处理的日志量，ARIES会在正常运行期间周期性的生成Checkpoint，Checkpoint中除了当前的日志LSN之外，还需要记录当前活跃事务的最新LSN，以及所有脏页，供恢复时决定重放Redo的开始位置。需要注意的是，由于生成Checkpoint时数据库还在正常提供服务（Fuzzy Checkpoint），其中记录的活跃事务及Dirty Page信息并不一定准确，因此需要Recovery阶段通过Log内容进行修正。
-
-Recover过程：故障恢复包含三个阶段：Analysis，Redo和Undo。Analysis阶段的任务主要是利用Checkpoint及Log中的信息确认后续Redo和Undo阶段的操作范围，通过Log修正Checkpoint中记录的Dirty Page集合信息，并用其中涉及最小的LSN位置作为下一步Redo的开始位置RedoLSN。同时修正Checkpoint中记录的活跃事务集合（未提交事务），作为Undo过程的回滚对象；Redo阶段从Analysis获得的RedoLSN出发，重放所有的Log中的Redo内容，注意这里也包含了未Commit事务；最后Undo阶段对所有未提交事务利用Undo信息进行回滚，通过Log的PrevLSN可以顺序找到事务所有需要回滚的修改。
-
-除此之外，ARIES还包含了许多优化设计，例如通过特殊的日志记录类型CLRs避免嵌套Recovery带来的日志膨胀，支持细粒度锁，并发Recovery等。[3]认为，ARIES有两个主要的设计目标：
-
-	Feature：提供丰富灵活的实现事务的接口：包括提供灵活的存储方式、提供细粒度的锁、支持基于Savepoint的事务部分回滚、通过Logical Undo以获得更高的并发、通过Page-Oriented Redo实现简单的可并发的Recovery过程。
-
-	Performance：充分利用内存和磁盘介质特性，获得极致的性能：采用No-Force避免大量同步的磁盘随机写、采用Steal及时重用宝贵的内存资源、基于Page来简化恢复和缓存管理。
-```
-
-总结的太棒了
-
-
----
-
-[庖丁解InnoDB之REDO LOG | CatKang的博客](https://catkang.github.io/2020/02/27/mysql-redo.html)
-
-
-[庖丁解InnoDB之Undo LOG | CatKang的博客](https://catkang.github.io/2021/10/30/mysql-undo.html)
-
-[庖丁解InnoDB之Buffer Pool | CatKang的博客](https://catkang.github.io/2023/08/08/mysql-buffer-pool.html)
-
-
----
-
-
-[B+树数据库加锁历史 | CatKang的博客](https://catkang.github.io/2022/01/27/btree-lock.html)
-
-[B+树数据库故障恢复概述 | CatKang的博客](https://catkang.github.io/2022/10/05/btree-crash-recovery.html)
-
-
-[浅谈分布式存储系统数据分布方法 | CatKang的博客](https://catkang.github.io/2017/12/17/data-placement.html)
-
 
 
 
@@ -2511,4 +2508,60 @@ undo log 文件。
 redo log 文件。
 表空间、表、索引这些文件，是真正数据文件。double write buffer 是由于linux页大小4K，MySQL页大小16K，直接将MySQL页写到磁盘，可能导致部分成功、部分失败导致后期数据恢复存在问题，因为增加了double write buffer做数据恢复的时候使用。undo log事务回滚和MVCC时需要找到历史快照数据。redo log 则是保证数据的持久和原子性而存在的。
 ```
+
+
+
+
+
+
+## catkang
+
+[数据库故障恢复机制的前世今生 | CatKang的博客](https://catkang.github.io/2019/01/16/crash-recovery.html)
+
+
+```markdown
+ARIES，一统江湖
+
+1992年，IBM的研究员们发表了《ARIES: a transaction recovery method supporting fine-granularity locking and partial rollbacks using write-ahead logging》[2]，其中提出的ARIES逐步成为磁盘数据库实现故障恢复的标配，ARIES本质是一种Redo-Undo的WAL实现。 Normal过程：修改数据之前先追加Log记录，Log内容同时包括Redo和Undo信息，每个日志记录产生一个标记其在日志中位置的递增LSN（Log Sequence Number）；数据Page中记录最后修改的日志项LSN，以此来判断Page中的内容的新旧程度，实现幂等。故障恢复阶段需要通过Log中的内容恢复数据库状态，为了减少恢复时需要处理的日志量，ARIES会在正常运行期间周期性的生成Checkpoint，Checkpoint中除了当前的日志LSN之外，还需要记录当前活跃事务的最新LSN，以及所有脏页，供恢复时决定重放Redo的开始位置。需要注意的是，由于生成Checkpoint时数据库还在正常提供服务（Fuzzy Checkpoint），其中记录的活跃事务及Dirty Page信息并不一定准确，因此需要Recovery阶段通过Log内容进行修正。
+
+Recover过程：故障恢复包含三个阶段：Analysis，Redo和Undo。Analysis阶段的任务主要是利用Checkpoint及Log中的信息确认后续Redo和Undo阶段的操作范围，通过Log修正Checkpoint中记录的Dirty Page集合信息，并用其中涉及最小的LSN位置作为下一步Redo的开始位置RedoLSN。同时修正Checkpoint中记录的活跃事务集合（未提交事务），作为Undo过程的回滚对象；Redo阶段从Analysis获得的RedoLSN出发，重放所有的Log中的Redo内容，注意这里也包含了未Commit事务；最后Undo阶段对所有未提交事务利用Undo信息进行回滚，通过Log的PrevLSN可以顺序找到事务所有需要回滚的修改。
+
+除此之外，ARIES还包含了许多优化设计，例如通过特殊的日志记录类型CLRs避免嵌套Recovery带来的日志膨胀，支持细粒度锁，并发Recovery等。[3]认为，ARIES有两个主要的设计目标：
+
+	Feature：提供丰富灵活的实现事务的接口：包括提供灵活的存储方式、提供细粒度的锁、支持基于Savepoint的事务部分回滚、通过Logical Undo以获得更高的并发、通过Page-Oriented Redo实现简单的可并发的Recovery过程。
+
+	Performance：充分利用内存和磁盘介质特性，获得极致的性能：采用No-Force避免大量同步的磁盘随机写、采用Steal及时重用宝贵的内存资源、基于Page来简化恢复和缓存管理。
+```
+
+总结的太棒了
+
+
+---
+
+[庖丁解InnoDB之REDO LOG | CatKang的博客](https://catkang.github.io/2020/02/27/mysql-redo.html)
+
+
+[庖丁解InnoDB之Undo LOG | CatKang的博客](https://catkang.github.io/2021/10/30/mysql-undo.html)
+
+[庖丁解InnoDB之Buffer Pool | CatKang的博客](https://catkang.github.io/2023/08/08/mysql-buffer-pool.html)
+
+
+---
+
+
+[B+树数据库加锁历史 | CatKang的博客](https://catkang.github.io/2022/01/27/btree-lock.html)
+
+[B+树数据库故障恢复概述 | CatKang的博客](https://catkang.github.io/2022/10/05/btree-crash-recovery.html)
+
+
+[浅谈分布式存储系统数据分布方法 | CatKang的博客](https://catkang.github.io/2017/12/17/data-placement.html)
+
+
+
+
+
+
+
+
+
 
