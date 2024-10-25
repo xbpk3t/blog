@@ -9,7 +9,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 
 
 const config: Config = {
-  title: 'Lucas Blog',
+  title: 'LucasBlog',
   tagline: 'just for the record',
   favicon: 'img/favicon.svg',
   staticDirectories: ['static'],

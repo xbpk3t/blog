@@ -36,6 +36,11 @@ img:not(.avatar__photo) {
   max-width: 60%;
    /*居中展示 */
   /*padding-left: 20%;*/
+
+  /* 使用Flexbox居中展示 */
+  display: block; /* 确保图片作为块级元素显示 */
+  margin-left: auto;
+  margin-right: auto;
 }
 
 
