@@ -1,0 +1,174 @@
+---
+title: Dockerfile 最佳实践
+slug: /2024/dockerfile-best-practices
+date: 2024-10-25
+---
+
+
+
+每个人都会写 Dockerfile，但是往往在实践中会或多或少存在一些问题
+
+所以这篇文章只作为 checklist 存在（而并非知识点），也可以用来作为“查缺补漏”，具体相关知识建议自己搜索
+
+
+:::tip
+
+简单来说，分为两部分，“优化构建过程”和“减小攻击面，保证容器安全”
+
+- build (Size, Layer, Accelerated build speed)
+- security (hardware resource, auth control)
+
+:::
+
+
+
+## build
+
+
+### 减小 image 体积
+
+- 使用 busybox/alpine/debian-slim/coreOS 之类的基础镜像
+- **使用多阶段构建**
+- 使用 `.dockerignore` 文件
+- 删除不必要的软件包（不仅可以减小 image 提及，还可以缩小攻击面）
+- 最小化镜像层数，镜像层数尽可能少
+
+
+### 减少 image 层数
+
+- *优先使用 `单行RUN` 而不是 `多行RUN` ，因为每多一个 RUN 就会多构建一层（但是单行 RUN 的可读性更强，所以我们要在`可读性`和`最小层数`之间找到平衡）* [docker - Multiple RUN vs. single chained RUN in Dockerfile, which is better? - Stack Overflow](https://stackoverflow.com/questions/39223249)
+- *构建缓存*
+- *不要在 Dockerfile 中单独修改文件的权限*。因为 docker 镜像是分层的，任何修改都会新增一层。如果一个命令单独修改文件权限，会把这些文件复制一份，导致最终构建的镜像很大。针对这种问题，有三种解决方案
+
+---
+
+- 在把文件添加到 Dockerfile 之前就把文件权限设置好
+- 在容器启动脚本 (entrypoint) 中进行这些操作
+- 在 COPY 文件时，进行修改文件权限操作 (这样不会新增一层，因为只有 COPY 操作)
+
+
+<details>
+<summary>避免安装不必要的包</summary>
+
+比如前端应用使用 `npm install --production` 只装生产环境所依赖的包
+
+```dockerfile
+
+FROM node:10-alpine as builder
+
+ENV PROJECT_ENV production
+ENV NODE_ENV production
+
+# http-server 不变动也可以利用缓存
+WORKDIR /code
+
+ADD package.json /code
+# highlight-next-line
+RUN npm install --production
+
+ADD ../../../blog /code
+RUN npm run build
+
+# 选择更小体积的基础镜像
+FROM nginx:10-alpine
+COPY --from=builder /code/public /usr/share/nginx/html
+
+```
+
+</details>
+
+
+
+### 加快 build 速度
+
+- ~~*将多行参数排序*~~ 意义不大
+- *优先使用 `COPY` 而不是 `ADD`*
+- CMD 和 ENTRYPOINT 命令，优先使用数组而非字符串（直接使用命令）
+- 充分利用“构建缓存”，来加快 build 速度
+- 做好“image 预热”（使用自动化运维工具，在所有 Docker 节点上提前执行 docker pull 命令，把镜像下载到本地，实现镜像预热）
+
+
+
+<details>
+<summary>构建缓存</summary>
+
+在镜像的构建过程中 docker 会遍历 Dockerfile 文件中的所有指令，顺序执行。对于每一条指令，docker 都会在缓存中查找是否已存在可重用的镜像，否则会创建一个新的镜像
+
+我们可以使用 docker build --no-cache 跳过缓存
+
+ADD 和 COPY 将会计算文件的 checksum 是否改变来决定是否利用缓存
+RUN 仅仅查看命令字符串是否命中缓存，如 RUN apt-get -y update 可能会有问题
+如一个 node 应用，可以先拷贝 package.json 进行依赖安装，然后再添加整个目录，可以做到充分利用缓存的目的。
+
+```Dockerfile
+
+FROM node:10-alpine as builder
+
+WORKDIR /code
+
+ADD package.json /code
+# 此步将可以充分利用 node_modules 的缓存
+RUN npm install --production
+
+ADD ../zzz /code
+
+RUN npm run build
+
+
+```
+
+</details>
+
+
+
+
+
+## security
+
+
+- *容器应该是短暂的*
+- 基础镜像不要使用 latest 标签
+- *一个容器只运行一个进程*
+- 在 Dockerfile 中添加 healthcheck
+- 定期扫描 image，及时发现漏洞，解决漏洞
+
+
+### hardware resource control (CPU, memory, port, namespace)
+
+
+- 禁止容器获得新的权限。默认情况下，容器可以获得新的权限，所以这个配置必须另行设置。另一个做法是删除镜像中的 setuid 和 setgid 权限，以尽量减少权限升级攻击。
+- 不要在容器内映射任何低于 1024 的端口，因为这些端口是有特权的端口，可以传输敏感数据。默认情况下，Docker 会将容器端口映射到 49153-65525 范围内的端口。
+- 除非必要，不要共享主机的网络命名空间、进程命名空间、IPC 命名空间、用户命名空间或 UTS 命名空间，以确保对 Docker 容器和底层主机之间进行适当隔离。
+- 指定容器运行所需的内存和 CPU 大小。默认情况下，Docker 容器是共享资源，没有限制。
+- 不要使用默认的 `docker0` 网桥。使用默认的网桥容易受到 ARP 欺骗和 MAC 洪泛攻击。容器应该使用用户自定义的网络，而不是默认的 `docker0` 网桥。
+
+
+
+
+
+### Auth control
+
+- *添加普通权限用户而非 root*，docker 在容器内默认以 root 用户运行容器进程，因为如果攻击者通过漏洞获得了对容器对访问权限，就可以访问所有 root 权限，并且可以对 docker 宿主机进行攻击。添加用户后，通过 `docker run -i sample id` 验证是否添加用户成功。
+- 不要给容器添加"–privileged"容器标签，因为特权容器拥有底层主机的大部分功能，明确标记特权容器会被攻击者恶意利用。而且，这个标签也会覆盖掉用 CAP DROP 或 CAP ADD 设置的任何规则。
+- 不要在容器内运行 sshd。默认情况下，ssh 守护程序不会在容器中运行，不要为了简化 SSH 服务器的安全管理就安装 ssh 守护程序。
+
+
+<details>
+<summary>指定普通权限用户</summary>
+
+```Dockerfile
+
+RUN addgroup --system app && adduser --system --group app
+
+USER app
+
+# 或者
+
+RUN addgroup --gid 1001 --system app && \
+    adduser --no-create-home --shell /bin/false --disabled-password --uid 1001 --system --group app
+
+USER app
+
+```
+
+</details>
