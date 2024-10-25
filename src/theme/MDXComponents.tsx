@@ -10,7 +10,6 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import BlogArchive from "@site/src/components/ArchivePage";
 import BrowserWindow from "@site/src/components/BrowserWindow";
-import Figure from "@site/src/components/Figures";
 
 export default {
   ...MDXComponents,
@@ -18,5 +17,4 @@ export default {
   TabItem,
   BlogArchive,
   BrowserWindow,
-  Figure
 };
