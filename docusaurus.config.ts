@@ -6,6 +6,8 @@
 import {themes as prismThemes} from 'prism-react-renderer';
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
+import rehypeUnwrapImages from 'rehype-unwrap-images'
+import rehypeFigure from '@microflash/rehype-figure';
 
 
 const config: Config = {
@@ -51,7 +53,8 @@ const config: Config = {
           sidebarPath: require.resolve('./sidebars.ts'),
           showLastUpdateTime: true,
           showLastUpdateAuthor: true,
-          tags: 'tags.yml'
+          tags: 'tags.yml',
+          rehypePlugins: [rehypeUnwrapImages, rehypeFigure],
           // remarkPlugins: [
           //   [
           //     remarkKroki,

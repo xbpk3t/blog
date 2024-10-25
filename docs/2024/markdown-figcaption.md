@@ -42,6 +42,9 @@ markdown image description as figcaption
 [图片下方的说明文字如何加上的？如何自定义字体？ · Issue #4 · reuixiy/reuixiy.github.io](https://github.com/reuixiy/reuixiy.github.io/issues/4)
 
 
+
+给 docusaurus 添加 figcaption 支持
+
 docusaurus markdown image description as figcaption
 
 [Feedback | Docusaurus](https://docusaurus.io/feature-requests/p/image-captions)
@@ -55,4 +58,15 @@ docusaurus markdown image description as figcaption
 [Docusaurus 3: how to migrate rehype plugins | johnnyreilly](https://johnnyreilly.com/docusaurus-3-how-to-migrate-rehype-plugins)
 
 
+
+---
+
+[astar-docs/src/components/figure.tsx at main · AstarNetwork/astar-docs](https://github.com/AstarNetwork/astar-docs/blob/main/src/components/figure.tsx)
+
+[Astar Subsquare - On-chain Governance | Welcome to Astar](https://docs.astar.network/docs/use/governance/subsquare_guide)
+
+
+可以看到，目前大部分都还是通过components实现figcaption（包括rabbitmq的官方文档），
+
+而不是通过remark或者rehype的方式直接加载
 

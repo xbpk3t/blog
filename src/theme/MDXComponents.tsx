@@ -10,11 +10,13 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import BlogArchive from "@site/src/components/ArchivePage";
 import BrowserWindow from "@site/src/components/BrowserWindow";
+import Figure from "@site/src/components/Figures";
 
 export default {
   ...MDXComponents,
   Tabs,
   TabItem,
   BlogArchive,
-  BrowserWindow
+  BrowserWindow,
+  Figure
 };
