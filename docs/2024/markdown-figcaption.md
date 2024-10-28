@@ -70,3 +70,4 @@ docusaurus markdown image description as figcaption
 
 而不是通过remark或者rehype的方式直接加载
 
+[rehypejs/rehype-unwrap-images: rehype plugin to remove the wrapping paragraph (`<p>`) for images (`<img>`)](https://github.com/rehypejs/rehype-unwrap-images)
