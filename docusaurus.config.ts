@@ -17,17 +17,17 @@ const config: Config = {
   staticDirectories: ['static'],
 
   // Set the production url of your site here
-  url: 'https://xbpk3t.github.io',
+  url: 'https://blog.hxha.xyz',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: '/',
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  projectName: 'xbpk3t.github.io',
-  organizationName: 'xbpk3t',
-  trailingSlash: false,
-  deploymentBranch: 'gh-pages',
+  // projectName: 'xbpk3t.github.io',
+  // organizationName: 'xbpk3t',
+  // trailingSlash: false,
+  // deploymentBranch: 'gh-pages',
 
 
   onBrokenLinks: 'warn', // docusaurus build 时忽略坏链
