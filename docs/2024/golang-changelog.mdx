@@ -1,0 +1,206 @@
+---
+title: golang CHANGELOG
+slug: /2024/golang-changelog
+date:  2024-09-14
+---
+
+
+
+
+
+
+
+
+
+## golang1.23
+
+
+- [Go 1.23中值得关注的几个变化 | Tony Bai](https://tonybai.com/2024/08/19/some-changes-in-go-1-23/)
+- [Go 1.23 版本发布啦，这些重大更新你一定要知道！ - 陈明勇的博客](https://chenmingyong.cn/posts/go1.23-release)
+- [Go 1.23.0 正式发布，从语法、工具链、标准库等多方面进行了改进 - Go - 话题 - AI 中文社区](https://www.aizws.net/topic/detail/155)
+
+---
+
+
+[Understanding Iterators in Go: A Fun Dive! - DEV Community](https://dev.to/tuna99/understanding-iterators-in-go-a-fun-dive-1c57)
+
+
+
+[Range Over Function Types - The Go Programming Language](https://go.dev/blog/range-functions)
+
+
+[Iterators in Go — Bitfield Consulting](https://bitfieldconsulting.com/posts/iterators)
+
+[Go 1.23中的自定义迭代器与iter包 | Tony Bai](https://tonybai.com/2024/06/24/range-over-func-and-package-iter-in-go-1-23/)
+
+
+
+
+
+
+
+
+
+## golang1.22
+
+- [Go 1.22中值得关注的几个变化 | Tony Bai](https://tonybai.com/2024/02/18/some-changes-in-go-1-22/)
+- [Go 1.22新特性前瞻 | Tony Bai](https://tonybai.com/2023/12/25/go-1-22-foresight/)
+- [Golang 1.22新特性 - ALOVN的博客](https://blog.alovn.cn/2024/03/01/go1.22-feature/)
+
+---
+
+
+
+
+
+
+
+
+
+
+
+## golang1.21
+
+- [Go 1.21的2个语言变化Go 1.20已经于今年2月份发布，Go 1.21也不远了，我们来先堵为快，看看Go 1.2 - 掘金](https://juejin.cn/post/7201316570316472376)
+- [Go 1.21新特性前瞻 | Tony Bai](https://tonybai.com/2023/04/26/go-1-21-foresight/)
+- [Go 1.21中值得关注的几个变化 | Tony Bai](https://tonybai.com/2023/08/20/some-changes-in-go-1-21/)
+
+---
+
+
+
+
+
+
+
+
+
+## golang1.14 - golang1.20
+
+
+```markdown
+## golang1.14
+
+- interface 的菱形组合
+
+
+
+## golang1.16
+
+- `go:embed`支持静态资源嵌入
+- 在 Linux 下的默认内存管理策略会从`MADV_FREE`改回`MADV_DONTNEED`策略
+- 模块版本回撤`mod edit -retract=xxx`
+- 废弃 io/ioutil
+- 新增 io/fs
+- 调整 slice 的扩容策略
+
+
+
+## golang1.17
+
+- 编译器性能提升 5%，*从基于`Plan9 ABI`的`堆栈调用约定`改为`调用惯例`，也就是，从原有的基于堆栈的函数参数和结果传递的方式改为基于寄存器的函数参数和结果传递*，在性能上，现在直接存储和计算都在寄存器上，和以前基于堆栈存储，再计算相比，现在这种模式势必是性能更优的。
+- gomod 的直接依赖和间接依赖分开，以及延时模块加载 (间接依赖模块在真正需要时才加载)
+- 切片转指针
+
+
+
+## golang1.18
+
+- 泛型
+- 给互斥锁加了 TryLock 方法
+- fuzz test
+
+
+
+## golang1.19
+
+- 内存模型：（这个没看懂，再看看）
+- 引入 Soft memory limit，来优化 GOGC
+
+---
+
+- [万字长文告诉你 Go 1.19 中值得关注的几个变化](https://mp.weixin.qq.com/s?__biz=MzAxMTA4Njc0OQ==&mid=2651453407&idx=1&sn=97785ac0e80ad80b9c42f6021669656e)
+
+
+
+## golang1.20
+
+golang1.20 是 golang1.18 之后最大的语法变化，其中最大的 feat 就是“允许切片直接转换为数组”和编译器优化技术 PGO
+
+- *slice 转数组（byte slice 和 string 的转换优化）*
+- 添加 interface 作为 Comparable 类型，之后就可以直接比较 interface 了（之前版本会编译报错，因为*golang 泛型里 comparable 这个类型约束有个坑，就是和 golang 里定义的可比较类型不一致*）
+- *unsafe 包添加了 Slice() SliceData() String() StringData() 函数，用来构造和解构 slice 和 string*
+- ~~值比较~~
+- context 包添加 context.WithCancelCause() 支持自定义取消 [Go1.20 新特性：context 支持自定义取消原因](https://mp.weixin.qq.com/s?__biz=MzAxMTA4Njc0OQ==&mid=2651453958&idx=1&sn=a063f923ee4ebb53da951e18faee9628)
+- 拓展测试覆盖率 coverage 到应用整体
+- time 包加了三个时间 layout 格式常量，以后直接用`DateTime`/`DateOnly`/`TimeOnly`即可
+- 支持 wrapping 多个 errors
+
+---
+
+除此之外还有：
+
+- 编译器优化技术 PGO
+- arean 手动管理内存
+
+```
+
+
+
+
+
+
+
+
+
+## golang sync CHANGELOG
+
+
+[2023年 Go 并发库的变化综述](https://colobu.com/2023/12/03/status-og-so-sync-in-2023/)
+
+仿照写一个 2024年 sync的变化
+
+
+
+
+
+
+## GMP CHANGELOG
+
+```markdown
+
+今天的 Go 语言调度器有着优异的性能，但是如果我们回头看 Go 语言的 0.x 版本的调度器会发现最初的调度器不仅实现非常简陋，也无法支撑高并发的服务。调度器经过几个大版本的迭代才有今天的优异性能，历史上几个不同版本的调度器引入了不同的改进，也存在着不同的缺陷：
+
+单线程调度器 · 0.x
+ 只包含 40 多行代码；
+ 程序中只能存在一个活跃线程，由 G-M 模型组成；
+
+多线程调度器 · 1.0
+ 允许运行多线程的程序；
+ 全局锁导致竞争严重；
+
+任务窃取调度器 · 1.1
+ 引入了处理器 P，构成了目前的 G-M-P 模型；
+ 在处理器 P 的基础上实现了基于工作窃取的调度器；
+ 在某些情况下，Goroutine 不会让出线程，进而造成饥饿问题；
+ 时间过长的垃圾回收（Stop-the-world，STW）会导致程序长时间无法工作；
+
+抢占式调度器 · 1.2 ~ 至今
+ 基于协作的抢占式调度器 - 1.2 ~ 1.13
+  通过编译器在函数调用时插入抢占检查指令，在函数调用时检查当前 Goroutine 是否发起了抢占请求，实现基于协作的抢占式调度；
+  Goroutine 可能会因为垃圾回收和循环长时间占用资源导致程序暂停；
+
+ 基于信号的抢占式调度器 - 1.14 ~ 至今
+  实现基于信号的真抢占式调度；
+  垃圾回收在扫描栈时会触发抢占调度；
+  抢占的时间点不够多，还不能覆盖全部的边缘情况；
+
+非均匀存储访问调度器 · 提案
+ 对运行时的各种资源进行分区；
+ 实现非常复杂，到今天还没有提上日程；
+
+
+除了多线程、任务窃取和抢占式调度器之外，Go 语言社区目前还有一个非均匀存储访问（Non-uniform memory access，NUMA）调度器的提案。在这一节中，我们将依次介绍不同版本调度器的实现原理以及未来可能会实现的调度器提案。
+
+```
+

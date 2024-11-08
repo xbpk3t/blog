@@ -7,3 +7,16 @@
       des:
 
 
+- type: 网文
+  books:
+    - name: 《阎浮武事》
+    - name: 《北齐怪谈》
+    - name: 《没钱修什么仙？》
+      des: 解构，比《我说了我会时光倒流》
+    - name: 《天之下》
+
+
+- type: xxx
+  books:
+    - name: 《50 CLASSIC ESSAYS:经典随笔50首》
+    # [全球最励志英文演讲精选50篇：听演讲学英文（Global全球英文精选） (豆瓣)](https://book.douban.com/subject/30837043/)
